@@ -1,0 +1,10 @@
+language: go
+
+go:
+  - 1.9.x
+  - 1.x
+
+install: true
+
+script:
+  - make build test

@@ -1,1 +1,1 @@
-worker: rsoi
+web: rsoi

@@ -26,8 +26,15 @@ func (s *server) routes() {
 
 func (s *server) run() {
 	s.routes()
+	port := os.Getenv("PORT")
+	var addr string
+	if port == "" {
+		addr = "localhost:8080"
+	} else {
+		addr = ":" + port
+	}
 	srv := &http.Server{
-		Addr:         ":80",
+		Addr:         addr,
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,

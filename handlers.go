@@ -27,7 +27,7 @@ func (s *server) routes() {
 func (s *server) run() {
 	s.routes()
 	srv := &http.Server{
-		Addr:         "localhost:8080",
+		Addr:         ":80",
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,

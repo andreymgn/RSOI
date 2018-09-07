@@ -1,1 +1,1 @@
-web: rsoi
+web: RSOI

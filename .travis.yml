@@ -12,7 +12,7 @@ script:
 - go test -v ./...
 - go build
 after_success:
-- scp -i id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $TRAVIS_BUILD_DIR/RSOI $SSH_USER@$SSH_HOST:~/
+- rsync -avz --remove-source-files -e "ssh -i id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" $TRAVIS_BUILD_DIR/RSOI $SSH_USER@$SSH_HOST:~/
 - ssh -i id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SSH_USER@$SSH_HOST "pkill RSOI; ./RSOI > rsoi.out 2> rsoi.err < /dev/null & exit"
 env:
   global:

@@ -81,17 +81,20 @@ func add(w http.ResponseWriter, r *http.Request) {
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Internal Server Error", 500)
+		return
 	}
 
 	err = json.Unmarshal(b, &req)
 	if err != nil {
 		http.Error(w, "Unprocessable Entity", 422)
+		return
 	}
 
 	resp := response{req.Lhs + req.Rhs}
 	j, err := json.Marshal(resp)
 	if err != nil {
 		http.Error(w, "Internal Server Error", 500)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")

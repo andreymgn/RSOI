@@ -64,7 +64,7 @@ func hello(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 
-	w.Write([]byte("Hello, world"))
+	w.Write([]byte("Hello, world!"))
 }
 
 func add(w http.ResponseWriter, r *http.Request) {

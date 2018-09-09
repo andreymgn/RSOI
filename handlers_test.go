@@ -32,7 +32,7 @@ func TestHello(t *testing.T) {
 			ctype, expectedCtype)
 	}
 
-	expectedBody := []byte("Hello, world")
+	expectedBody := []byte("Hello, world!")
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal(err)

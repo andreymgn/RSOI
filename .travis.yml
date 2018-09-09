@@ -9,8 +9,8 @@ before_install:
 - chmod 600 id_rsa
 - ssh-add id_rsa
 after_success:
-- scp -i id_rsa RSOI $SSH_USER@$SSH_HOST:~/
-- ssh -i id_rsa -t $SSH_USER@$SSH_HOST './RSOI'
+- scp -i id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null RSOI $SSH_USER@$SSH_HOST:~/
+- ssh -i id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -t $SSH_USER@$SSH_HOST './RSOI'
 env:
   global:
   - secure: M4uCsDeRM/dAyeTdPMoMYfdDMJMe6s1i4XyMFmEhdgQJdkxG8mpzUwYyPR7UXwdsBmfKpf6Mk+5Hl9QgOnkPSpBfwyFyNVhaIPDQWbuzCB/qN/7P3q/s7Rp7nStUk68imgOngXyQlrvVoW7B9pYrS2DBH5RAq7axt7nDYog4MYKp5Lr9TDAXx3dPJsiA0Xpw/v6C0hdtN7fWymM8RqSJDGYk44t6oDQCp2SytTAjZqIc8Ruj7UeQIOCd9tnl/p83KPeN20S1AzmOHxus4NbIKDCECBX24kMmnV9wW1AtiaqGJYGnDrBokblqQ0a2HxndJ+dsq1LjBSRZOqGafxT/lsiKBcK5zwutc1O5Wk1Kw+BIuQmmAUJ/KBkfuZJJR6YaB6CtbcaMIuZOUXvMII2mDi0jB50JbiIq7SxTmTV/KO9XLyOuO5TIBH5APkqV+6ty0MiiXbGE56Y8lHUu4Ul2LSoT2bT6THT1OXZ2fZrpGzw2B2SEK9x84LUF+wEBr0aSprmNKWEsEoDAXaULLcuS7ILR18prYfDULKUZIdS6xYDb/uM0adc/pEL80M4a02Em2lw7iGmEVk8pQlA3GFZSN+ZYAII86A0Gu4Ne1+sI0Z3nC6dDO0CVxzc+QpvhNHXyYgJBw66Up6xxRRrt063ZKjsWiOzywUBnC1/ceaF//uo=

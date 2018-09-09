@@ -8,6 +8,9 @@ before_install:
 - eval "$(ssh-agent -s)"
 - chmod 600 id_rsa
 - ssh-add id_rsa
+script:
+- go test -v ./...
+- go build
 after_success:
 - scp -i id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $TRAVIS_BUILD_DIR/RSOI $SSH_USER@$SSH_HOST:~/
 - ssh -i id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -t $SSH_USER@$SSH_HOST './RSOI'

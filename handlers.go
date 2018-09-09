@@ -29,7 +29,7 @@ func (s *server) run() {
 	port := os.Getenv("PORT")
 	var addr string
 	if port == "" {
-		addr = "localhost:8080"
+		addr = ":8080"
 	} else {
 		addr = ":" + port
 	}

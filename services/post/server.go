@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	ErrUidNotSet   = errors.New("UUID is empty")
-	ErrTitleNotSet = errors.New("post title is not set")
+	ErrUidNotSet   = errors.New("UUID is required")
+	ErrTitleNotSet = errors.New("post title is required")
 )
 
 // Post describes a post
@@ -131,10 +131,6 @@ func (s *Server) GetPost(ctx context.Context, req *pb.GetPostRequest) (*pb.GetPo
 
 // CretePost creates a new post
 func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb.CreatePostResponse, error) {
-	if req.Title == "" {
-		return nil, ErrTitleNotSet
-	}
-
 	query := "INSERT INTO POSTS (title, url) VALUES ($1, $2)"
 	_, err := s.db.Exec(query, req.Title, req.Url)
 	if err != nil {

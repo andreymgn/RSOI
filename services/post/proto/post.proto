@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package post;
+
+service Post {
+    rpc ListPosts(ListPostsRequest) returns (ListPostsResponse);
+    rpc GetPost(GetPostRequest) returns (GetPostResponse);
+    rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
+    rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse);
+    rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
+}
+
+message ListPostsRequest {
+    int32 pageSize = 1;
+    int32 pageNumber = 2;
+}
+
+message ListPostsResponse {
+    repeated GetPostResponse posts = 1;
+}
+
+message GetPostRequest {
+    string uid = 1;
+}
+
+message GetPostResponse {
+    string uid = 1;
+    string title = 2;
+    string url = 3;
+    google.protobuf.Timestamp createdAt = 4;
+    google.protobuf.Timestamp modifiedAt = 5;
+}
+
+message CreatePostRequest {
+    string title = 1;
+    string url = 2;
+}
+
+message CreatePostResponse {
+
+}
+
+message UpdatePostRequest {
+    string uid = 1;
+    string title = 2;
+    string url = 3;
+}
+
+message UpdatePostResponse {
+
+}
+
+message DeletePostRequest {
+    string uid = 1;
+}
+
+message DeletePostResponse {
+
+}

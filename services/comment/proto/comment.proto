@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package comment;
+
+service Comment {
+    rpc ListComments(ListCommentsRequest) returns (ListCommentsResponse);
+    rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse);
+    rpc UpdateComment(UpdateCommentRequest) returns (UpdateCommentResponse);
+    rpc DeleteComment(DeleteCommentRequest) returns (DeleteCommentResponse);
+}
+
+message ListCommentsRequest {
+    string postUid = 1;
+    int32 pageSize = 2;
+    int32 pageNumber = 3;
+}
+
+message ListCommentsResponse {
+    repeated SingleComment comments = 1;
+}
+
+message SingleComment {
+    string uid = 1;
+    string postUid = 2;
+    string body = 3;
+    string parentUid = 4;
+    google.protobuf.Timestamp createdAt = 5;
+    google.protobuf.Timestamp modifiedAt = 6;
+}
+
+message CreateCommentRequest {
+    string postUid = 1;
+    string body = 2;
+    string parentUid = 3;
+}
+
+message CreateCommentResponse {
+
+}
+
+message UpdateCommentRequest {
+    string uid = 1;
+    string body = 2;
+}
+
+message UpdateCommentResponse {
+
+}
+
+message DeleteCommentRequest {
+    string uid = 1;
+}
+
+message DeleteCommentResponse {
+
+}

@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	ErrUidNotSet   = errors.New("UUID is required")
+	ErrUidNotSet   = errors.New("post UUID is required")
 	ErrTitleNotSet = errors.New("post title is required")
 )
 
@@ -119,17 +119,13 @@ func (s *Server) GetPost(ctx context.Context, req *pb.GetPostRequest) (*pb.GetPo
 	query := "SELECT * FROM posts WHERE uid=$1"
 	row := s.db.QueryRow(query, req.Uid)
 	var p Post
-	switch err := row.Scan(&p.Uid, &p.Title, &p.URL, &p.CreatedAt, &p.ModifiedAt); err {
-	case sql.ErrNoRows:
-		return nil, nil
-	case nil:
-		return p.GetPostResponse()
-	default:
+	if err := row.Scan(&p.Uid, &p.Title, &p.URL, &p.CreatedAt, &p.ModifiedAt); err != nil {
 		return nil, err
 	}
+	return p.GetPostResponse()
 }
 
-// CretePost creates a new post
+// CreatePost creates a new post
 func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb.CreatePostResponse, error) {
 	query := "INSERT INTO POSTS (title, url) VALUES ($1, $2)"
 	_, err := s.db.Exec(query, req.Title, req.Url)
@@ -157,7 +153,7 @@ func (s *Server) UpdatePost(ctx context.Context, req *pb.UpdatePostRequest) (*pb
 	return res, nil
 }
 
-// DeleltePost deletes post by ID
+// DeletePost deletes post by ID
 func (s *Server) DeletePost(ctx context.Context, req *pb.DeletePostRequest) (*pb.DeletePostResponse, error) {
 	if req.Uid == "" {
 		return nil, ErrUidNotSet

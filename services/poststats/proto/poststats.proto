@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package poststats;
+
+service PostStats {
+    rpc GetPostStats(GetPostStatsRequest) returns (GetPostStatsResponse);
+    rpc LikePost(LikePostRequest) returns (LikePostResponse);
+    rpc DislikePost(DislikePostRequest) returns (DislikePostResponse);
+    rpc IncreaseViews(IncreaseViewsRequest) returns (IncreaseViewsResponse);
+    rpc DeletePostStats(DeletePostStatsRequest) returns (DeletePostStatsResponse);
+}
+
+message GetPostStatsRequest {
+    string postUid = 1;
+}
+
+message GetPostStatsResponse {
+    string postUid = 1;
+    int32 numLikes = 2;
+    int32 numDislikes = 3;
+    int32 numViews = 4;
+}
+
+message LikePostRequest {
+    string postUid = 1;
+}
+
+message LikePostResponse {
+
+}
+
+message DislikePostRequest {
+    string postUid = 1;
+}
+
+message DislikePostResponse {
+
+}
+
+message IncreaseViewsRequest {
+    string postUid = 1;
+}
+
+message IncreaseViewsResponse {
+
+}
+
+message DeletePostStatsRequest {
+    string postUid = 1;
+}
+
+message DeletePostStatsResponse {
+
+}

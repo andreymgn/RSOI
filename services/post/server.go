@@ -1,16 +1,13 @@
 package post
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"log"
 	"net"
-	"time"
 
 	pb "github.com/andreymgn/RSOI/services/post/proto"
 	"github.com/golang/protobuf/ptypes"
-	_ "github.com/lib/pq"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -20,23 +17,14 @@ var (
 	ErrTitleNotSet = errors.New("post title is required")
 )
 
-// Post describes a post
-type Post struct {
-	Uid        string
-	Title      string
-	URL        string
-	CreatedAt  time.Time
-	ModifiedAt time.Time
-}
-
 // Server implements posts service
 type Server struct {
-	db *sql.DB
+	db datastore
 }
 
 // NewServer returns a new server
 func NewServer(connString string) (*Server, error) {
-	db, err := sql.Open("postgres", connString)
+	db, err := newDB(connString)
 	return &Server{db}, err
 }
 
@@ -58,9 +46,16 @@ func (p *Post) GetPostResponse() (*pb.GetPostResponse, error) {
 		return nil, err
 	}
 
-	modifiedAtProto, err := ptypes.TimestampProto(p.ModifiedAt)
-	if err != nil {
-		return nil, err
+	modifiedAtProto := &pb.NullableTime{}
+	if p.ModifiedAt.Valid {
+		timeModified, err := ptypes.TimestampProto(p.ModifiedAt.Time)
+		if err != nil {
+			return nil, err
+		}
+		modifiedAtProto.Time = timeModified
+		modifiedAtProto.Valid = true
+	} else {
+		modifiedAtProto.Valid = false
 	}
 
 	res := new(pb.GetPostResponse)
@@ -82,29 +77,18 @@ func (s *Server) ListPosts(ctx context.Context, req *pb.ListPostsRequest) (*pb.L
 		pageSize = req.PageSize
 	}
 
-	query := "SELECT * FROM posts ORDER BY created_at DESC LIMIT $1, $2"
-	lastRecord := req.PageNumber * pageSize
-	rows, err := s.db.Query(query, lastRecord, pageSize)
+	posts, err := s.db.getAll(pageSize, req.PageNumber)
 	if err != nil {
 		return nil, err
 	}
-
-	defer rows.Close()
-
 	res := new(pb.ListPostsResponse)
-	for rows.Next() {
-		var p Post
-		err := rows.Scan(&p.Uid, &p.Title, &p.URL, &p.CreatedAt, &p.ModifiedAt)
+	for _, post := range posts {
+		postResponse, err := post.GetPostResponse()
 		if err != nil {
 			return nil, err
 		}
 
-		post, err := p.GetPostResponse()
-		if err != nil {
-			return nil, err
-		}
-
-		res.Posts = append(res.Posts, post)
+		res.Posts = append(res.Posts, postResponse)
 	}
 
 	return res, nil
@@ -116,19 +100,20 @@ func (s *Server) GetPost(ctx context.Context, req *pb.GetPostRequest) (*pb.GetPo
 		return nil, ErrUidNotSet
 	}
 
-	query := "SELECT * FROM posts WHERE uid=$1"
-	row := s.db.QueryRow(query, req.Uid)
-	var p Post
-	if err := row.Scan(&p.Uid, &p.Title, &p.URL, &p.CreatedAt, &p.ModifiedAt); err != nil {
+	post, err := s.db.getOne(req.Uid)
+	if err != nil {
 		return nil, err
 	}
-	return p.GetPostResponse()
+
+	return post.GetPostResponse()
 }
 
 // CreatePost creates a new post
 func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb.CreatePostResponse, error) {
-	query := "INSERT INTO POSTS (title, url) VALUES ($1, $2)"
-	_, err := s.db.Exec(query, req.Title, req.Url)
+	if req.Title == "" {
+		return nil, ErrTitleNotSet
+	}
+	err := s.db.create(req.Title, req.Url)
 	if err != nil {
 		return nil, err
 	}
@@ -143,8 +128,7 @@ func (s *Server) UpdatePost(ctx context.Context, req *pb.UpdatePostRequest) (*pb
 		return nil, ErrUidNotSet
 	}
 
-	query := "UPDATE posts SET title=COALESCE(NULLIF($1,''), title), url=COALESCE(NULLIF($2,''), url) WHERE uid=$3"
-	_, err := s.db.Exec(query, req.Title, req.Url, req.Uid)
+	err := s.db.update(req.Title, req.Url, req.Uid)
 	if err != nil {
 		return nil, err
 	}
@@ -159,8 +143,7 @@ func (s *Server) DeletePost(ctx context.Context, req *pb.DeletePostRequest) (*pb
 		return nil, ErrUidNotSet
 	}
 
-	query := "DELETE FROM posts WHERE uid=$1"
-	_, err := s.db.Exec(query, req.Uid)
+	err := s.db.delete_(req.Uid)
 	if err != nil {
 		return nil, err
 	}

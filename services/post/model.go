@@ -3,8 +3,6 @@ package post
 import (
 	"database/sql"
 	"time"
-
-	"github.com/lib/pq"
 )
 
 // Post describes a post
@@ -13,7 +11,7 @@ type Post struct {
 	Title      string
 	URL        string
 	CreatedAt  time.Time
-	ModifiedAt pq.NullTime
+	ModifiedAt time.Time
 }
 
 type datastore interface {
@@ -21,7 +19,7 @@ type datastore interface {
 	getOne(string) (*Post, error)
 	create(string, string) error
 	update(string, string, string) error
-	delete_(string) error
+	delete(string) error
 }
 
 type db struct {
@@ -83,7 +81,7 @@ func (db *db) update(title, url, uid string) error {
 	return err
 }
 
-func (db *db) delete_(uid string) error {
+func (db *db) delete(uid string) error {
 	query := "DELETE FROM posts WHERE uid=$1"
 	_, err := db.Exec(query, uid)
 	return err

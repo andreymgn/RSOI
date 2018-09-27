@@ -6,36 +6,33 @@ import (
 	"time"
 
 	pb "github.com/andreymgn/RSOI/services/post/proto"
+	_ "github.com/lib/pq"
 	"golang.org/x/net/context"
-	"github.com/lib/pq"
 )
 
 var (
 	errDummy = errors.New("dummy")
-	timeNow = pq.NullTime{time.Now(), true}
-	timeNowPlus10 = pq.NullTime{time.Now().Add(time.Second * 10), true}
-	timeNull = pq.NullTime{time.Now(), false}
 )
 
-type mockdb struct {}
+type mockdb struct{}
 
 func (mdb *mockdb) getAll(pageSize, pageNumber int32) ([]*Post, error) {
 	result := make([]*Post, 0)
-	result = append(result, &Post{"dba6af76-fc50-4aab-a12a-7afd1c1b2330", "First post", "google.com", time.Now(), timeNull})
-	result = append(result, &Post{"4007dd37-ecc2-4f00-a7ba-457b9f3e7eb2", "Second post", "", time.Now(), timeNowPlus10})
-	result = append(result, &Post{"dba6af76-fc50-4aab-a12a-7afd1c1b2330", "Third post", "yandex.ru", time.Now(), timeNull})
+	result = append(result, &Post{"dba6af76-fc50-4aab-a12a-7afd1c1b2330", "First post", "google.com", time.Now(), time.Now()})
+	result = append(result, &Post{"4007dd37-ecc2-4f00-a7ba-457b9f3e7eb2", "Second post", "", time.Now(), time.Now().Add(time.Second * 10)})
+	result = append(result, &Post{"dba6af76-fc50-4aab-a12a-7afd1c1b2330", "Third post", "yandex.ru", time.Now(), time.Now()})
 	return result, nil
 }
 
 func (mdb *mockdb) getOne(uid string) (*Post, error) {
 	if uid == "success" {
-		return &Post{"dba6af76-fc50-4aab-a12a-7afd1c1b2330", "First post", "google.com", time.Now(), timeNull}, nil
+		return &Post{"dba6af76-fc50-4aab-a12a-7afd1c1b2330", "First post", "google.com", time.Now(), time.Now()}, nil
 	} else {
 		return nil, errDummy
 	}
 }
 
-func (mdb *mockdb) create(title, url string) (error) {
+func (mdb *mockdb) create(title, url string) error {
 	if title == "success" {
 		return nil
 	} else {
@@ -43,7 +40,7 @@ func (mdb *mockdb) create(title, url string) (error) {
 	}
 }
 
-func (mdb *mockdb) update(title, url, uid string) (error) {
+func (mdb *mockdb) update(title, url, uid string) error {
 	if uid == "success" {
 		return nil
 	} else {
@@ -51,7 +48,7 @@ func (mdb *mockdb) update(title, url, uid string) (error) {
 	}
 }
 
-func (mdb *mockdb) delete_(uid string) (error) {
+func (mdb *mockdb) delete(uid string) error {
 	if uid == "success" {
 		return nil
 	} else {

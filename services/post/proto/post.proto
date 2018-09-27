@@ -12,11 +12,6 @@ service Post {
     rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
 }
 
-message NullableTime {
-    google.protobuf.Timestamp time = 1;
-    bool valid = 2;
-}
-
 message ListPostsRequest {
     int32 pageSize = 1;
     int32 pageNumber = 2;
@@ -35,7 +30,7 @@ message GetPostResponse {
     string title = 2;
     string url = 3;
     google.protobuf.Timestamp createdAt = 4;
-    NullableTime modifiedAt = 5;
+    google.protobuf.Timestamp modifiedAt = 5;
 }
 
 message CreatePostRequest {

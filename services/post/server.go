@@ -46,16 +46,9 @@ func (p *Post) GetPostResponse() (*pb.GetPostResponse, error) {
 		return nil, err
 	}
 
-	modifiedAtProto := &pb.NullableTime{}
-	if p.ModifiedAt.Valid {
-		timeModified, err := ptypes.TimestampProto(p.ModifiedAt.Time)
-		if err != nil {
-			return nil, err
-		}
-		modifiedAtProto.Time = timeModified
-		modifiedAtProto.Valid = true
-	} else {
-		modifiedAtProto.Valid = false
+	modifiedAtProto, err := ptypes.TimestampProto(p.CreatedAt)
+	if err != nil {
+		return nil, err
 	}
 
 	res := new(pb.GetPostResponse)
@@ -143,7 +136,7 @@ func (s *Server) DeletePost(ctx context.Context, req *pb.DeletePostRequest) (*pb
 		return nil, ErrUidNotSet
 	}
 
-	err := s.db.delete_(req.Uid)
+	err := s.db.delete(req.Uid)
 	if err != nil {
 		return nil, err
 	}

@@ -1,12 +1,10 @@
 package comment
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"log"
 	"net"
-	"time"
 
 	pb "github.com/andreymgn/RSOI/services/comment/proto"
 	"github.com/golang/protobuf/ptypes"
@@ -20,24 +18,14 @@ var (
 	ErrCommentUidNotSet = errors.New("comment UUID is required")
 )
 
-// Comment describes comment to a post
-type Comment struct {
-	Uid        string
-	PostUid    string
-	Body       string
-	ParentUid  string
-	CreatedAt  time.Time
-	ModifiedAt time.Time
-}
-
 // Server implements comments service
 type Server struct {
-	db *sql.DB
+	db datastore
 }
 
 // NewServer returns a new server
 func NewServer(connString string) (*Server, error) {
-	db, err := sql.Open("postgres", connString)
+	db, err := newDB(connString)
 	return &Server{db}, err
 }
 
@@ -88,28 +76,18 @@ func (s *Server) ListComments(ctx context.Context, req *pb.ListCommentsRequest) 
 		pageSize = req.PageSize
 	}
 
-	query := "SELECT * FROM comments ORDER BY created_at DESC LIMIT $1, $2"
-	lastRecord := req.PageNumber * pageSize
-	rows, err := s.db.Query(query, lastRecord, pageSize)
+	comments, err := s.db.getAll(req.PostUid, pageSize, req.PageNumber)
 	if err != nil {
 		return nil, err
 	}
 
-	defer rows.Close()
-
 	res := new(pb.ListCommentsResponse)
-	for rows.Next() {
-		var c Comment
-		err := rows.Scan(&c.Uid, &c.PostUid, &c.Body, &c.ParentUid, &c.CreatedAt, &c.ModifiedAt)
+	for _, comment := range comments {
+		singleComment, err := comment.SingleComment()
 		if err != nil {
 			return nil, err
 		}
-
-		comment, err := c.SingleComment()
-		if err != nil {
-			return nil, err
-		}
-		res.Comments = append(res.Comments, comment)
+		res.Comments = append(res.Comments, singleComment)
 	}
 
 	return res, nil
@@ -117,8 +95,11 @@ func (s *Server) ListComments(ctx context.Context, req *pb.ListCommentsRequest) 
 
 // CreateComment creates a new comment
 func (s *Server) CreateComment(ctx context.Context, req *pb.CreateCommentRequest) (*pb.CreateCommentResponse, error) {
-	query := "INSERT INTO comments (post_uid, body, parent_uid) VALUES ($1, $2, $3)"
-	_, err := s.db.Query(query, req.PostUid, req.Body, req.ParentUid)
+	if req.PostUid == "" {
+		return nil, ErrPostUidNotSet
+	}
+
+	err := s.db.create(req.PostUid, req.Body, req.ParentUid)
 	if err != nil {
 		return nil, err
 	}
@@ -133,8 +114,7 @@ func (s *Server) UpdateComment(ctx context.Context, req *pb.UpdateCommentRequest
 		return nil, ErrCommentUidNotSet
 	}
 
-	query := "UPDATE comments SET body=$1 WHERE uid=$2"
-	_, err := s.db.Exec(query, req.Body, req.Uid)
+	err := s.db.update(req.Body, req.Uid)
 	if err != nil {
 		return nil, err
 	}
@@ -149,8 +129,7 @@ func (s *Server) DeleteComment(ctx context.Context, req *pb.DeleteCommentRequest
 		return nil, ErrCommentUidNotSet
 	}
 
-	query := "DELETE FROM POSTS WHERE uid=$1"
-	_, err := s.db.Exec(query, req.Uid)
+	err := s.db.delete(req.Uid)
 	if err != nil {
 		return nil, err
 	}

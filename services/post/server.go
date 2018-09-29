@@ -121,7 +121,7 @@ func (s *Server) UpdatePost(ctx context.Context, req *pb.UpdatePostRequest) (*pb
 		return nil, ErrUidNotSet
 	}
 
-	err := s.db.update(req.Title, req.Url, req.Uid)
+	err := s.db.update(req.Uid, req.Title, req.Url)
 	if err != nil {
 		return nil, err
 	}

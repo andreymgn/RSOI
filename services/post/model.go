@@ -75,7 +75,7 @@ func (db *db) create(title, url string) error {
 	return err
 }
 
-func (db *db) update(title, url, uid string) error {
+func (db *db) update(uid, title, url string) error {
 	query := "UPDATE posts SET title=COALESCE(NULLIF($1,''), title), url=COALESCE(NULLIF($2,''), url) WHERE uid=$3"
 	_, err := db.Exec(query, title, url, uid)
 	return err

@@ -40,7 +40,7 @@ func (mdb *mockdb) create(title, url string) error {
 	}
 }
 
-func (mdb *mockdb) update(title, url, uid string) error {
+func (mdb *mockdb) update(uid, title, url string) error {
 	if uid == "success" {
 		return nil
 	} else {
@@ -62,7 +62,7 @@ func TestListPosts(t *testing.T) {
 	req := &pb.ListPostsRequest{PageSize: pageSize, PageNumber: 1}
 	res, err := s.ListPosts(context.Background(), req)
 	if err != nil {
-		t.Errorf("unexpected error")
+		t.Errorf("unexpected error %v", err)
 	}
 
 	if len(res.Posts) != int(pageSize) {
@@ -79,7 +79,7 @@ func TestGetPost(t *testing.T) {
 	req := &pb.GetPostRequest{Uid: "success"}
 	_, err := s.GetPost(context.Background(), req)
 	if err != nil {
-		t.Errorf("unexpected error")
+		t.Errorf("unexpected error %v", err)
 	}
 }
 
@@ -89,13 +89,13 @@ func TestGetPostFail(t *testing.T) {
 	req := &pb.GetPostRequest{Uid: ""}
 	_, err := s.GetPost(context.Background(), req)
 	if err != ErrUidNotSet {
-		t.Errorf("unexpected error")
+		t.Errorf("unexpected error %v", err)
 	}
 
 	req = &pb.GetPostRequest{Uid: "fail"}
 	_, err = s.GetPost(context.Background(), req)
 	if err != errDummy {
-		t.Errorf("unexpected error")
+		t.Errorf("unexpected error %v", err)
 	}
 }
 
@@ -104,7 +104,7 @@ func TestCreatePost(t *testing.T) {
 	req := &pb.CreatePostRequest{Title: "success"}
 	_, err := s.CreatePost(context.Background(), req)
 	if err != nil {
-		t.Errorf("unexpected error")
+		t.Errorf("unexpected error %v", err)
 	}
 }
 
@@ -114,13 +114,13 @@ func TestCreatePostFail(t *testing.T) {
 	req := &pb.CreatePostRequest{Title: ""}
 	_, err := s.CreatePost(context.Background(), req)
 	if err != ErrTitleNotSet {
-		t.Errorf("unexpected error")
+		t.Errorf("unexpected error %v", err)
 	}
 
 	req = &pb.CreatePostRequest{Title: "fail"}
 	_, err = s.CreatePost(context.Background(), req)
 	if err != errDummy {
-		t.Errorf("unexpected error")
+		t.Errorf("unexpected error %v", err)
 	}
 }
 
@@ -129,7 +129,7 @@ func TestUpdatePost(t *testing.T) {
 	req := &pb.UpdatePostRequest{Uid: "success"}
 	_, err := s.UpdatePost(context.Background(), req)
 	if err != nil {
-		t.Errorf("unexpected error")
+		t.Errorf("unexpected error %v", err)
 	}
 }
 
@@ -139,13 +139,13 @@ func TestUpdatePostFail(t *testing.T) {
 	req := &pb.UpdatePostRequest{Uid: ""}
 	_, err := s.UpdatePost(context.Background(), req)
 	if err != ErrUidNotSet {
-		t.Errorf("unexpected error")
+		t.Errorf("unexpected error %v", err)
 	}
 
 	req = &pb.UpdatePostRequest{Uid: "fail"}
 	_, err = s.UpdatePost(context.Background(), req)
 	if err != errDummy {
-		t.Errorf("unexpected error")
+		t.Errorf("unexpected error %v", err)
 	}
 }
 
@@ -154,7 +154,7 @@ func TestDeletePost(t *testing.T) {
 	req := &pb.DeletePostRequest{Uid: "success"}
 	_, err := s.DeletePost(context.Background(), req)
 	if err != nil {
-		t.Errorf("unexpected error")
+		t.Errorf("unexpected error %v", err)
 	}
 }
 
@@ -164,12 +164,12 @@ func TestDeletePostFail(t *testing.T) {
 	req := &pb.DeletePostRequest{Uid: ""}
 	_, err := s.DeletePost(context.Background(), req)
 	if err != ErrUidNotSet {
-		t.Errorf("unexpected error")
+		t.Errorf("unexpected error %v", err)
 	}
 
 	req = &pb.DeletePostRequest{Uid: "fail"}
 	_, err = s.DeletePost(context.Background(), req)
 	if err != errDummy {
-		t.Errorf("unexpected error")
+		t.Errorf("unexpected error %v", err)
 	}
 }

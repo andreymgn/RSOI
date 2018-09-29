@@ -1,0 +1,8 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE posts_stats (
+    post_uid UUID PRIMARY KEY,
+    num_likes INTEGER NOT NULL DEFAULT 0,
+    num_dislikes INTEGER NOT NULL DEFAULT 0,
+    num_views INTEGER NOT NULL DEFAULT 0
+);

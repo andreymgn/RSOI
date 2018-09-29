@@ -1,14 +1,12 @@
 package poststats
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"log"
 	"net"
 
 	pb "github.com/andreymgn/RSOI/services/poststats/proto"
-	_ "github.com/lib/pq"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -19,12 +17,12 @@ var (
 
 // Server implements poststats service
 type Server struct {
-	db *sql.DB
+	db datastore
 }
 
 // NewServer returns a new server
 func NewServer(connString string) (*Server, error) {
-	db, err := sql.Open("postgres", connString)
+	db, err := newDB(connString)
 	return &Server{db}, err
 }
 
@@ -39,19 +37,48 @@ func (s *Server) Start(port int) error {
 	return server.Serve(lis)
 }
 
+// GetPostStatsResponse converts PostStats to GetPostStatsResponse
+func (ps *PostStats) GetPostStatsResponse() (*pb.GetPostStatsResponse, error) {
+	res := new(pb.GetPostStatsResponse)
+	res.PostUid = ps.Uid
+	res.NumLikes = ps.NumLikes
+	res.NumDislikes = ps.NumDislikes
+	res.NumViews = ps.NumViews
+
+	return res, nil
+}
+
 // GetPostStats returns post stats
 func (s *Server) GetPostStats(ctx context.Context, req *pb.GetPostStatsRequest) (*pb.GetPostStatsResponse, error) {
 	if req.PostUid == "" {
 		return nil, ErrPostUidNotSet
 	}
 
-	query := "SELECT * FROM posts_stats WHERE post_uid=$1"
-	row := s.db.QueryRow(query, req.PostUid)
-	res := new(pb.GetPostStatsResponse)
-	if err := row.Scan(&res.PostUid, &res.NumLikes, &res.NumDislikes, &res.NumViews); err != nil {
+	postStats, err := s.db.get(req.PostUid)
+	if err != nil {
 		return nil, err
 	}
 
+	res, err := postStats.GetPostStatsResponse()
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+// CreatePostStats creates a new post statistics record
+func (s *Server) CreatePostStats(ctx context.Context, req *pb.CreatePostStatsRequest) (*pb.CreatePostStatsResponse, error) {
+	if req.PostUid == "" {
+		return nil, ErrPostUidNotSet
+	}
+
+	err := s.db.create(req.PostUid)
+	if err != nil {
+		return nil, err
+	}
+
+	res := new(pb.CreatePostStatsResponse)
 	return res, nil
 }
 
@@ -61,8 +88,7 @@ func (s *Server) LikePost(ctx context.Context, req *pb.LikePostRequest) (*pb.Lik
 		return nil, ErrPostUidNotSet
 	}
 
-	query := "UPDATE posts_stats SET num_likes = num_likes + 1 WHERE post_uid=$1"
-	_, err := s.db.Exec(query, req.PostUid)
+	err := s.db.like(req.PostUid)
 	if err != nil {
 		return nil, err
 	}
@@ -77,8 +103,7 @@ func (s *Server) DislikePost(ctx context.Context, req *pb.DislikePostRequest) (*
 		return nil, ErrPostUidNotSet
 	}
 
-	query := "UPDATE posts_stats SET num_likes = num_likes - 1 WHERE post_uid=$1"
-	_, err := s.db.Exec(query, req.PostUid)
+	err := s.db.dislike(req.PostUid)
 	if err != nil {
 		return nil, err
 	}
@@ -93,8 +118,7 @@ func (s *Server) IncreaseViews(ctx context.Context, req *pb.IncreaseViewsRequest
 		return nil, ErrPostUidNotSet
 	}
 
-	query := "UPDATE posts_stats SET num_views = num_views + 1 WHERE post_uid=$1"
-	_, err := s.db.Exec(query, req.PostUid)
+	err := s.db.view(req.PostUid)
 	if err != nil {
 		return nil, err
 	}
@@ -109,8 +133,7 @@ func (s *Server) DeletePostStats(ctx context.Context, req *pb.DeletePostStatsReq
 		return nil, ErrPostUidNotSet
 	}
 
-	query := "DELETE FROM posts_stats WHERE post_uid=$1"
-	_, err := s.db.Exec(query, req.PostUid)
+	err := s.db.delete(req.PostUid)
 	if err != nil {
 		return nil, err
 	}

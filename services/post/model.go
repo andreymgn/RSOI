@@ -3,6 +3,8 @@ package post
 import (
 	"database/sql"
 	"time"
+
+	_ "github.com/lib/pq"
 )
 
 // Post describes a post

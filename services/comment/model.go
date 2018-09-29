@@ -3,6 +3,8 @@ package comment
 import (
 	"database/sql"
 	"time"
+
+	_ "github.com/lib/pq"
 )
 
 // Comment describes comment to a post

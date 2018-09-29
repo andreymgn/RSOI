@@ -64,7 +64,7 @@ func (db *db) create(postUid, body, parentUid string) error {
 	return err
 }
 
-func (db *db) update(body, uid string) error {
+func (db *db) update(uid, body string) error {
 	query := "UPDATE comments SET body=$1 WHERE uid=$2"
 	_, err := db.Exec(query, body, uid)
 	return err

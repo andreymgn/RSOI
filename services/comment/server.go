@@ -8,7 +8,6 @@ import (
 
 	pb "github.com/andreymgn/RSOI/services/comment/proto"
 	"github.com/golang/protobuf/ptypes"
-	_ "github.com/lib/pq"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -114,7 +113,7 @@ func (s *Server) UpdateComment(ctx context.Context, req *pb.UpdateCommentRequest
 		return nil, ErrCommentUidNotSet
 	}
 
-	err := s.db.update(req.Body, req.Uid)
+	err := s.db.update(req.Uid, req.Body)
 	if err != nil {
 		return nil, err
 	}

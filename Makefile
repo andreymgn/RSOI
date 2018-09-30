@@ -7,7 +7,7 @@ GOFMT=$(GOCMD) fmt
 GOTOOL=$(GOCMD) tool
 
 
-all: test
+all: build
 
 test:
 	GOCACHE=off $(GOTEST) -v ./...
@@ -28,3 +28,12 @@ proto:
 		protoc --go_out=plugins=grpc:. $$f; \
 		echo compiled: $$f; \
 	done
+
+build:
+	$(GOBUILD) ./cmd/...
+
+debug:
+	./RSOI -service post -port 8081 -conn "user=postgres password=secret dbname=postgres sslmode=disable port=5433" &
+	./RSOI -service comment -port 8082 -conn "user=postgres password=secret dbname=postgres sslmode=disable port=5434" &
+	./RSOI -service poststats -port 8083 -conn "user=postgres password=secret dbname=postgres sslmode=disable port=5435" &
+	./RSOI -service api -port 8080 -post-server "localhost:8081" -comment-server "localhost:8082" -post-stats-server "localhost:8083" &

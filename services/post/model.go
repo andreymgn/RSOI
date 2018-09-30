@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 )
 
 // Post describes a post
 type Post struct {
-	Uid        string
+	UID        uuid.UUID
 	Title      string
 	URL        string
 	CreatedAt  time.Time
@@ -18,10 +19,10 @@ type Post struct {
 
 type datastore interface {
 	getAll(int32, int32) ([]*Post, error)
-	getOne(string) (*Post, error)
-	create(string, string) error
-	update(string, string, string) error
-	delete(string) error
+	getOne(uuid.UUID) (*Post, error)
+	create(string, string) (*Post, error)
+	update(uuid.UUID, string, string) error
+	delete(uuid.UUID) error
 }
 
 type db struct {
@@ -45,10 +46,13 @@ func (db *db) getAll(pageSize, pageNumber int32) ([]*Post, error) {
 	result := make([]*Post, 0)
 	for rows.Next() {
 		post := new(Post)
-		err := rows.Scan(&post.Uid, &post.Title, &post.URL, &post.CreatedAt, &post.ModifiedAt)
+		var uid string
+		err := rows.Scan(&uid, &post.Title, &post.URL, &post.CreatedAt, &post.ModifiedAt)
 		if err != nil {
 			return nil, err
 		}
+
+		post.UID, err = uuid.Parse(uid)
 
 		result = append(result, post)
 	}
@@ -60,31 +64,46 @@ func (db *db) getAll(pageSize, pageNumber int32) ([]*Post, error) {
 	return result, nil
 }
 
-func (db *db) getOne(uid string) (*Post, error) {
+func (db *db) getOne(uid uuid.UUID) (*Post, error) {
 	query := "SELECT * FROM posts WHERE uid=$1"
-	row := db.QueryRow(query, uid)
+	row := db.QueryRow(query, uid.String())
 	result := new(Post)
-	if err := row.Scan(&result.Uid, &result.Title, &result.URL, &result.CreatedAt, &result.ModifiedAt); err != nil {
+	var stringUID string
+	if err := row.Scan(&stringUID, &result.Title, &result.URL, &result.CreatedAt, &result.ModifiedAt); err != nil {
 		return nil, err
 	}
+
+	result.UID = uid
 
 	return result, nil
 }
 
-func (db *db) create(title, url string) error {
-	query := "INSERT INTO posts (title, url) VALUES ($1, $2)"
-	_, err := db.Exec(query, title, url)
+func (db *db) create(title, url string) (*Post, error) {
+	post := new(Post)
+
+	query := "INSERT INTO posts (uid, title, url, created_at, modified_at) VALUES ($1, $2, $3, $4, $5)"
+	uid := uuid.New()
+
+	now := time.Now()
+
+	post.UID = uid
+	post.Title = title
+	post.URL = url
+	post.CreatedAt = now
+	post.ModifiedAt = now
+
+	_, err := db.Exec(query, post.UID.String(), post.Title, post.URL, post.CreatedAt, post.ModifiedAt)
+	return post, err
+}
+
+func (db *db) update(uid uuid.UUID, title, url string) error {
+	query := "UPDATE posts SET title=COALESCE(NULLIF($1,''), title), url=COALESCE(NULLIF($2,''), url), modified_at=$3 WHERE uid=$4"
+	_, err := db.Exec(query, title, url, uid.String(), time.Now())
 	return err
 }
 
-func (db *db) update(uid, title, url string) error {
-	query := "UPDATE posts SET title=COALESCE(NULLIF($1,''), title), url=COALESCE(NULLIF($2,''), url) WHERE uid=$3"
-	_, err := db.Exec(query, title, url, uid)
-	return err
-}
-
-func (db *db) delete(uid string) error {
+func (db *db) delete(uid uuid.UUID) error {
 	query := "DELETE FROM posts WHERE uid=$1"
-	_, err := db.Exec(query, uid)
+	_, err := db.Exec(query, uid.String())
 	return err
 }

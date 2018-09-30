@@ -6,8 +6,8 @@ package post;
 
 service Post {
     rpc ListPosts(ListPostsRequest) returns (ListPostsResponse);
-    rpc GetPost(GetPostRequest) returns (GetPostResponse);
-    rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
+    rpc GetPost(GetPostRequest) returns (SinglePost);
+    rpc CreatePost(CreatePostRequest) returns (SinglePost);
     rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse);
     rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
 }
@@ -18,14 +18,14 @@ message ListPostsRequest {
 }
 
 message ListPostsResponse {
-    repeated GetPostResponse posts = 1;
+    repeated SinglePost posts = 1;
 }
 
 message GetPostRequest {
     string uid = 1;
 }
 
-message GetPostResponse {
+message SinglePost {
     string uid = 1;
     string title = 2;
     string url = 3;
@@ -36,10 +36,6 @@ message GetPostResponse {
 message CreatePostRequest {
     string title = 1;
     string url = 2;
-}
-
-message CreatePostResponse {
-
 }
 
 message UpdatePostRequest {

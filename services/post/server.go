@@ -8,12 +8,12 @@ import (
 
 	pb "github.com/andreymgn/RSOI/services/post/proto"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/google/uuid"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
 var (
-	ErrUidNotSet   = errors.New("post UUID is required")
 	ErrTitleNotSet = errors.New("post title is required")
 )
 
@@ -39,8 +39,8 @@ func (s *Server) Start(port int) error {
 	return server.Serve(lis)
 }
 
-// GetPostResponse converts Post to GetPostResponse
-func (p *Post) GetPostResponse() (*pb.GetPostResponse, error) {
+// SinglePost converts Post to SinglePost
+func (p *Post) SinglePost() (*pb.SinglePost, error) {
 	createdAtProto, err := ptypes.TimestampProto(p.CreatedAt)
 	if err != nil {
 		return nil, err
@@ -51,8 +51,8 @@ func (p *Post) GetPostResponse() (*pb.GetPostResponse, error) {
 		return nil, err
 	}
 
-	res := new(pb.GetPostResponse)
-	res.Uid = p.Uid
+	res := new(pb.SinglePost)
+	res.Uid = p.UID.String()
 	res.Title = p.Title
 	res.Url = p.URL
 	res.CreatedAt = createdAtProto
@@ -76,7 +76,7 @@ func (s *Server) ListPosts(ctx context.Context, req *pb.ListPostsRequest) (*pb.L
 	}
 	res := new(pb.ListPostsResponse)
 	for _, post := range posts {
-		postResponse, err := post.GetPostResponse()
+		postResponse, err := post.SinglePost()
 		if err != nil {
 			return nil, err
 		}
@@ -88,40 +88,42 @@ func (s *Server) ListPosts(ctx context.Context, req *pb.ListPostsRequest) (*pb.L
 }
 
 // GetPost returns single post by ID
-func (s *Server) GetPost(ctx context.Context, req *pb.GetPostRequest) (*pb.GetPostResponse, error) {
-	if req.Uid == "" {
-		return nil, ErrUidNotSet
-	}
-
-	post, err := s.db.getOne(req.Uid)
+func (s *Server) GetPost(ctx context.Context, req *pb.GetPostRequest) (*pb.SinglePost, error) {
+	uid, err := uuid.Parse(req.Uid)
 	if err != nil {
 		return nil, err
 	}
 
-	return post.GetPostResponse()
+	post, err := s.db.getOne(uid)
+	if err != nil {
+		return nil, err
+	}
+
+	return post.SinglePost()
 }
 
 // CreatePost creates a new post
-func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb.CreatePostResponse, error) {
+func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb.SinglePost, error) {
 	if req.Title == "" {
 		return nil, ErrTitleNotSet
 	}
-	err := s.db.create(req.Title, req.Url)
+
+	post, err := s.db.create(req.Title, req.Url)
 	if err != nil {
 		return nil, err
 	}
 
-	res := new(pb.CreatePostResponse)
-	return res, nil
+	return post.SinglePost()
 }
 
 // UpdatePost updates post by ID
 func (s *Server) UpdatePost(ctx context.Context, req *pb.UpdatePostRequest) (*pb.UpdatePostResponse, error) {
-	if req.Uid == "" {
-		return nil, ErrUidNotSet
+	uid, err := uuid.Parse(req.Uid)
+	if err != nil {
+		return nil, err
 	}
 
-	err := s.db.update(req.Uid, req.Title, req.Url)
+	err = s.db.update(uid, req.Title, req.Url)
 	if err != nil {
 		return nil, err
 	}
@@ -132,11 +134,12 @@ func (s *Server) UpdatePost(ctx context.Context, req *pb.UpdatePostRequest) (*pb
 
 // DeletePost deletes post by ID
 func (s *Server) DeletePost(ctx context.Context, req *pb.DeletePostRequest) (*pb.DeletePostResponse, error) {
-	if req.Uid == "" {
-		return nil, ErrUidNotSet
+	uid, err := uuid.Parse(req.Uid)
+	if err != nil {
+		return nil, err
 	}
 
-	err := s.db.delete(req.Uid)
+	err = s.db.delete(uid)
 	if err != nil {
 		return nil, err
 	}

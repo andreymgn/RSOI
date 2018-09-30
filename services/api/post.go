@@ -15,7 +15,7 @@ import (
 
 func (s *Server) getPosts() http.HandlerFunc {
 	type p struct {
-		Uid         string
+		UID         string
 		Title       string
 		URL         string
 		CreatedAt   time.Time
@@ -59,7 +59,7 @@ func (s *Server) getPosts() http.HandlerFunc {
 
 		posts := make([]p, len(postResponse.Posts))
 		for i, singlePostResponse := range postResponse.Posts {
-			posts[i].Uid = singlePostResponse.Uid
+			posts[i].UID = singlePostResponse.Uid
 			posts[i].Title = singlePostResponse.Title
 			posts[i].URL = singlePostResponse.Url
 			posts[i].CreatedAt, err = ptypes.Timestamp(singlePostResponse.CreatedAt)
@@ -74,7 +74,7 @@ func (s *Server) getPosts() http.HandlerFunc {
 				return
 			}
 
-			postStats, err := s.postStatsClient.GetPostStats(ctx, &poststats.GetPostStatsRequest{PostUid: posts[i].Uid})
+			postStats, err := s.postStatsClient.GetPostStats(ctx, &poststats.GetPostStatsRequest{PostUid: posts[i].UID})
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
@@ -101,6 +101,17 @@ func (s *Server) createPost() http.HandlerFunc {
 		URL   string `json:"url"`
 	}
 
+	type response struct {
+		UID         string
+		Title       string
+		URL         string
+		CreatedAt   time.Time
+		ModifiedAt  time.Time
+		NumLikes    int32
+		NumDislikes int32
+		NumViews    int32
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req request
 		b, err := ioutil.ReadAll(r.Body)
@@ -115,19 +126,44 @@ func (s *Server) createPost() http.HandlerFunc {
 		}
 
 		ctx := r.Context()
-		_, err = s.postClient.CreatePost(ctx, &post.CreatePostRequest{Title: req.Title, Url: req.URL})
+		p, err := s.postClient.CreatePost(ctx, &post.CreatePostRequest{Title: req.Title, Url: req.URL})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
+		_, err = s.postStatsClient.CreatePostStats(ctx, &poststats.CreatePostStatsRequest{PostUid: p.Uid})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		createdAt, err := ptypes.Timestamp(p.CreatedAt)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		modifiedAt, err := ptypes.Timestamp(p.ModifiedAt)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		response := response{p.Uid, p.Title, p.Url, createdAt, modifiedAt, 0, 0, 0}
+		json, err := json.Marshal(response)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(json)
 	}
 }
 
 func (s *Server) getPost() http.HandlerFunc {
 	type response struct {
-		Uid         string
+		UID         string
 		Title       string
 		URL         string
 		CreatedAt   time.Time
@@ -149,7 +185,7 @@ func (s *Server) getPost() http.HandlerFunc {
 		}
 
 		var res response
-		res.Uid = postResponse.Uid
+		res.UID = postResponse.Uid
 		res.Title = postResponse.Title
 		res.URL = postResponse.Url
 		res.CreatedAt, err = ptypes.Timestamp(postResponse.CreatedAt)
@@ -164,7 +200,7 @@ func (s *Server) getPost() http.HandlerFunc {
 			return
 		}
 
-		postStats, err := s.postStatsClient.GetPostStats(ctx, &poststats.GetPostStatsRequest{PostUid: res.Uid})
+		postStats, err := s.postStatsClient.GetPostStats(ctx, &poststats.GetPostStatsRequest{PostUid: res.UID})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

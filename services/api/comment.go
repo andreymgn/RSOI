@@ -14,10 +14,10 @@ import (
 
 func (s *Server) getPostComments() http.HandlerFunc {
 	type c struct {
-		Uid        string
-		PostUid    string
+		UID        string
+		PostUID    string
 		Body       string
-		ParentUid  string
+		ParentUID  string
 		CreatedAt  time.Time
 		ModifiedAt time.Time
 	}
@@ -48,10 +48,10 @@ func (s *Server) getPostComments() http.HandlerFunc {
 		}
 
 		vars := mux.Vars(r)
-		postUid := vars["postuid"]
+		postUID := vars["postuid"]
 
 		ctx := r.Context()
-		commentsResponse, err := s.commentClient.ListComments(ctx, &comment.ListCommentsRequest{PostUid: postUid, PageSize: sizeNum, PageNumber: pageNum})
+		commentsResponse, err := s.commentClient.ListComments(ctx, &comment.ListCommentsRequest{PostUid: postUID, PageSize: sizeNum, PageNumber: pageNum})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -59,10 +59,10 @@ func (s *Server) getPostComments() http.HandlerFunc {
 
 		comments := make([]c, len(commentsResponse.Comments))
 		for i, singleComment := range commentsResponse.Comments {
-			comments[i].Uid = singleComment.Uid
-			comments[i].PostUid = singleComment.PostUid
+			comments[i].UID = singleComment.Uid
+			comments[i].PostUID = singleComment.PostUid
 			comments[i].Body = singleComment.Body
-			comments[i].ParentUid = singleComment.ParentUid
+			comments[i].ParentUID = singleComment.ParentUid
 			comments[i].CreatedAt, err = ptypes.Timestamp(singleComment.CreatedAt)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -89,7 +89,7 @@ func (s *Server) getPostComments() http.HandlerFunc {
 func (s *Server) createComment() http.HandlerFunc {
 	type request struct {
 		Body      string `json:"body"`
-		ParentUid string `json:"parent_uid"`
+		ParentUID string `json:"parent_uid"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -106,10 +106,10 @@ func (s *Server) createComment() http.HandlerFunc {
 		}
 
 		vars := mux.Vars(r)
-		postUid := vars["postuid"]
+		postUID := vars["postuid"]
 
 		ctx := r.Context()
-		_, err = s.commentClient.CreateComment(ctx, &comment.CreateCommentRequest{PostUid: postUid, Body: req.Body, ParentUid: req.ParentUid})
+		_, err = s.commentClient.CreateComment(ctx, &comment.CreateCommentRequest{PostUid: postUID, Body: req.Body, ParentUid: req.ParentUID})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

@@ -1,20 +1,15 @@
 package comment
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"net"
 
 	pb "github.com/andreymgn/RSOI/services/comment/proto"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/google/uuid"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-)
-
-var (
-	ErrPostUidNotSet    = errors.New("post UUID is required")
-	ErrCommentUidNotSet = errors.New("comment UUID is required")
 )
 
 // Server implements comments service
@@ -52,10 +47,10 @@ func (c *Comment) SingleComment() (*pb.SingleComment, error) {
 	}
 
 	res := new(pb.SingleComment)
-	res.Uid = c.Uid
-	res.PostUid = c.PostUid
+	res.Uid = c.UID.String()
+	res.PostUid = c.PostUID.String()
 	res.Body = c.Body
-	res.ParentUid = c.ParentUid
+	res.ParentUid = c.ParentUID.String()
 	res.CreatedAt = createdAtProto
 	res.ModifiedAt = modifiedAtProto
 
@@ -64,10 +59,6 @@ func (c *Comment) SingleComment() (*pb.SingleComment, error) {
 
 // ListComments returns all comments of post
 func (s *Server) ListComments(ctx context.Context, req *pb.ListCommentsRequest) (*pb.ListCommentsResponse, error) {
-	if req.PostUid == "" {
-		return nil, ErrPostUidNotSet
-	}
-
 	var pageSize int32
 	if req.PageSize == 0 {
 		pageSize = 10
@@ -75,7 +66,12 @@ func (s *Server) ListComments(ctx context.Context, req *pb.ListCommentsRequest) 
 		pageSize = req.PageSize
 	}
 
-	comments, err := s.db.getAll(req.PostUid, pageSize, req.PageNumber)
+	postUID, err := uuid.Parse(req.PostUid)
+	if err != nil {
+		return nil, err
+	}
+
+	comments, err := s.db.getAll(postUID, pageSize, req.PageNumber)
 	if err != nil {
 		return nil, err
 	}
@@ -93,27 +89,30 @@ func (s *Server) ListComments(ctx context.Context, req *pb.ListCommentsRequest) 
 }
 
 // CreateComment creates a new comment
-func (s *Server) CreateComment(ctx context.Context, req *pb.CreateCommentRequest) (*pb.CreateCommentResponse, error) {
-	if req.PostUid == "" {
-		return nil, ErrPostUidNotSet
-	}
-
-	err := s.db.create(req.PostUid, req.Body, req.ParentUid)
+func (s *Server) CreateComment(ctx context.Context, req *pb.CreateCommentRequest) (*pb.SingleComment, error) {
+	postUID, err := uuid.Parse(req.PostUid)
 	if err != nil {
 		return nil, err
 	}
 
-	res := new(pb.CreateCommentResponse)
-	return res, nil
+	parentUID, err := uuid.Parse(req.ParentUid)
+
+	comment, err := s.db.create(postUID, req.Body, parentUID)
+	if err != nil {
+		return nil, err
+	}
+
+	return comment.SingleComment()
 }
 
 // UpdateComment updates comment by ID
 func (s *Server) UpdateComment(ctx context.Context, req *pb.UpdateCommentRequest) (*pb.UpdateCommentResponse, error) {
-	if req.Uid == "" {
-		return nil, ErrCommentUidNotSet
+	uid, err := uuid.Parse(req.Uid)
+	if err != nil {
+		return nil, err
 	}
 
-	err := s.db.update(req.Uid, req.Body)
+	err = s.db.update(uid, req.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -124,11 +123,12 @@ func (s *Server) UpdateComment(ctx context.Context, req *pb.UpdateCommentRequest
 
 // DeleteComment deletes post by ID
 func (s *Server) DeleteComment(ctx context.Context, req *pb.DeleteCommentRequest) (*pb.DeleteCommentResponse, error) {
-	if req.Uid == "" {
-		return nil, ErrCommentUidNotSet
+	uid, err := uuid.Parse(req.Uid)
+	if err != nil {
+		return nil, err
 	}
 
-	err := s.db.delete(req.Uid)
+	err = s.db.delete(uid)
 	if err != nil {
 		return nil, err
 	}

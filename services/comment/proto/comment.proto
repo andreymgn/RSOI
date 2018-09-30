@@ -6,7 +6,7 @@ package comment;
 
 service Comment {
     rpc ListComments(ListCommentsRequest) returns (ListCommentsResponse);
-    rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse);
+    rpc CreateComment(CreateCommentRequest) returns (SingleComment);
     rpc UpdateComment(UpdateCommentRequest) returns (UpdateCommentResponse);
     rpc DeleteComment(DeleteCommentRequest) returns (DeleteCommentResponse);
 }
@@ -34,10 +34,6 @@ message CreateCommentRequest {
     string postUid = 1;
     string body = 2;
     string parentUid = 3;
-}
-
-message CreateCommentResponse {
-
 }
 
 message UpdateCommentRequest {

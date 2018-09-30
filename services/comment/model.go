@@ -4,24 +4,25 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 )
 
 // Comment describes comment to a post
 type Comment struct {
-	Uid        string
-	PostUid    string
+	UID        uuid.UUID
+	PostUID    uuid.UUID
 	Body       string
-	ParentUid  string
+	ParentUID  uuid.UUID
 	CreatedAt  time.Time
 	ModifiedAt time.Time
 }
 
 type datastore interface {
-	getAll(string, int32, int32) ([]*Comment, error)
-	create(string, string, string) error
-	update(string, string) error
-	delete(string) error
+	getAll(uuid.UUID, int32, int32) ([]*Comment, error)
+	create(uuid.UUID, string, uuid.UUID) (*Comment, error)
+	update(uuid.UUID, string) error
+	delete(uuid.UUID) error
 }
 
 type db struct {
@@ -33,7 +34,7 @@ func newDB(connString string) (*db, error) {
 	return &db{postgres}, err
 }
 
-func (db *db) getAll(postUid string, pageSize, pageNumber int32) ([]*Comment, error) {
+func (db *db) getAll(postUID uuid.UUID, pageSize, pageNumber int32) ([]*Comment, error) {
 	query := "SELECT * FROM comments ORDER BY created_at DESC LIMIT $1, $2"
 	lastRecord := pageNumber * pageSize
 	rows, err := db.Query(query, lastRecord, pageSize)
@@ -45,9 +46,29 @@ func (db *db) getAll(postUid string, pageSize, pageNumber int32) ([]*Comment, er
 	result := make([]*Comment, 0)
 	for rows.Next() {
 		comment := new(Comment)
-		err := rows.Scan(&comment.Uid, &comment.PostUid, &comment.Body, &comment.ParentUid, &comment.CreatedAt, &comment.ModifiedAt)
+		var uid, pUID, parentUID string
+		err := rows.Scan(&uid, &pUID, &comment.Body, &parentUID, &comment.CreatedAt, &comment.ModifiedAt)
 		if err != nil {
 			return nil, err
+		}
+
+		comment.UID, err = uuid.Parse(uid)
+		if err != nil {
+			return nil, err
+		}
+
+		comment.PostUID, err = uuid.Parse(pUID)
+		if err != nil {
+			return nil, err
+		}
+
+		if parentUID != "" {
+			comment.ParentUID, err = uuid.Parse(parentUID)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			comment.ParentUID = uuid.Nil
 		}
 
 		result = append(result, comment)
@@ -60,20 +81,23 @@ func (db *db) getAll(postUid string, pageSize, pageNumber int32) ([]*Comment, er
 	return result, nil
 }
 
-func (db *db) create(postUid, body, parentUid string) error {
-	query := "INSERT INTO comments (post_uid, body, parent_uid) VALUES ($1, $2, $3)"
-	_, err := db.Query(query, postUid, body, parentUid)
+func (db *db) create(postUID uuid.UUID, body string, parentUID uuid.UUID) (*Comment, error) {
+	query := "INSERT INTO comments (uid, post_uid, body, parent_uid, created_at, modified_at) VALUES ($1, $2, $3, $4, $5, $6)"
+
+	uid := uuid.New()
+	now := time.Now()
+	_, err := db.Query(query, uid.String(), postUID.String(), body, parentUID.String(), now, now)
+	return nil, err
+}
+
+func (db *db) update(uid uuid.UUID, body string) error {
+	query := "UPDATE comments SET body=$1, modified_at=$2 WHERE uid=$3"
+	_, err := db.Exec(query, body, time.Now(), uid.String())
 	return err
 }
 
-func (db *db) update(uid, body string) error {
-	query := "UPDATE comments SET body=$1 WHERE uid=$2"
-	_, err := db.Exec(query, body, uid)
-	return err
-}
-
-func (db *db) delete(uid string) error {
+func (db *db) delete(uid uuid.UUID) error {
 	query := "DELETE FROM POSTS WHERE uid=$1"
-	_, err := db.Exec(query, uid)
+	_, err := db.Exec(query, uid.String())
 	return err
 }

@@ -92,6 +92,15 @@ func (s *Server) createComment() http.HandlerFunc {
 		ParentUID string `json:"parent_uid"`
 	}
 
+	type response struct {
+		UID        string
+		PostUID    string
+		Body       string
+		ParentUID  string
+		CreatedAt  time.Time
+		ModifiedAt time.Time
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req request
 		b, err := ioutil.ReadAll(r.Body)
@@ -109,13 +118,32 @@ func (s *Server) createComment() http.HandlerFunc {
 		postUID := vars["postuid"]
 
 		ctx := r.Context()
-		_, err = s.commentClient.CreateComment(ctx, &comment.CreateCommentRequest{PostUid: postUID, Body: req.Body, ParentUid: req.ParentUID})
+		c, err := s.commentClient.CreateComment(ctx, &comment.CreateCommentRequest{PostUid: postUID, Body: req.Body, ParentUid: req.ParentUID})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
+		createdAt, err := ptypes.Timestamp(c.CreatedAt)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		modifiedAt, err := ptypes.Timestamp(c.ModifiedAt)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		response := response{c.Uid, c.PostUid, c.Body, c.ParentUid, createdAt, modifiedAt}
+		json, err := json.Marshal(response)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(json)
 	}
 }
 

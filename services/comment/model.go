@@ -35,9 +35,9 @@ func newDB(connString string) (*db, error) {
 }
 
 func (db *db) getAll(postUID uuid.UUID, pageSize, pageNumber int32) ([]*Comment, error) {
-	query := "SELECT * FROM comments ORDER BY created_at DESC LIMIT $1, $2"
+	query := "SELECT * FROM comments ORDER BY created_at DESC LIMIT $1 OFFSET $2"
 	lastRecord := pageNumber * pageSize
-	rows, err := db.Query(query, lastRecord, pageSize)
+	rows, err := db.Query(query, pageSize, lastRecord)
 	if err != nil {
 		return nil, err
 	}
@@ -82,12 +82,22 @@ func (db *db) getAll(postUID uuid.UUID, pageSize, pageNumber int32) ([]*Comment,
 }
 
 func (db *db) create(postUID uuid.UUID, body string, parentUID uuid.UUID) (*Comment, error) {
+	comment := new(Comment)
+
 	query := "INSERT INTO comments (uid, post_uid, body, parent_uid, created_at, modified_at) VALUES ($1, $2, $3, $4, $5, $6)"
 
 	uid := uuid.New()
 	now := time.Now()
+
+	comment.UID = uid
+	comment.PostUID = postUID
+	comment.Body = body
+	comment.ParentUID = parentUID
+	comment.CreatedAt = now
+	comment.ModifiedAt = now
+
 	_, err := db.Query(query, uid.String(), postUID.String(), body, parentUID.String(), now, now)
-	return nil, err
+	return comment, err
 }
 
 func (db *db) update(uid uuid.UUID, body string) error {

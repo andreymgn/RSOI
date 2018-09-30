@@ -46,7 +46,7 @@ func (p *Post) SinglePost() (*pb.SinglePost, error) {
 		return nil, err
 	}
 
-	modifiedAtProto, err := ptypes.TimestampProto(p.CreatedAt)
+	modifiedAtProto, err := ptypes.TimestampProto(p.ModifiedAt)
 	if err != nil {
 		return nil, err
 	}

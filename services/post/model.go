@@ -34,9 +34,9 @@ func newDB(connString string) (*db, error) {
 }
 
 func (db *db) getAll(pageSize, pageNumber int32) ([]*Post, error) {
-	query := "SELECT * FROM posts ORDER BY created_at DESC LIMIT $1, $2"
+	query := "SELECT * FROM posts ORDER BY created_at DESC LIMIT $1 OFFSET $2"
 	lastRecord := pageNumber * pageSize
-	rows, err := db.Query(query, lastRecord, pageSize)
+	rows, err := db.Query(query, pageSize, lastRecord)
 	if err != nil {
 		return nil, err
 	}

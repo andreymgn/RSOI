@@ -11,6 +11,6 @@ CREATE TABLE comments (
 );
 
 CREATE TRIGGER posts_moddatetime
-    BEFORE UPDATE ON posts
+    BEFORE UPDATE ON comments
     FOR EACH ROW
     EXECUTE PROCEDURE moddatetime(modified_at);

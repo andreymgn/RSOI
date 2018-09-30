@@ -3,8 +3,8 @@ syntax = "proto3";
 package poststats;
 
 service PostStats {
-    rpc GetPostStats(GetPostStatsRequest) returns (GetPostStatsResponse);
-    rpc CreatePostStats(CreatePostStatsRequest) returns (CreatePostStatsResponse);
+    rpc GetPostStats(GetPostStatsRequest) returns (SinglePostStats);
+    rpc CreatePostStats(CreatePostStatsRequest) returns (SinglePostStats);
     rpc LikePost(LikePostRequest) returns (LikePostResponse);
     rpc DislikePost(DislikePostRequest) returns (DislikePostResponse);
     rpc IncreaseViews(IncreaseViewsRequest) returns (IncreaseViewsResponse);
@@ -15,7 +15,7 @@ message GetPostStatsRequest {
     string postUid = 1;
 }
 
-message GetPostStatsResponse {
+message SinglePostStats {
     string postUid = 1;
     int32 numLikes = 2;
     int32 numDislikes = 3;
@@ -24,10 +24,6 @@ message GetPostStatsResponse {
 
 message CreatePostStatsRequest {
     string postUid = 1;
-}
-
-message CreatePostStatsResponse {
-    
 }
 
 message LikePostRequest {

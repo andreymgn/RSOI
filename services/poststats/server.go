@@ -1,18 +1,14 @@
 package poststats
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"net"
 
 	pb "github.com/andreymgn/RSOI/services/poststats/proto"
+	"github.com/google/uuid"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-)
-
-var (
-	ErrPostUidNotSet = errors.New("post UUID is required")
 )
 
 // Server implements poststats service
@@ -37,10 +33,10 @@ func (s *Server) Start(port int) error {
 	return server.Serve(lis)
 }
 
-// GetPostStatsResponse converts PostStats to GetPostStatsResponse
-func (ps *PostStats) GetPostStatsResponse() (*pb.GetPostStatsResponse, error) {
-	res := new(pb.GetPostStatsResponse)
-	res.PostUid = ps.Uid
+// SinglePostStats converts PostStats to SinglePostStats
+func (ps *PostStats) SinglePostStats() (*pb.SinglePostStats, error) {
+	res := new(pb.SinglePostStats)
+	res.PostUid = ps.UID.String()
 	res.NumLikes = ps.NumLikes
 	res.NumDislikes = ps.NumDislikes
 	res.NumViews = ps.NumViews
@@ -49,17 +45,18 @@ func (ps *PostStats) GetPostStatsResponse() (*pb.GetPostStatsResponse, error) {
 }
 
 // GetPostStats returns post stats
-func (s *Server) GetPostStats(ctx context.Context, req *pb.GetPostStatsRequest) (*pb.GetPostStatsResponse, error) {
-	if req.PostUid == "" {
-		return nil, ErrPostUidNotSet
-	}
-
-	postStats, err := s.db.get(req.PostUid)
+func (s *Server) GetPostStats(ctx context.Context, req *pb.GetPostStatsRequest) (*pb.SinglePostStats, error) {
+	uid, err := uuid.Parse(req.PostUid)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := postStats.GetPostStatsResponse()
+	postStats, err := s.db.get(uid)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := postStats.SinglePostStats()
 	if err != nil {
 		return nil, err
 	}
@@ -68,27 +65,28 @@ func (s *Server) GetPostStats(ctx context.Context, req *pb.GetPostStatsRequest) 
 }
 
 // CreatePostStats creates a new post statistics record
-func (s *Server) CreatePostStats(ctx context.Context, req *pb.CreatePostStatsRequest) (*pb.CreatePostStatsResponse, error) {
-	if req.PostUid == "" {
-		return nil, ErrPostUidNotSet
-	}
-
-	err := s.db.create(req.PostUid)
+func (s *Server) CreatePostStats(ctx context.Context, req *pb.CreatePostStatsRequest) (*pb.SinglePostStats, error) {
+	uid, err := uuid.Parse(req.PostUid)
 	if err != nil {
 		return nil, err
 	}
 
-	res := new(pb.CreatePostStatsResponse)
-	return res, nil
+	postStats, err := s.db.create(uid)
+	if err != nil {
+		return nil, err
+	}
+
+	return postStats.SinglePostStats()
 }
 
 // LikePost increases number of post likes
 func (s *Server) LikePost(ctx context.Context, req *pb.LikePostRequest) (*pb.LikePostResponse, error) {
-	if req.PostUid == "" {
-		return nil, ErrPostUidNotSet
+	uid, err := uuid.Parse(req.PostUid)
+	if err != nil {
+		return nil, err
 	}
 
-	err := s.db.like(req.PostUid)
+	err = s.db.like(uid)
 	if err != nil {
 		return nil, err
 	}
@@ -99,11 +97,12 @@ func (s *Server) LikePost(ctx context.Context, req *pb.LikePostRequest) (*pb.Lik
 
 // DislikePost increases number of post dislikes
 func (s *Server) DislikePost(ctx context.Context, req *pb.DislikePostRequest) (*pb.DislikePostResponse, error) {
-	if req.PostUid == "" {
-		return nil, ErrPostUidNotSet
+	uid, err := uuid.Parse(req.PostUid)
+	if err != nil {
+		return nil, err
 	}
 
-	err := s.db.dislike(req.PostUid)
+	err = s.db.dislike(uid)
 	if err != nil {
 		return nil, err
 	}
@@ -114,11 +113,12 @@ func (s *Server) DislikePost(ctx context.Context, req *pb.DislikePostRequest) (*
 
 // IncreaseViews increases number of post views
 func (s *Server) IncreaseViews(ctx context.Context, req *pb.IncreaseViewsRequest) (*pb.IncreaseViewsResponse, error) {
-	if req.PostUid == "" {
-		return nil, ErrPostUidNotSet
+	uid, err := uuid.Parse(req.PostUid)
+	if err != nil {
+		return nil, err
 	}
 
-	err := s.db.view(req.PostUid)
+	err = s.db.view(uid)
 	if err != nil {
 		return nil, err
 	}
@@ -129,11 +129,12 @@ func (s *Server) IncreaseViews(ctx context.Context, req *pb.IncreaseViewsRequest
 
 // DeletePostStats deletes stats of a post
 func (s *Server) DeletePostStats(ctx context.Context, req *pb.DeletePostStatsRequest) (*pb.DeletePostStatsResponse, error) {
-	if req.PostUid == "" {
-		return nil, ErrPostUidNotSet
+	uid, err := uuid.Parse(req.PostUid)
+	if err != nil {
+		return nil, err
 	}
 
-	err := s.db.delete(req.PostUid)
+	err = s.db.delete(uid)
 	if err != nil {
 		return nil, err
 	}

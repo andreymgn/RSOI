@@ -3,7 +3,7 @@ package api
 import "net/http"
 
 func (s *Server) routes() {
-	postsRouter := s.router.PathPrefix("/api/posts").Subrouter()
+	postsRouter := s.router.Mux.PathPrefix("/api/posts").Subrouter()
 	postsRouter.HandleFunc("/", s.getPosts()).Methods("GET")
 	postsRouter.HandleFunc("/", s.createPost()).Methods("POST")
 	postsRouter.HandleFunc("/{uid}", s.getPost()).Methods("GET")
@@ -18,5 +18,5 @@ func (s *Server) routes() {
 	postsRouter.HandleFunc("/{postuid}/comments/{uid}", s.updateComment()).Methods("PATCH")
 	postsRouter.HandleFunc("/{postuid}/comments/{uid}", s.deleteComment()).Methods("DELETE")
 
-	s.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("Hello, world!")) })
+	s.router.Mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("Hello, world!")) })
 }

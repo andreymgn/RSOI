@@ -3,15 +3,22 @@ package main
 import (
 	"log"
 
+	"github.com/andreymgn/RSOI/pkg/tracer"
 	"github.com/andreymgn/RSOI/services/api"
 	comment "github.com/andreymgn/RSOI/services/comment/proto"
 	post "github.com/andreymgn/RSOI/services/post/proto"
 	poststats "github.com/andreymgn/RSOI/services/poststats/proto"
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"google.golang.org/grpc"
 )
 
-func runAPI(port int, postAddress, commentAddress, postStatsAddress string) error {
-	postConn, err := grpc.Dial(postAddress, grpc.WithInsecure())
+func runAPI(port int, postAddr, commentAddr, postStatsAddr, jaegerAddr string) error {
+	tracer, err := tracer.NewTracer("api", jaegerAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	postConn, err := grpc.Dial(postAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(tracer)))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -19,7 +26,7 @@ func runAPI(port int, postAddress, commentAddress, postStatsAddress string) erro
 	defer postConn.Close()
 	pc := post.NewPostClient(postConn)
 
-	commentConn, err := grpc.Dial(commentAddress, grpc.WithInsecure())
+	commentConn, err := grpc.Dial(commentAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(tracer)))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,7 +34,7 @@ func runAPI(port int, postAddress, commentAddress, postStatsAddress string) erro
 	defer commentConn.Close()
 	cc := comment.NewCommentClient(commentConn)
 
-	postStatsConn, err := grpc.Dial(postStatsAddress, grpc.WithInsecure())
+	postStatsConn, err := grpc.Dial(postStatsAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(tracer)))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -35,7 +42,7 @@ func runAPI(port int, postAddress, commentAddress, postStatsAddress string) erro
 	defer postStatsConn.Close()
 	psc := poststats.NewPostStatsClient(postStatsConn)
 
-	server := api.NewServer(pc, cc, psc)
+	server := api.NewServer(pc, cc, psc, tracer)
 	server.Start(port)
 
 	return nil

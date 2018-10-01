@@ -8,6 +8,8 @@ import (
 	pb "github.com/andreymgn/RSOI/services/comment/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	opentracing "github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -24,8 +26,8 @@ func NewServer(connString string) (*Server, error) {
 }
 
 // Start starts a server
-func (s *Server) Start(port int) error {
-	server := grpc.NewServer()
+func (s *Server) Start(port int, tracer opentracing.Tracer) error {
+	server := grpc.NewServer(grpc.UnaryInterceptor(otgrpc.OpenTracingServerInterceptor(tracer)))
 	pb.RegisterCommentServer(server, s)
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {

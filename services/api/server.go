@@ -9,22 +9,23 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/andreymgn/RSOI/pkg/tracer"
 	comment "github.com/andreymgn/RSOI/services/comment/proto"
 	post "github.com/andreymgn/RSOI/services/post/proto"
 	poststats "github.com/andreymgn/RSOI/services/poststats/proto"
-	"github.com/gorilla/mux"
+	opentracing "github.com/opentracing/opentracing-go"
 )
 
 type Server struct {
-	router          *mux.Router
+	router          *tracer.TracedRouter
 	postClient      post.PostClient
 	commentClient   comment.CommentClient
 	postStatsClient poststats.PostStatsClient
 }
 
 // NewServer returns new instance of Server
-func NewServer(pc post.PostClient, cc comment.CommentClient, psc poststats.PostStatsClient) *Server {
-	return &Server{mux.NewRouter(), pc, cc, psc}
+func NewServer(pc post.PostClient, cc comment.CommentClient, psc poststats.PostStatsClient, tr opentracing.Tracer) *Server {
+	return &Server{tracer.NewRouter(tr), pc, cc, psc}
 }
 
 // Start starts HTTP server which can shut down gracefully

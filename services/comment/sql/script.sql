@@ -1,8 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS moddatetime;
 
 CREATE TABLE comments (
-    uid UUID PRIMARY KEY DEFAULT,
+    uid UUID PRIMARY KEY,
     post_uid UUID NOT NULL,
     body TEXT NOT NULL,
     parent_uid UUID,

@@ -1,0 +1,102 @@
+version: "3"
+services:
+  psql_post:
+    image: postgres
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_DB=post
+      - POSTGRES_USER=post
+      - POSTGRES_PASSWORD=postpass
+    volumes:
+      - ./services/post/sql/script.sql:/docker-entrypoint-initdb.d/init.sql
+
+  psql_comment:
+    image: postgres
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_DB=comment
+      - POSTGRES_USER=comment
+      - POSTGRES_PASSWORD=commentpass
+    volumes:
+      - ./services/comment/sql/script.sql:/docker-entrypoint-initdb.d/init.sql
+
+  psql_poststats:
+    image: postgres
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_DB=poststats
+      - POSTGRES_USER=poststats
+      - POSTGRES_PASSWORD=poststatspass
+    volumes:
+      - ./services/poststats/sql/script.sql:/docker-entrypoint-initdb.d/init.sql
+
+  jaeger:
+      image: jaegertracing/all-in-one:latest
+      expose:
+        - "14269"
+        - "5778"
+        - "14268"
+        - "14267"
+        - "5775/udp"
+        - "6831/udp"
+        - "6832/udp"
+      ports:
+        - "16686:16686"
+
+  post:
+    build: .
+    command: RSOI -service post -port 8080 -jaeger-addr jaeger:6831 -conn "user=post password=postpass dbname=post sslmode=disable port=5432 host=psql_post"
+    expose:
+      - "8080"
+    links:
+      - jaeger
+      - psql_post
+    depends_on:
+      - jaeger
+      - psql_post
+
+  comment:
+    build: .
+    command: RSOI -service comment -port 8080 -jaeger-addr jaeger:6831 -conn "user=comment password=commentpass dbname=comment sslmode=disable port=5432 host=psql_comment" -jaeger-addr localhost:6831
+    expose:
+      - "8080"
+    restart: on-failure
+    links:
+      - jaeger
+      - psql_comment
+    depends_on:
+      - jaeger
+      - psql_comment
+
+  poststats:
+    build: .
+    command: RSOI -service poststats -port 8080 -jaeger-addr jaeger:6831 -conn "user=poststats password=poststatspass dbname=poststats sslmode=disable port=5432 host=psql_poststats" -jaeger-addr localhost:6831
+    expose:
+      - "8080"
+    restart: on-failure
+    links:
+      - jaeger
+      - psql_poststats
+    depends_on:
+      - jaeger
+      - psql_poststats
+
+  api:
+    build: .
+    command: RSOI -service api -port 8080 -post-server "post:8080" -comment-server "comment:8080" -post-stats-server "poststats:8080" -jaeger-addr jaeger:6831
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    links:
+      - jaeger
+      - post
+      - comment
+      - poststats
+    depends_on:
+      - jaeger
+      - post
+      - comment
+      - poststats

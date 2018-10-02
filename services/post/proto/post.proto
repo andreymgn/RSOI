@@ -10,6 +10,7 @@ service Post {
     rpc CreatePost(CreatePostRequest) returns (SinglePost);
     rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse);
     rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
+    rpc CheckExists(CheckExistsRequest) returns (CheckExistsResponse);
 }
 
 message ListPostsRequest {
@@ -54,4 +55,12 @@ message DeletePostRequest {
 
 message DeletePostResponse {
 
+}
+
+message CheckExistsRequest {
+    string uid = 1;
+}
+
+message CheckExistsResponse {
+    bool exists = 1;
 }

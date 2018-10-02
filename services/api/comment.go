@@ -8,6 +8,7 @@ import (
 	"time"
 
 	comment "github.com/andreymgn/RSOI/services/comment/proto"
+	post "github.com/andreymgn/RSOI/services/post/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/gorilla/mux"
 )
@@ -51,9 +52,20 @@ func (s *Server) getPostComments() http.HandlerFunc {
 		postUID := vars["postuid"]
 
 		ctx := r.Context()
+		checkExistsResponse, err := s.postClient.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
+		if err != nil {
+			handleRPCError(w, err)
+			return
+		}
+
+		if !checkExistsResponse.Exists {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
 		commentsResponse, err := s.commentClient.ListComments(ctx, &comment.ListCommentsRequest{PostUid: postUID, PageSize: sizeNum, PageNumber: pageNum})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
@@ -65,20 +77,20 @@ func (s *Server) getPostComments() http.HandlerFunc {
 			comments[i].ParentUID = singleComment.ParentUid
 			comments[i].CreatedAt, err = ptypes.Timestamp(singleComment.CreatedAt)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				handleRPCError(w, err)
 				return
 			}
 
 			comments[i].ModifiedAt, err = ptypes.Timestamp(singleComment.ModifiedAt)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				handleRPCError(w, err)
 				return
 			}
 		}
 
 		json, err := json.Marshal(response{comments})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
@@ -119,6 +131,17 @@ func (s *Server) createComment() http.HandlerFunc {
 		postUID := vars["postuid"]
 
 		ctx := r.Context()
+		checkExistsResponse, err := s.postClient.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
+		if err != nil {
+			handleRPCError(w, err)
+			return
+		}
+
+		if !checkExistsResponse.Exists {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
 		c, err := s.commentClient.CreateComment(ctx, &comment.CreateCommentRequest{PostUid: postUID, Body: req.Body, ParentUid: req.ParentUID})
 		if err != nil {
 			handleRPCError(w, err)
@@ -169,8 +192,20 @@ func (s *Server) updateComment() http.HandlerFunc {
 
 		vars := mux.Vars(r)
 		uid := vars["uid"]
+		postUID := vars["postuid"]
 
 		ctx := r.Context()
+		checkExistsResponse, err := s.postClient.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
+		if err != nil {
+			handleRPCError(w, err)
+			return
+		}
+
+		if !checkExistsResponse.Exists {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
 		_, err = s.commentClient.UpdateComment(ctx, &comment.UpdateCommentRequest{Uid: uid, Body: req.Body})
 		if err != nil {
 			handleRPCError(w, err)
@@ -185,9 +220,21 @@ func (s *Server) deleteComment() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		uid := vars["uid"]
+		postUID := vars["postuid"]
 
 		ctx := r.Context()
-		_, err := s.commentClient.DeleteComment(ctx, &comment.DeleteCommentRequest{Uid: uid})
+		checkExistsResponse, err := s.postClient.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
+		if err != nil {
+			handleRPCError(w, err)
+			return
+		}
+
+		if !checkExistsResponse.Exists {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		_, err = s.commentClient.DeleteComment(ctx, &comment.DeleteCommentRequest{Uid: uid})
 		if err != nil {
 			handleRPCError(w, err)
 			return

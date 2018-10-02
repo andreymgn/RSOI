@@ -67,6 +67,14 @@ func (mdb *mockdb) delete(uid uuid.UUID) error {
 	return errDummy
 }
 
+func (mdb *mockdb) checkExists(uid uuid.UUID) (bool, error) {
+	if uid == uuid.Nil {
+		return true, nil
+	}
+
+	return false, errDummy
+}
+
 func TestListPosts(t *testing.T) {
 	s := &Server{&mockdb{}}
 	var pageSize int32 = 3
@@ -92,7 +100,6 @@ func TestGetPost(t *testing.T) {
 
 func TestGetPostFail(t *testing.T) {
 	s := &Server{&mockdb{}}
-
 	req := &pb.GetPostRequest{Uid: ""}
 	_, err := s.GetPost(context.Background(), req)
 	if err == nil {
@@ -136,7 +143,6 @@ func TestUpdatePost(t *testing.T) {
 
 func TestUpdatePostFail(t *testing.T) {
 	s := &Server{&mockdb{}}
-
 	req := &pb.UpdatePostRequest{Uid: ""}
 	_, err := s.UpdatePost(context.Background(), req)
 	if err == nil {
@@ -155,9 +161,26 @@ func TestDeletePost(t *testing.T) {
 
 func TestDeletePostFail(t *testing.T) {
 	s := &Server{&mockdb{}}
-
 	req := &pb.DeletePostRequest{Uid: ""}
 	_, err := s.DeletePost(context.Background(), req)
+	if err == nil {
+		t.Errorf("expected error, got nothing")
+	}
+}
+
+func TestCheckExists(t *testing.T) {
+	s := &Server{&mockdb{}}
+	req := &pb.CheckExistsRequest{Uid: nilUIDString}
+	_, err := s.CheckExists(context.Background(), req)
+	if err != nil {
+		t.Errorf("unexpected error %v", err)
+	}
+}
+
+func TestCheckExistsFail(t *testing.T) {
+	s := &Server{&mockdb{}}
+	req := &pb.CheckExistsRequest{Uid: ""}
+	_, err := s.CheckExists(context.Background(), req)
 	if err == nil {
 		t.Errorf("expected error, got nothing")
 	}

@@ -149,3 +149,20 @@ func (s *Server) DeletePost(ctx context.Context, req *pb.DeletePostRequest) (*pb
 	res := new(pb.DeletePostResponse)
 	return res, nil
 }
+
+// CheckExists checks if post with ID exists in DB
+func (s *Server) CheckExists(ctx context.Context, req *pb.CheckExistsRequest) (*pb.CheckExistsResponse, error) {
+	uid, err := uuid.Parse(req.Uid)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := s.db.checkExists(uid)
+	if err != nil {
+		return nil, err
+	}
+
+	res := new(pb.CheckExistsResponse)
+	res.Exists = result
+	return res, nil
+}

@@ -29,6 +29,7 @@ type datastore interface {
 	create(string, string) (*Post, error)
 	update(uuid.UUID, string, string) error
 	delete(uuid.UUID) error
+	checkExists(uuid.UUID) (bool, error)
 }
 
 type db struct {
@@ -132,4 +133,18 @@ func (db *db) delete(uid uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (db *db) checkExists(uid uuid.UUID) (bool, error) {
+	query := "SELECT EXISTS(SELECT 1 FROM posts WHERE uid=$1)"
+	row := db.QueryRow(query, uid.String())
+	var result bool
+	switch err := row.Scan(&result); err {
+	case nil:
+		return result, nil
+	case sql.ErrNoRows:
+		return false, notFound
+	default:
+		return false, err
+	}
 }

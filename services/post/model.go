@@ -98,7 +98,7 @@ func (db *db) create(title, url string) (*Post, error) {
 
 func (db *db) update(uid uuid.UUID, title, url string) error {
 	query := "UPDATE posts SET title=COALESCE(NULLIF($1,''), title), url=COALESCE(NULLIF($2,''), url), modified_at=$3 WHERE uid=$4"
-	_, err := db.Exec(query, title, url, uid.String(), time.Now())
+	_, err := db.Exec(query, title, url, time.Now(), uid.String())
 	return err
 }
 

@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	comment "github.com/andreymgn/RSOI/services/comment/proto"
 	post "github.com/andreymgn/RSOI/services/post/proto"
 	poststats "github.com/andreymgn/RSOI/services/poststats/proto"
 	"github.com/golang/protobuf/ptypes"
@@ -269,6 +270,26 @@ func (s *Server) deletePost() http.HandlerFunc {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
+		}
+
+		_, err = s.postStatsClient.DeletePostStats(ctx, &poststats.DeletePostStatsRequest{PostUid: uid})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		comments, err := s.commentClient.ListComments(ctx, &comment.ListCommentsRequest{PostUid: uid})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		for _, c := range comments.Comments {
+			s.commentClient.DeleteComment(ctx, &comment.DeleteCommentRequest{Uid: c.Uid})
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
 		}
 
 		w.WriteHeader(http.StatusOK)

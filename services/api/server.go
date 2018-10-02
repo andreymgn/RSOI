@@ -28,8 +28,16 @@ func NewServer(pc post.PostClient, cc comment.CommentClient, psc poststats.PostS
 	return &Server{tracer.NewRouter(tr), pc, cc, psc}
 }
 
+func setContentType(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "application/json")
+		next.ServeHTTP(w, r)
+	})
+}
+
 // Start starts HTTP server which can shut down gracefully
 func (s *Server) Start(port int) {
+	s.router.Mux.Use(setContentType)
 	s.routes()
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", port),

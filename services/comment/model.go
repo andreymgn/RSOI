@@ -107,7 +107,7 @@ func (db *db) update(uid uuid.UUID, body string) error {
 }
 
 func (db *db) delete(uid uuid.UUID) error {
-	query := "DELETE FROM POSTS WHERE uid=$1"
+	query := "DELETE FROM comments WHERE uid=$1"
 	_, err := db.Exec(query, uid.String())
 	return err
 }

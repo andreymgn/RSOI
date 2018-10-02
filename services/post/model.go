@@ -6,6 +6,12 @@ import (
 
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+var (
+	notFound = status.Error(codes.NotFound, "post not found")
 )
 
 // Post describes a post
@@ -69,13 +75,15 @@ func (db *db) getOne(uid uuid.UUID) (*Post, error) {
 	row := db.QueryRow(query, uid.String())
 	result := new(Post)
 	var stringUID string
-	if err := row.Scan(&stringUID, &result.Title, &result.URL, &result.CreatedAt, &result.ModifiedAt); err != nil {
+	switch err := row.Scan(&stringUID, &result.Title, &result.URL, &result.CreatedAt, &result.ModifiedAt); err {
+	case nil:
+		result.UID = uid
+		return result, nil
+	case sql.ErrNoRows:
+		return nil, notFound
+	default:
 		return nil, err
 	}
-
-	result.UID = uid
-
-	return result, nil
 }
 
 func (db *db) create(title, url string) (*Post, error) {
@@ -98,12 +106,30 @@ func (db *db) create(title, url string) (*Post, error) {
 
 func (db *db) update(uid uuid.UUID, title, url string) error {
 	query := "UPDATE posts SET title=COALESCE(NULLIF($1,''), title), url=COALESCE(NULLIF($2,''), url), modified_at=$3 WHERE uid=$4"
-	_, err := db.Exec(query, title, url, time.Now(), uid.String())
-	return err
+	result, err := db.Exec(query, title, url, time.Now(), uid.String())
+	nRows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if nRows == 0 {
+		return notFound
+	}
+
+	return nil
 }
 
 func (db *db) delete(uid uuid.UUID) error {
 	query := "DELETE FROM posts WHERE uid=$1"
-	_, err := db.Exec(query, uid.String())
-	return err
+	result, err := db.Exec(query, uid.String())
+	nRows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if nRows == 0 {
+		return notFound
+	}
+
+	return nil
 }

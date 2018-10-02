@@ -14,6 +14,8 @@ import (
 	post "github.com/andreymgn/RSOI/services/post/proto"
 	poststats "github.com/andreymgn/RSOI/services/poststats/proto"
 	opentracing "github.com/opentracing/opentracing-go"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Server struct {
@@ -26,6 +28,20 @@ type Server struct {
 // NewServer returns new instance of Server
 func NewServer(pc post.PostClient, cc comment.CommentClient, psc poststats.PostStatsClient, tr opentracing.Tracer) *Server {
 	return &Server{tracer.NewRouter(tr), pc, cc, psc}
+}
+
+func handleRPCError(w http.ResponseWriter, err error) {
+	st, ok := status.FromError(err)
+	if !ok {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	switch st.Code() {
+	case codes.NotFound:
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 }
 
 func setContentType(next http.Handler) http.Handler {

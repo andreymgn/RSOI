@@ -54,7 +54,7 @@ func (s *Server) getPosts() http.HandlerFunc {
 		ctx := r.Context()
 		postResponse, err := s.postClient.ListPosts(ctx, &post.ListPostsRequest{PageSize: sizeNum, PageNumber: pageNum})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
@@ -65,19 +65,19 @@ func (s *Server) getPosts() http.HandlerFunc {
 			posts[i].URL = singlePostResponse.Url
 			posts[i].CreatedAt, err = ptypes.Timestamp(singlePostResponse.CreatedAt)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				handleRPCError(w, err)
 				return
 			}
 
 			posts[i].ModifiedAt, err = ptypes.Timestamp(singlePostResponse.ModifiedAt)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				handleRPCError(w, err)
 				return
 			}
 
 			postStats, err := s.postStatsClient.GetPostStats(ctx, &poststats.GetPostStatsRequest{PostUid: posts[i].UID})
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				handleRPCError(w, err)
 				return
 			}
 
@@ -88,7 +88,7 @@ func (s *Server) getPosts() http.HandlerFunc {
 
 		json, err := json.Marshal(response{posts})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
@@ -117,44 +117,45 @@ func (s *Server) createPost() http.HandlerFunc {
 		var req request
 		b, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		err = json.Unmarshal(b, &req)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+			return
 		}
 
 		ctx := r.Context()
 		p, err := s.postClient.CreatePost(ctx, &post.CreatePostRequest{Title: req.Title, Url: req.URL})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		_, err = s.postStatsClient.CreatePostStats(ctx, &poststats.CreatePostStatsRequest{PostUid: p.Uid})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		createdAt, err := ptypes.Timestamp(p.CreatedAt)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		modifiedAt, err := ptypes.Timestamp(p.ModifiedAt)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		response := response{p.Uid, p.Title, p.Url, createdAt, modifiedAt, 0, 0, 0}
 		json, err := json.Marshal(response)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
@@ -181,7 +182,7 @@ func (s *Server) getPost() http.HandlerFunc {
 		ctx := r.Context()
 		postResponse, err := s.postClient.GetPost(ctx, &post.GetPostRequest{Uid: uid})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
@@ -191,19 +192,19 @@ func (s *Server) getPost() http.HandlerFunc {
 		res.URL = postResponse.Url
 		res.CreatedAt, err = ptypes.Timestamp(postResponse.CreatedAt)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		res.ModifiedAt, err = ptypes.Timestamp(postResponse.ModifiedAt)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		postStats, err := s.postStatsClient.GetPostStats(ctx, &poststats.GetPostStatsRequest{PostUid: res.UID})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
@@ -213,13 +214,13 @@ func (s *Server) getPost() http.HandlerFunc {
 
 		json, err := json.Marshal(res)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		_, err = s.postStatsClient.IncreaseViews(ctx, &poststats.IncreaseViewsRequest{PostUid: uid})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
@@ -237,13 +238,14 @@ func (s *Server) updatePost() http.HandlerFunc {
 		var req request
 		b, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		err = json.Unmarshal(b, &req)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+			return
 		}
 
 		vars := mux.Vars(r)
@@ -252,7 +254,7 @@ func (s *Server) updatePost() http.HandlerFunc {
 		ctx := r.Context()
 		_, err = s.postClient.UpdatePost(ctx, &post.UpdatePostRequest{Uid: uid, Title: req.Title, Url: req.URL})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
@@ -268,26 +270,26 @@ func (s *Server) deletePost() http.HandlerFunc {
 		ctx := r.Context()
 		_, err := s.postClient.DeletePost(ctx, &post.DeletePostRequest{Uid: uid})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		_, err = s.postStatsClient.DeletePostStats(ctx, &poststats.DeletePostStatsRequest{PostUid: uid})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		comments, err := s.commentClient.ListComments(ctx, &comment.ListCommentsRequest{PostUid: uid})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		for _, c := range comments.Comments {
 			s.commentClient.DeleteComment(ctx, &comment.DeleteCommentRequest{Uid: c.Uid})
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				handleRPCError(w, err)
 				return
 			}
 		}
@@ -304,7 +306,7 @@ func (s *Server) likePost() http.HandlerFunc {
 		ctx := r.Context()
 		_, err := s.postStatsClient.LikePost(ctx, &poststats.LikePostRequest{PostUid: uid})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
@@ -320,7 +322,7 @@ func (s *Server) dislikePost() http.HandlerFunc {
 		ctx := r.Context()
 		_, err := s.postStatsClient.DislikePost(ctx, &poststats.DislikePostRequest{PostUid: uid})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 

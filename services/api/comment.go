@@ -105,13 +105,14 @@ func (s *Server) createComment() http.HandlerFunc {
 		var req request
 		b, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		err = json.Unmarshal(b, &req)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+			return
 		}
 
 		vars := mux.Vars(r)
@@ -120,26 +121,26 @@ func (s *Server) createComment() http.HandlerFunc {
 		ctx := r.Context()
 		c, err := s.commentClient.CreateComment(ctx, &comment.CreateCommentRequest{PostUid: postUID, Body: req.Body, ParentUid: req.ParentUID})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		createdAt, err := ptypes.Timestamp(c.CreatedAt)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		modifiedAt, err := ptypes.Timestamp(c.ModifiedAt)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		response := response{c.Uid, c.PostUid, c.Body, c.ParentUid, createdAt, modifiedAt}
 		json, err := json.Marshal(response)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
@@ -156,13 +157,14 @@ func (s *Server) updateComment() http.HandlerFunc {
 		var req request
 		b, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
 		err = json.Unmarshal(b, &req)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+			return
 		}
 
 		vars := mux.Vars(r)
@@ -171,7 +173,7 @@ func (s *Server) updateComment() http.HandlerFunc {
 		ctx := r.Context()
 		_, err = s.commentClient.UpdateComment(ctx, &comment.UpdateCommentRequest{Uid: uid, Body: req.Body})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 
@@ -187,7 +189,7 @@ func (s *Server) deleteComment() http.HandlerFunc {
 		ctx := r.Context()
 		_, err := s.commentClient.DeleteComment(ctx, &comment.DeleteCommentRequest{Uid: uid})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleRPCError(w, err)
 			return
 		}
 

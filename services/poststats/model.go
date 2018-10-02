@@ -5,6 +5,12 @@ import (
 
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+var (
+	notFound = status.Error(codes.NotFound, "post statustics not found")
 )
 
 // PostStats describes post statistics
@@ -38,12 +44,15 @@ func (db *db) get(uid uuid.UUID) (*PostStats, error) {
 	row := db.QueryRow(query, uid.String())
 	result := new(PostStats)
 	var uidString string
-	if err := row.Scan(&uidString, &result.NumLikes, &result.NumDislikes, &result.NumViews); err != nil {
+	switch err := row.Scan(&uidString, &result.NumLikes, &result.NumDislikes, &result.NumViews); err {
+	case nil:
+		result.UID = uid
+		return result, nil
+	case sql.ErrNoRows:
+		return nil, notFound
+	default:
 		return nil, err
 	}
-	result.UID = uid
-
-	return result, nil
 }
 
 func (db *db) create(uid uuid.UUID) (*PostStats, error) {
@@ -59,24 +68,60 @@ func (db *db) create(uid uuid.UUID) (*PostStats, error) {
 
 func (db *db) like(uid uuid.UUID) error {
 	query := "UPDATE posts_stats SET num_likes = num_likes + 1 WHERE post_uid=$1"
-	_, err := db.Exec(query, uid.String())
-	return err
+	result, err := db.Exec(query, uid.String())
+	nRows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if nRows == 0 {
+		return notFound
+	}
+
+	return nil
 }
 
 func (db *db) dislike(uid uuid.UUID) error {
 	query := "UPDATE posts_stats SET num_dislikes = num_dislikes + 1 WHERE post_uid=$1"
-	_, err := db.Exec(query, uid.String())
-	return err
+	result, err := db.Exec(query, uid.String())
+	nRows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if nRows == 0 {
+		return notFound
+	}
+
+	return nil
 }
 
 func (db *db) view(uid uuid.UUID) error {
 	query := "UPDATE posts_stats SET num_views = num_views + 1 WHERE post_uid=$1"
-	_, err := db.Exec(query, uid.String())
-	return err
+	result, err := db.Exec(query, uid.String())
+	nRows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if nRows == 0 {
+		return notFound
+	}
+
+	return nil
 }
 
 func (db *db) delete(uid uuid.UUID) error {
 	query := "DELETE FROM posts_stats WHERE post_uid=$1"
-	_, err := db.Exec(query, uid.String())
-	return err
+	result, err := db.Exec(query, uid.String())
+	nRows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if nRows == 0 {
+		return notFound
+	}
+
+	return nil
 }

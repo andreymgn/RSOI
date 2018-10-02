@@ -6,6 +6,12 @@ import (
 
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+var (
+	notFound = status.Error(codes.NotFound, "comment not found")
 )
 
 // Comment describes comment to a post
@@ -102,12 +108,30 @@ func (db *db) create(postUID uuid.UUID, body string, parentUID uuid.UUID) (*Comm
 
 func (db *db) update(uid uuid.UUID, body string) error {
 	query := "UPDATE comments SET body=$1, modified_at=$2 WHERE uid=$3"
-	_, err := db.Exec(query, body, time.Now(), uid.String())
-	return err
+	result, err := db.Exec(query, body, time.Now(), uid.String())
+	nRows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if nRows == 0 {
+		return notFound
+	}
+
+	return nil
 }
 
 func (db *db) delete(uid uuid.UUID) error {
 	query := "DELETE FROM comments WHERE uid=$1"
-	_, err := db.Exec(query, uid.String())
-	return err
+	result, err := db.Exec(query, uid.String())
+	nRows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if nRows == 0 {
+		return notFound
+	}
+
+	return nil
 }

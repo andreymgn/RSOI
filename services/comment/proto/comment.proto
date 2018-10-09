@@ -19,6 +19,8 @@ message ListCommentsRequest {
 
 message ListCommentsResponse {
     repeated SingleComment comments = 1;
+    int32 pageSize = 2;
+    int32 pageNumber = 3;
 }
 
 message SingleComment {

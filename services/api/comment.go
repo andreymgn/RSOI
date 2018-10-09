@@ -24,7 +24,9 @@ func (s *Server) getPostComments() http.HandlerFunc {
 	}
 
 	type response struct {
-		Comments []c
+		Comments   []c
+		PageSize   int32
+		PageNumber int32
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -88,7 +90,9 @@ func (s *Server) getPostComments() http.HandlerFunc {
 			}
 		}
 
-		json, err := json.Marshal(response{comments})
+		resp := response{comments, sizeNum, pageNum}
+
+		json, err := json.Marshal(resp)
 		if err != nil {
 			handleRPCError(w, err)
 			return

@@ -87,6 +87,9 @@ func (s *Server) ListComments(ctx context.Context, req *pb.ListCommentsRequest) 
 		res.Comments = append(res.Comments, singleComment)
 	}
 
+	res.PageSize = pageSize
+	res.PageNumber = req.PageNumber
+
 	return res, nil
 }
 

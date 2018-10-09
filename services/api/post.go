@@ -27,7 +27,9 @@ func (s *Server) getPosts() http.HandlerFunc {
 	}
 
 	type response struct {
-		Posts []p
+		Posts      []p
+		PageSize   int32
+		PageNumber int32
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -86,7 +88,8 @@ func (s *Server) getPosts() http.HandlerFunc {
 			posts[i].NumViews = postStats.NumViews
 		}
 
-		json, err := json.Marshal(response{posts})
+		resp := response{posts, sizeNum, pageNum}
+		json, err := json.Marshal(resp)
 		if err != nil {
 			handleRPCError(w, err)
 			return

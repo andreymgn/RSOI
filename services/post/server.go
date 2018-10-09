@@ -86,6 +86,9 @@ func (s *Server) ListPosts(ctx context.Context, req *pb.ListPostsRequest) (*pb.L
 		res.Posts = append(res.Posts, postResponse)
 	}
 
+	res.PageSize = pageSize
+	res.PageNumber = req.PageNumber
+
 	return res, nil
 }
 

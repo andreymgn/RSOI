@@ -20,6 +20,8 @@ message ListPostsRequest {
 
 message ListPostsResponse {
     repeated SinglePost posts = 1;
+    int32 pageSize = 2;
+    int32 pageNumber = 3;
 }
 
 message GetPostRequest {

@@ -121,14 +121,14 @@ func TestCreatePostFail(t *testing.T) {
 
 	req := &pb.CreatePostRequest{Title: ""}
 	_, err := s.CreatePost(context.Background(), req)
-	if err != ErrTitleNotSet {
+	if err != statusNoPostTitle {
 		t.Errorf("unexpected error %v", err)
 	}
 
 	req = &pb.CreatePostRequest{Title: "fail"}
 	_, err = s.CreatePost(context.Background(), req)
-	if err != errDummy {
-		t.Errorf("unexpected error %v", err)
+	if err == nil {
+		t.Errorf("expected error, got nothing")
 	}
 }
 

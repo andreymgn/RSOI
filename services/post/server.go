@@ -1,10 +1,12 @@
 package post
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"net"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	pb "github.com/andreymgn/RSOI/services/post/proto"
 	"github.com/golang/protobuf/ptypes"
@@ -16,8 +18,14 @@ import (
 )
 
 var (
-	ErrTitleNotSet = errors.New("post title is required")
+	statusNoPostTitle = status.Error(codes.InvalidArgument, "post title is required")
+	statusNotFound    = status.Error(codes.NotFound, "post not found")
+	statusInvalidUUID = status.Error(codes.InvalidArgument, "invalid UUID")
 )
+
+func internalError(err error) error {
+	return status.Error(codes.Internal, err.Error())
+}
 
 // Server implements posts service
 type Server struct {
@@ -45,12 +53,12 @@ func (s *Server) Start(port int, tracer opentracing.Tracer) error {
 func (p *Post) SinglePost() (*pb.SinglePost, error) {
 	createdAtProto, err := ptypes.TimestampProto(p.CreatedAt)
 	if err != nil {
-		return nil, err
+		return nil, internalError(err)
 	}
 
 	modifiedAtProto, err := ptypes.TimestampProto(p.ModifiedAt)
 	if err != nil {
-		return nil, err
+		return nil, internalError(err)
 	}
 
 	res := new(pb.SinglePost)
@@ -74,7 +82,7 @@ func (s *Server) ListPosts(ctx context.Context, req *pb.ListPostsRequest) (*pb.L
 
 	posts, err := s.db.getAll(pageSize, req.PageNumber)
 	if err != nil {
-		return nil, err
+		return nil, internalError(err)
 	}
 	res := new(pb.ListPostsResponse)
 	for _, post := range posts {
@@ -96,26 +104,29 @@ func (s *Server) ListPosts(ctx context.Context, req *pb.ListPostsRequest) (*pb.L
 func (s *Server) GetPost(ctx context.Context, req *pb.GetPostRequest) (*pb.SinglePost, error) {
 	uid, err := uuid.Parse(req.Uid)
 	if err != nil {
-		return nil, err
+		return nil, statusInvalidUUID
 	}
 
 	post, err := s.db.getOne(uid)
-	if err != nil {
-		return nil, err
+	switch err {
+	case nil:
+		return post.SinglePost()
+	case errNotFound:
+		return nil, statusNotFound
+	default:
+		return nil, internalError(err)
 	}
-
-	return post.SinglePost()
 }
 
 // CreatePost creates a new post
 func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb.SinglePost, error) {
 	if req.Title == "" {
-		return nil, ErrTitleNotSet
+		return nil, statusNoPostTitle
 	}
 
 	post, err := s.db.create(req.Title, req.Url)
 	if err != nil {
-		return nil, err
+		return nil, internalError(err)
 	}
 
 	return post.SinglePost()
@@ -125,47 +136,54 @@ func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb
 func (s *Server) UpdatePost(ctx context.Context, req *pb.UpdatePostRequest) (*pb.UpdatePostResponse, error) {
 	uid, err := uuid.Parse(req.Uid)
 	if err != nil {
-		return nil, err
+		return nil, statusInvalidUUID
 	}
 
 	err = s.db.update(uid, req.Title, req.Url)
-	if err != nil {
-		return nil, err
+	switch err {
+	case nil:
+		return new(pb.UpdatePostResponse), nil
+	case errNotFound:
+		return nil, statusNotFound
+	default:
+		return nil, internalError(err)
 	}
-
-	res := new(pb.UpdatePostResponse)
-	return res, nil
 }
 
 // DeletePost deletes post by ID
 func (s *Server) DeletePost(ctx context.Context, req *pb.DeletePostRequest) (*pb.DeletePostResponse, error) {
 	uid, err := uuid.Parse(req.Uid)
 	if err != nil {
-		return nil, err
+		return nil, statusInvalidUUID
 	}
 
 	err = s.db.delete(uid)
-	if err != nil {
-		return nil, err
+	switch err {
+	case nil:
+		return new(pb.DeletePostResponse), nil
+	case errNotFound:
+		return nil, statusNotFound
+	default:
+		return nil, internalError(err)
 	}
-
-	res := new(pb.DeletePostResponse)
-	return res, nil
 }
 
 // CheckExists checks if post with ID exists in DB
 func (s *Server) CheckExists(ctx context.Context, req *pb.CheckExistsRequest) (*pb.CheckExistsResponse, error) {
 	uid, err := uuid.Parse(req.Uid)
 	if err != nil {
-		return nil, err
+		return nil, statusInvalidUUID
 	}
 
 	result, err := s.db.checkExists(uid)
-	if err != nil {
-		return nil, err
+	switch err {
+	case nil:
+		res := new(pb.CheckExistsResponse)
+		res.Exists = result
+		return res, nil
+	case errNotFound:
+		return nil, statusNotFound
+	default:
+		return nil, internalError(err)
 	}
-
-	res := new(pb.CheckExistsResponse)
-	res.Exists = result
-	return res, nil
 }

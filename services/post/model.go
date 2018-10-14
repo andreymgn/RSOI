@@ -2,16 +2,16 @@ package post
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 var (
-	notFound = status.Error(codes.NotFound, "post not found")
+	errNotFound   = errors.New("post not found")
+	errNotCreated = errors.New("post not created")
 )
 
 // Post describes a post
@@ -81,7 +81,7 @@ func (db *db) getOne(uid uuid.UUID) (*Post, error) {
 		result.UID = uid
 		return result, nil
 	case sql.ErrNoRows:
-		return nil, notFound
+		return nil, errNotFound
 	default:
 		return nil, err
 	}
@@ -101,8 +101,17 @@ func (db *db) create(title, url string) (*Post, error) {
 	post.CreatedAt = now
 	post.ModifiedAt = now
 
-	_, err := db.Exec(query, post.UID.String(), post.Title, post.URL, post.CreatedAt, post.ModifiedAt)
-	return post, err
+	result, err := db.Exec(query, post.UID.String(), post.Title, post.URL, post.CreatedAt, post.ModifiedAt)
+	nRows, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+
+	if nRows == 0 {
+		return nil, errNotCreated
+	}
+
+	return post, nil
 }
 
 func (db *db) update(uid uuid.UUID, title, url string) error {
@@ -114,7 +123,7 @@ func (db *db) update(uid uuid.UUID, title, url string) error {
 	}
 
 	if nRows == 0 {
-		return notFound
+		return errNotFound
 	}
 
 	return nil
@@ -129,7 +138,7 @@ func (db *db) delete(uid uuid.UUID) error {
 	}
 
 	if nRows == 0 {
-		return notFound
+		return errNotFound
 	}
 
 	return nil
@@ -143,7 +152,7 @@ func (db *db) checkExists(uid uuid.UUID) (bool, error) {
 	case nil:
 		return result, nil
 	case sql.ErrNoRows:
-		return false, notFound
+		return false, errNotFound
 	default:
 		return false, err
 	}

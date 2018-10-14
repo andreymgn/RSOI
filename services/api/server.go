@@ -41,6 +41,12 @@ func handleRPCError(w http.ResponseWriter, err error) {
 	case codes.NotFound:
 		w.WriteHeader(http.StatusNotFound)
 		return
+	case codes.InvalidArgument:
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		return
+	default:
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 }
 

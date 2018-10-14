@@ -11,7 +11,18 @@ import (
 	opentracing "github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
+
+var (
+	statusNotFound    = status.Error(codes.NotFound, "post not found")
+	statusInvalidUUID = status.Error(codes.InvalidArgument, "invalid UUID")
+)
+
+func internalError(err error) error {
+	return status.Error(codes.Internal, err.Error())
+}
 
 // Server implements poststats service
 type Server struct {
@@ -50,32 +61,30 @@ func (ps *PostStats) SinglePostStats() (*pb.SinglePostStats, error) {
 func (s *Server) GetPostStats(ctx context.Context, req *pb.GetPostStatsRequest) (*pb.SinglePostStats, error) {
 	uid, err := uuid.Parse(req.PostUid)
 	if err != nil {
-		return nil, err
+		return nil, statusInvalidUUID
 	}
 
 	postStats, err := s.db.get(uid)
-	if err != nil {
-		return nil, err
+	switch err {
+	case nil:
+		return postStats.SinglePostStats()
+	case errNotFound:
+		return nil, statusNotFound
+	default:
+		return nil, internalError(err)
 	}
-
-	res, err := postStats.SinglePostStats()
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
 }
 
 // CreatePostStats creates a new post statistics record
 func (s *Server) CreatePostStats(ctx context.Context, req *pb.CreatePostStatsRequest) (*pb.SinglePostStats, error) {
 	uid, err := uuid.Parse(req.PostUid)
 	if err != nil {
-		return nil, err
+		return nil, statusInvalidUUID
 	}
 
 	postStats, err := s.db.create(uid)
 	if err != nil {
-		return nil, err
+		return nil, internalError(err)
 	}
 
 	return postStats.SinglePostStats()
@@ -85,62 +94,70 @@ func (s *Server) CreatePostStats(ctx context.Context, req *pb.CreatePostStatsReq
 func (s *Server) LikePost(ctx context.Context, req *pb.LikePostRequest) (*pb.LikePostResponse, error) {
 	uid, err := uuid.Parse(req.PostUid)
 	if err != nil {
-		return nil, err
+		return nil, statusInvalidUUID
 	}
 
 	err = s.db.like(uid)
-	if err != nil {
-		return nil, err
+	switch err {
+	case nil:
+		return new(pb.LikePostResponse), nil
+	case errNotFound:
+		return nil, statusNotFound
+	default:
+		return nil, internalError(err)
 	}
-
-	res := new(pb.LikePostResponse)
-	return res, nil
 }
 
 // DislikePost increases number of post dislikes
 func (s *Server) DislikePost(ctx context.Context, req *pb.DislikePostRequest) (*pb.DislikePostResponse, error) {
 	uid, err := uuid.Parse(req.PostUid)
 	if err != nil {
-		return nil, err
+		return nil, statusInvalidUUID
 	}
 
 	err = s.db.dislike(uid)
-	if err != nil {
-		return nil, err
+	switch err {
+	case nil:
+		return new(pb.DislikePostResponse), nil
+	case errNotFound:
+		return nil, statusNotFound
+	default:
+		return nil, internalError(err)
 	}
-
-	res := new(pb.DislikePostResponse)
-	return res, nil
 }
 
 // IncreaseViews increases number of post views
 func (s *Server) IncreaseViews(ctx context.Context, req *pb.IncreaseViewsRequest) (*pb.IncreaseViewsResponse, error) {
 	uid, err := uuid.Parse(req.PostUid)
 	if err != nil {
-		return nil, err
+		return nil, statusInvalidUUID
 	}
 
 	err = s.db.view(uid)
-	if err != nil {
-		return nil, err
+	switch err {
+	case nil:
+		return new(pb.IncreaseViewsResponse), nil
+	case errNotFound:
+		return nil, statusNotFound
+	default:
+		return nil, internalError(err)
 	}
-
-	res := new(pb.IncreaseViewsResponse)
-	return res, nil
 }
 
 // DeletePostStats deletes stats of a post
 func (s *Server) DeletePostStats(ctx context.Context, req *pb.DeletePostStatsRequest) (*pb.DeletePostStatsResponse, error) {
 	uid, err := uuid.Parse(req.PostUid)
 	if err != nil {
-		return nil, err
+		return nil, statusInvalidUUID
 	}
 
 	err = s.db.delete(uid)
-	if err != nil {
-		return nil, err
+	switch err {
+	case nil:
+		return new(pb.DeletePostStatsResponse), nil
+	case errNotFound:
+		return nil, statusNotFound
+	default:
+		return nil, internalError(err)
 	}
-
-	res := new(pb.DeletePostStatsResponse)
-	return res, nil
 }

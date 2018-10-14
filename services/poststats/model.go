@@ -2,15 +2,15 @@ package poststats
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 var (
-	notFound = status.Error(codes.NotFound, "post statustics not found")
+	errNotFound   = errors.New("post statustics not found")
+	errNotCreated = errors.New("post stats not created")
 )
 
 // PostStats describes post statistics
@@ -49,7 +49,7 @@ func (db *db) get(uid uuid.UUID) (*PostStats, error) {
 		result.UID = uid
 		return result, nil
 	case sql.ErrNoRows:
-		return nil, notFound
+		return nil, errNotFound
 	default:
 		return nil, err
 	}
@@ -57,13 +57,22 @@ func (db *db) get(uid uuid.UUID) (*PostStats, error) {
 
 func (db *db) create(uid uuid.UUID) (*PostStats, error) {
 	query := "INSERT INTO posts_stats (post_uid, num_likes, num_dislikes, num_views) VALUES ($1, 0, 0, 0)"
-	result := new(PostStats)
-	result.UID = uid
-	result.NumLikes = 0
-	result.NumDislikes = 0
-	result.NumViews = 0
-	_, err := db.Query(query, uid.String())
-	return result, err
+	ps := new(PostStats)
+	ps.UID = uid
+	ps.NumLikes = 0
+	ps.NumDislikes = 0
+	ps.NumViews = 0
+	result, err := db.Exec(query, uid.String())
+	nRows, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+
+	if nRows == 0 {
+		return nil, errNotCreated
+	}
+
+	return ps, nil
 }
 
 func (db *db) like(uid uuid.UUID) error {
@@ -75,7 +84,7 @@ func (db *db) like(uid uuid.UUID) error {
 	}
 
 	if nRows == 0 {
-		return notFound
+		return errNotFound
 	}
 
 	return nil
@@ -90,7 +99,7 @@ func (db *db) dislike(uid uuid.UUID) error {
 	}
 
 	if nRows == 0 {
-		return notFound
+		return errNotFound
 	}
 
 	return nil
@@ -105,7 +114,7 @@ func (db *db) view(uid uuid.UUID) error {
 	}
 
 	if nRows == 0 {
-		return notFound
+		return errNotFound
 	}
 
 	return nil
@@ -120,7 +129,7 @@ func (db *db) delete(uid uuid.UUID) error {
 	}
 
 	if nRows == 0 {
-		return notFound
+		return errNotFound
 	}
 
 	return nil

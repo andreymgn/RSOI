@@ -5,6 +5,9 @@ import (
 	"log"
 	"net"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	pb "github.com/andreymgn/RSOI/services/comment/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
@@ -13,6 +16,15 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
+
+var (
+	statusInvalidUUID = status.Error(codes.InvalidArgument, "invalid UUID")
+	statusNotFound    = status.Error(codes.NotFound, "comment not found")
+)
+
+func internalError(err error) error {
+	return status.Error(codes.Internal, err.Error())
+}
 
 // Server implements comments service
 type Server struct {
@@ -40,12 +52,12 @@ func (s *Server) Start(port int, tracer opentracing.Tracer) error {
 func (c *Comment) SingleComment() (*pb.SingleComment, error) {
 	createdAtProto, err := ptypes.TimestampProto(c.CreatedAt)
 	if err != nil {
-		return nil, err
+		return nil, internalError(err)
 	}
 
 	modifiedAtProto, err := ptypes.TimestampProto(c.ModifiedAt)
 	if err != nil {
-		return nil, err
+		return nil, internalError(err)
 	}
 
 	res := new(pb.SingleComment)
@@ -70,12 +82,12 @@ func (s *Server) ListComments(ctx context.Context, req *pb.ListCommentsRequest) 
 
 	postUID, err := uuid.Parse(req.PostUid)
 	if err != nil {
-		return nil, err
+		return nil, statusInvalidUUID
 	}
 
 	comments, err := s.db.getAll(postUID, pageSize, req.PageNumber)
 	if err != nil {
-		return nil, err
+		return nil, internalError(err)
 	}
 
 	res := new(pb.ListCommentsResponse)
@@ -97,14 +109,20 @@ func (s *Server) ListComments(ctx context.Context, req *pb.ListCommentsRequest) 
 func (s *Server) CreateComment(ctx context.Context, req *pb.CreateCommentRequest) (*pb.SingleComment, error) {
 	postUID, err := uuid.Parse(req.PostUid)
 	if err != nil {
-		return nil, err
+		return nil, statusInvalidUUID
 	}
 
-	parentUID, err := uuid.Parse(req.ParentUid)
+	parentUID := uuid.Nil
+	if req.ParentUid != "" {
+		parentUID, err = uuid.Parse(req.ParentUid)
+		if err != nil {
+			return nil, statusInvalidUUID
+		}
+	}
 
 	comment, err := s.db.create(postUID, req.Body, parentUID)
 	if err != nil {
-		return nil, err
+		return nil, internalError(err)
 	}
 
 	return comment.SingleComment()
@@ -114,16 +132,18 @@ func (s *Server) CreateComment(ctx context.Context, req *pb.CreateCommentRequest
 func (s *Server) UpdateComment(ctx context.Context, req *pb.UpdateCommentRequest) (*pb.UpdateCommentResponse, error) {
 	uid, err := uuid.Parse(req.Uid)
 	if err != nil {
-		return nil, err
+		return nil, statusInvalidUUID
 	}
 
 	err = s.db.update(uid, req.Body)
-	if err != nil {
-		return nil, err
+	switch err {
+	case nil:
+		return new(pb.UpdateCommentResponse), nil
+	case errNotFound:
+		return nil, statusNotFound
+	default:
+		return nil, internalError(err)
 	}
-
-	res := new(pb.UpdateCommentResponse)
-	return res, nil
 }
 
 // DeleteComment deletes post by ID
@@ -134,10 +154,12 @@ func (s *Server) DeleteComment(ctx context.Context, req *pb.DeleteCommentRequest
 	}
 
 	err = s.db.delete(uid)
-	if err != nil {
-		return nil, err
+	switch err {
+	case nil:
+		return new(pb.DeleteCommentResponse), nil
+	case errNotFound:
+		return nil, statusNotFound
+	default:
+		return nil, internalError(err)
 	}
-
-	res := new(pb.DeleteCommentResponse)
-	return res, nil
 }

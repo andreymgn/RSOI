@@ -2,16 +2,16 @@ package comment
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 var (
-	notFound = status.Error(codes.NotFound, "comment not found")
+	errNotCreated = errors.New("comment not created")
+	errNotFound   = errors.New("comment not found")
 )
 
 // Comment describes comment to a post
@@ -102,8 +102,17 @@ func (db *db) create(postUID uuid.UUID, body string, parentUID uuid.UUID) (*Comm
 	comment.CreatedAt = now
 	comment.ModifiedAt = now
 
-	_, err := db.Query(query, uid.String(), postUID.String(), body, parentUID.String(), now, now)
-	return comment, err
+	result, err := db.Exec(query, uid.String(), postUID.String(), body, parentUID.String(), now, now)
+	nRows, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+
+	if nRows == 0 {
+		return nil, errNotCreated
+	}
+
+	return comment, nil
 }
 
 func (db *db) update(uid uuid.UUID, body string) error {
@@ -115,7 +124,7 @@ func (db *db) update(uid uuid.UUID, body string) error {
 	}
 
 	if nRows == 0 {
-		return notFound
+		return errNotFound
 	}
 
 	return nil
@@ -130,7 +139,7 @@ func (db *db) delete(uid uuid.UUID) error {
 	}
 
 	if nRows == 0 {
-		return notFound
+		return errNotFound
 	}
 
 	return nil

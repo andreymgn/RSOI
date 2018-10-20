@@ -17,8 +17,7 @@
 </template>
 
 <script>
-
-import axios from 'axios'
+import {HTTP} from '@/util/http'
 
 export default {
     name: 'newCommentForm',
@@ -41,10 +40,7 @@ export default {
             e.preventDefault()
         },
         submitComment() {
-            axios
-                .post('http://localhost:8081/api/posts/' + this.postUID + '/comments/',
-                JSON.stringify({'body': this.body, 'parent_uid': this.parentUID })
-                )
+            HTTP.post('posts/' + this.postUID + '/comments/', JSON.stringify({'body': this.body, 'parent_uid': this.parentUID }))
                 .then(response => {
                     console.log(response)
                     this.$parent.closeCommentForm()

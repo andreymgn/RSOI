@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import {HTTP} from '@/util/http'
 
 export default {
   name: 'editPostForm',
@@ -45,16 +45,14 @@ export default {
       e.preventDefault()
     },
     updatePost() {
-      axios
-        .patch('http://localhost:8081/api/posts/' + this.post.UID, JSON.stringify({'title': this.title, 'url': this.URL})
-      )
-      .then(response => {
-        console.log(response)
-        this.$parent.closeEditForm()
-      })
-      .catch(error => {
-        console.log(error)
-      })
+      HTTP.patch('posts/' + this.post.UID, JSON.stringify({'title': this.title, 'url': this.URL}))
+        .then(response => {
+          console.log(response)
+          this.$parent.closeEditForm()
+        })
+        .catch(error => {
+          console.log(error)
+        })
     },
     cancel() {
       this.$parent.closeEditForm()

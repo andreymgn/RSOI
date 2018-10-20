@@ -17,8 +17,7 @@
 </template>
 
 <script>
-
-import axios from 'axios'
+import {HTTP} from '@/util/http'
 
 export default {
     name: 'editCommentForm',
@@ -41,17 +40,13 @@ export default {
             e.preventDefault()
         },
         editComment() {
-            axios
-                .patch('http://localhost:8081/api/posts/' + this.comment.PostUID + '/comments/' + this.comment.UID,
-                JSON.stringify({'body': this.body })
-                )
+            HTTP.patch('posts/' + this.comment.PostUID + '/comments/' + this.comment.UID, JSON.stringify({'body': this.body }))
                 .then(response => {
                     console.log(response)
                     this.$parent.closeEditForm()
                 })
                 .catch(error => {
                     console.log(error)
-                    this.errored = true
                 })
         },
         cancel() {

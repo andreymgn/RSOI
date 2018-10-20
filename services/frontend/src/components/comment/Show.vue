@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import {HTTP} from '@/util/http'
 
 import SubmitCommentForm from '@/components/comment/New.vue'
 import EditCommentForm from '@/components/comment/Edit.vue'
@@ -41,14 +41,9 @@ export default {
   },
   methods: {
     deleteComment() {
-      axios
-        .delete('http://localhost:8081/api/posts/' + this.comment.PostUID + '/comments/' + this.comment.UID, {
-          headers: {'Access-Control-Allow-Origin': '*',
-          }
-        })
+      HTTP.delete('posts/' + this.comment.PostUID + '/comments/' + this.comment.UID)
         .catch(error => {
           console.log(error)
-          this.errored = true
         })
     },
     showCommentForm() {

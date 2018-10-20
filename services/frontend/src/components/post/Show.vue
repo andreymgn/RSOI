@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import {HTTP} from '@/util/http'
 
 import EditPostForm from '@/components/post/Edit.vue'
 
@@ -54,37 +54,22 @@ export default {
   methods: {
     like() {
       this.post.NumLikes++
-      axios
-        .get('http://localhost:8081/api/posts/' + this.post.UID + '/like', {
-          headers: {'Access-Control-Allow-Origin': '*',
-          }
-        })
+      HTTP.get('posts/' + this.post.UID + '/like')
         .catch(error => {
           console.log(error)
-          this.errored = true
         })
     },
     dislike() {
       this.post.NumDislikes++
-      axios
-        .get('http://localhost:8081/api/posts/' + this.post.UID + '/dislike', {
-          headers: {'Access-Control-Allow-Origin': '*',
-          }
-        })
+      HTTP.get('posts/' + this.post.UID + '/dislike')
         .catch(error => {
           console.log(error)
-          this.errored = true
         })
     },
     deletePost() {
-      axios
-        .delete('http://localhost:8081/api/posts/' + this.post.UID, {
-          headers: {'Access-Control-Allow-Origin': '*',
-          }
-        })
+      HTTP.delete('posts/' + this.post.UID)
         .catch(error => {
           console.log(error)
-          this.errored = true
         })
     },
     showEditForm() {

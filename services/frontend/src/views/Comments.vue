@@ -19,8 +19,8 @@
 </template>
 
 <script>
-import axios from 'axios'
-// @ is an alias to /src
+import {HTTP} from '@/util/http'
+
 import Post from '@/components/post/Show.vue'
 import Comment from '@/components/comment/Show.vue'
 import SubmitCommentForm from '@/components/comment/New.vue'
@@ -54,29 +54,20 @@ export default {
   },
   methods: {
       fetchPost() {
-        axios
-          .get('http://localhost:8081/api/posts/' + this.$route.params.uid, {
-            headers: {'Access-Control-Allow-Origin': '*',
-            }
-          })
+        HTTP.get('posts/' + this.$route.params.uid)
           .then(response => {
             console.log(response.data)
             this.post = response.data
           })
           .catch(error => {
-            console.log('error')
             console.log(error)
-            this.errored = true
           })
       },
       fetchComments(pageNumber, pageSize) {
-        axios
-          .get('http://localhost:8081/api/posts/' + this.$route.params.uid + '/comments/', {
+        HTTP.get('posts/' + this.$route.params.uid + '/comments/', {
             params: {
               size: pageSize,
               page: pageNumber
-            },
-            headers: {'Access-Control-Allow-Origin': '*',
             }
           })
           .then(response => {
@@ -87,7 +78,6 @@ export default {
           })
           .catch(error => {
             console.log(error)
-            this.errored = true
           })
       },
       loadPrevious() {

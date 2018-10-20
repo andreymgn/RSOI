@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import {HTTP} from '@/util/http'
 
 export default {
   name: 'newPostForm',
@@ -42,10 +42,7 @@ export default {
       e.preventDefault()
     },
     submitPost() {
-      axios
-        .post('http://localhost:8081/api/posts/',
-          JSON.stringify({'title': this.title, 'url': this.URL})
-      )
+      HTTP.post('posts/', JSON.stringify({'title': this.title, 'url': this.URL}))
       .then(response => {
         console.log(response)
         this.$router.push('/post/' + response.data.UID)

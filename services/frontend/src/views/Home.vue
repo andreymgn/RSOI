@@ -11,8 +11,8 @@
 </template>
 
 <script>
-import axios from 'axios'
-// @ is an alias to /src
+import {HTTP} from '@/util/http'
+
 import Post from '@/components/post/Show.vue'
 
 export default {
@@ -39,13 +39,10 @@ export default {
 
   methods: {
     getPage(pageNumber, pageSize) {
-      axios
-        .get('http://localhost:8081/api/posts/', {
+      HTTP.get('posts/', {
           params: {
             size: pageSize,
             page: pageNumber
-          },
-          headers: {'Access-Control-Allow-Origin': '*',
           }
         })
         .then(response => {
@@ -55,7 +52,6 @@ export default {
         })
         .catch(error => {
           console.log(error)
-          this.errored = true
         })
     },
     loadPrevious() {

@@ -2,8 +2,8 @@
   <div v-bind:class="{'container border': comments,  'container ': !comments}">
     <div class="row">
       <div class="column">
-        <div class="row" @click="like">+{{ post.NumLikes }}</div>
-        <div class="row" @click="dislike">-{{ post.NumDislikes }}</div>
+        <div class="row" @click="like">&#x1F525;{{ post.NumLikes }}</div>
+        <div class="row" @click="dislike">&#x1F4A9;{{ post.NumDislikes }}</div>
       </div>
       <div class="column column-90">
         <div class="row float-left">
@@ -68,10 +68,12 @@ export default {
         })
     },
     deletePost() {
+      var postUID = this.post.UID
       HTTP.delete('posts/' + this.post.UID)
         .then(response => {
           console.log(response)
           toast.success('Post deleted')
+          this.$parent.deletePost(postUID)
         })
         .catch(error => {
           toast.error(error.message)

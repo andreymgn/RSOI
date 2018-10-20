@@ -14,7 +14,7 @@
     </div>
     <div class="row" v-else>No comments yet</div>
     <button v-show="pageNumber > 0" @click="loadPrevious">&lt;</button>
-    <button v-if="comments && comments.length == pageSize" @click="loadNext" style="margin-left:10px;">&gt;</button>
+    <button v-if="itemsLoaded == pageSize" @click="loadNext" style="margin-left:10px;">&gt;</button>
   </div>
 </template>
 
@@ -42,7 +42,8 @@ export default {
       comments: null,
       editing: false,
       pageNumber: null,
-      pageSize: null
+      pageSize: null,
+      itemsLoaded: 0
     }
   },
   created () {
@@ -74,12 +75,24 @@ export default {
           .then(response => {
             console.log(response.data.Comments)
             this.comments = response.data.Comments
+            this.itemsLoaded = this.comments.length
             this.pageNumber = response.data.PageNumber
             this.pageSize = response.data.PageSize
           })
           .catch(error => {
             toast.error(error.message)
           })
+      },
+      deleteComment(postUID, commentUID) {
+        for (var i = 0; i < this.comments.length; i++) {
+          if (this.comments[i].UID == commentUID) {
+            this.$delete(this.comments, i)
+          }
+        }
+      },
+      deletePost(postUID) {
+        console.log(postUID)
+        this.$router.push('/')
       },
       loadPrevious() {
         this.fetchComments(this.pageNumber - 1)

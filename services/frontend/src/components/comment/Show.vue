@@ -41,16 +41,6 @@ export default {
     }
   },
   methods: {
-    deleteComment() {
-      HTTP.delete('posts/' + this.comment.PostUID + '/comments/' + this.comment.UID)
-        .then(response => {
-          console.log(response)
-          toast.success('Comment deleted')
-        })
-        .catch(error => {
-          toast.error(error.message)
-        })
-    },
     showCommentForm() {
       this.replying = true
     },
@@ -64,6 +54,19 @@ export default {
     closeEditForm() {
       this.editing = false
       this.$parent.fetchComments()
+    },
+    deleteComment() {
+      var postUID = this.comment.PostUID
+      var commentUID = this.comment.UID
+      HTTP.delete('posts/' + postUID + '/comments/' + commentUID)
+          .then(response => {
+            console.log(response)
+            toast.success('Comment deleted')
+            this.$parent.deleteComment(postUID, commentUID)
+          })
+          .catch(error => {
+            toast.error(error.message)
+          })
     }
   }
 }

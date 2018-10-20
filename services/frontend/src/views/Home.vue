@@ -6,7 +6,7 @@
       </div>
     </div>
     <button v-show="pageNumber > 0" @click="loadPrevious">&lt;</button>
-    <button v-if="posts && posts.length == pageSize" @click="loadNext" style="margin-left:10px;">&gt;</button>
+    <button v-if="itemsLoaded == pageSize" @click="loadNext" style="margin-left:10px;">&gt;</button>
   </div> 
 </template>
 
@@ -30,7 +30,8 @@ export default {
     return {
       posts: null,
       pageNumber: null,
-      pageSize: null
+      pageSize: null,
+      itemsLoaded: 0
     }
   },
 
@@ -48,6 +49,7 @@ export default {
         })
         .then(response => {
           this.posts = response.data.Posts
+          this.itemsLoaded = this.posts.length
           this.pageNumber = response.data.PageNumber
           this.pageSize = response.data.PageSize
         })
@@ -55,11 +57,21 @@ export default {
           toast.error(error.message)
         })
     },
+    deletePost(postUID) {
+      for (var i = 0; i < this.posts.length; i++) {
+        if (this.posts[i].UID == postUID) {
+          this.$delete(this.posts, i)
+        }
+      }
+    },
     loadPrevious() {
      this.getPage(this.pageNumber - 1)
     },
     loadNext() {
       this.getPage(this.pageNumber + 1)
+    },
+    removePost(index) {
+      this.posts.splice(index, 1)
     }
   }
 }

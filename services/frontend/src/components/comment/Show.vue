@@ -4,7 +4,8 @@
     {{ comment.Body }}
   </div>
   <div class="row">
-    <small>Created at: {{ comment.CreatedAt }}; Modified at:{{ comment.ModifiedAt }}</small>
+    <small>Created {{ comment.CreatedAt | timeAgo }}</small>
+    <small v-if="comment.CreatedAt != comment.ModifiedAt">; Modified: {{ comment.ModifiedAt | timeAgo}}</small>
   </div>
   <div class="row">
     <div class="button button-outline" @click="showCommentForm">Reply</div>

@@ -20,7 +20,8 @@
       </div>
     </div>
     <div class="row">
-      <small>Created at: {{ post.CreatedAt }}; Modified at: {{ post.CreatedAt }}</small>
+      <small>Created {{ post.CreatedAt | timeAgo }}</small>
+      <small v-if="post.CreatedAt != post.ModifiedAt">; Modified: {{ post.ModifiedAt | timeAgo}}</small>
     </div>
     <div v-if="comments" class="row">
       <router-link :to="'/post/' + post.UID"><small>Read comments</small></router-link>

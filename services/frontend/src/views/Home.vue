@@ -12,6 +12,7 @@
 
 <script>
 import {HTTP} from '@/util/http'
+import toast from '@/util/toast'
 
 import Post from '@/components/post/Show.vue'
 
@@ -51,7 +52,7 @@ export default {
           this.pageSize = response.data.PageSize
         })
         .catch(error => {
-          console.log(error)
+          toast.error(error.message)
         })
     },
     loadPrevious() {

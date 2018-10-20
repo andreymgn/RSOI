@@ -20,6 +20,7 @@
 
 <script>
 import {HTTP} from '@/util/http'
+import toast from '@/util/toast'
 
 import Post from '@/components/post/Show.vue'
 import Comment from '@/components/comment/Show.vue'
@@ -60,7 +61,7 @@ export default {
             this.post = response.data
           })
           .catch(error => {
-            console.log(error)
+            toast.error(error.message)
           })
       },
       fetchComments(pageNumber, pageSize) {
@@ -77,7 +78,7 @@ export default {
             this.pageSize = response.data.PageSize
           })
           .catch(error => {
-            console.log(error)
+            toast.error(error.message)
           })
       },
       loadPrevious() {

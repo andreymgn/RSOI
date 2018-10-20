@@ -37,6 +37,7 @@
 
 <script>
 import {HTTP} from '@/util/http'
+import toast from '@/util/toast'
 
 import EditPostForm from '@/components/post/Edit.vue'
 
@@ -56,20 +57,24 @@ export default {
       this.post.NumLikes++
       HTTP.get('posts/' + this.post.UID + '/like')
         .catch(error => {
-          console.log(error)
+          toast.error(error.message)
         })
     },
     dislike() {
       this.post.NumDislikes++
       HTTP.get('posts/' + this.post.UID + '/dislike')
         .catch(error => {
-          console.log(error)
+          toast.error(error.message)
         })
     },
     deletePost() {
       HTTP.delete('posts/' + this.post.UID)
+        .then(response => {
+          console.log(response)
+          toast.success('Post deleted')
+        })
         .catch(error => {
-          console.log(error)
+          toast.error(error.message)
         })
     },
     showEditForm() {

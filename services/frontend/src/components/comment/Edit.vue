@@ -18,6 +18,7 @@
 
 <script>
 import {HTTP} from '@/util/http'
+import toast from '@/util/toast'
 
 export default {
     name: 'editCommentForm',
@@ -43,10 +44,11 @@ export default {
             HTTP.patch('posts/' + this.comment.PostUID + '/comments/' + this.comment.UID, JSON.stringify({'body': this.body }))
                 .then(response => {
                     console.log(response)
+                    toast.success('Comment changed')
                     this.$parent.closeEditForm()
                 })
                 .catch(error => {
-                    console.log(error)
+                    toast.error(error.message)
                 })
         },
         cancel() {

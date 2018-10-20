@@ -20,6 +20,7 @@
 
 <script>
 import {HTTP} from '@/util/http'
+import toast from '@/util/toast'
 
 export default {
   name: 'editPostForm',
@@ -48,10 +49,11 @@ export default {
       HTTP.patch('posts/' + this.post.UID, JSON.stringify({'title': this.title, 'url': this.URL}))
         .then(response => {
           console.log(response)
+          toast.success('Post updated')
           this.$parent.closeEditForm()
         })
         .catch(error => {
-          console.log(error)
+          toast.error(error.message)
         })
     },
     cancel() {

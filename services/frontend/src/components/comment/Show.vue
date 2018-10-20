@@ -22,6 +22,7 @@
 
 <script>
 import {HTTP} from '@/util/http'
+import toast from '@/util/toast'
 
 import SubmitCommentForm from '@/components/comment/New.vue'
 import EditCommentForm from '@/components/comment/Edit.vue'
@@ -42,8 +43,12 @@ export default {
   methods: {
     deleteComment() {
       HTTP.delete('posts/' + this.comment.PostUID + '/comments/' + this.comment.UID)
+        .then(response => {
+          console.log(response)
+          toast.success('Comment deleted')
+        })
         .catch(error => {
-          console.log(error)
+          toast.error(error.message)
         })
     },
     showCommentForm() {

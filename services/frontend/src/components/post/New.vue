@@ -19,6 +19,7 @@
 
 <script>
 import {HTTP} from '@/util/http'
+import toast from '@/util/toast'
 
 export default {
   name: 'newPostForm',
@@ -44,12 +45,11 @@ export default {
     submitPost() {
       HTTP.post('posts/', JSON.stringify({'title': this.title, 'url': this.URL}))
       .then(response => {
-        console.log(response)
+        toast.success('Post created')
         this.$router.push('/post/' + response.data.UID)
       })
       .catch(error => {
-        console.log(error)
-        this.errored = true
+        toast.error(error.message)
       })
     }
   }

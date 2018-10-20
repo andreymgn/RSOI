@@ -18,6 +18,7 @@
 
 <script>
 import {HTTP} from '@/util/http'
+import toast from '@/util/toast'
 
 export default {
     name: 'newCommentForm',
@@ -43,11 +44,11 @@ export default {
             HTTP.post('posts/' + this.postUID + '/comments/', JSON.stringify({'body': this.body, 'parent_uid': this.parentUID }))
                 .then(response => {
                     console.log(response)
+                    toast.success('Comment created')
                     this.$parent.closeCommentForm()
                 })
                 .catch(error => {
-                    console.log(error)
-                    this.errored = true
+                    toast.error(error.message)
                 })
         },
         cancel() {

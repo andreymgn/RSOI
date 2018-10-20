@@ -85,7 +85,17 @@ func (s *Server) ListComments(ctx context.Context, req *pb.ListCommentsRequest) 
 		return nil, statusInvalidUUID
 	}
 
-	comments, err := s.db.getAll(postUID, pageSize, req.PageNumber)
+	var parentUID uuid.UUID
+	if req.CommentUid == "" {
+		parentUID = uuid.Nil
+	} else {
+		parentUID, err = uuid.Parse(req.CommentUid)
+		if err != nil {
+			return nil, statusInvalidUUID
+		}
+	}
+
+	comments, err := s.db.getAll(postUID, parentUID, pageSize, req.PageNumber)
 	if err != nil {
 		return nil, internalError(err)
 	}

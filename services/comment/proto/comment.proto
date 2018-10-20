@@ -13,8 +13,9 @@ service Comment {
 
 message ListCommentsRequest {
     string postUid = 1;
-    int32 pageSize = 2;
-    int32 pageNumber = 3;
+    string commentUid = 2;
+    int32 pageSize = 3;
+    int32 pageNumber = 4;
 }
 
 message ListCommentsResponse {

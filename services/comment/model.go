@@ -25,7 +25,7 @@ type Comment struct {
 }
 
 type datastore interface {
-	getAll(uuid.UUID, int32, int32) ([]*Comment, error)
+	getAll(uuid.UUID, uuid.UUID, int32, int32) ([]*Comment, error)
 	create(uuid.UUID, string, uuid.UUID) (*Comment, error)
 	update(uuid.UUID, string) error
 	delete(uuid.UUID) error
@@ -40,10 +40,11 @@ func newDB(connString string) (*db, error) {
 	return &db{postgres}, err
 }
 
-func (db *db) getAll(postUID uuid.UUID, pageSize, pageNumber int32) ([]*Comment, error) {
-	query := "SELECT * FROM comments WHERE post_uid=$1 ORDER BY created_at DESC LIMIT $2 OFFSET $3"
+func (db *db) getAll(postUID uuid.UUID, parentUID uuid.UUID, pageSize, pageNumber int32) ([]*Comment, error) {
+	query := "SELECT * FROM comments WHERE post_uid=$1 AND parent_uid=$2 ORDER BY created_at DESC LIMIT $3 OFFSET $4"
+
 	lastRecord := pageNumber * pageSize
-	rows, err := db.Query(query, postUID.String(), pageSize, lastRecord)
+	rows, err := db.Query(query, postUID.String(), parentUID.String(), pageSize, lastRecord)
 	if err != nil {
 		return nil, err
 	}

@@ -15,6 +15,7 @@ func (s *Server) routes() {
 
 	postsRouter.HandleFunc("/{postuid}/comments/", s.getPostComments()).Methods("GET")
 	postsRouter.HandleFunc("/{postuid}/comments/", s.createComment()).Methods("POST")
+	postsRouter.HandleFunc("/{postuid}/comments/{uid}", s.getPostComments()).Methods("GET")
 	postsRouter.HandleFunc("/{postuid}/comments/{uid}", s.updateComment()).Methods("PATCH")
 	postsRouter.HandleFunc("/{postuid}/comments/{uid}", s.deleteComment()).Methods("DELETE")
 

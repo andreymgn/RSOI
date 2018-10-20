@@ -51,6 +51,7 @@ func (s *Server) getPostComments() http.HandlerFunc {
 		}
 
 		vars := mux.Vars(r)
+		uid := vars["uid"]
 		postUID := vars["postuid"]
 
 		ctx := r.Context()
@@ -65,7 +66,7 @@ func (s *Server) getPostComments() http.HandlerFunc {
 			return
 		}
 
-		commentsResponse, err := s.commentClient.ListComments(ctx, &comment.ListCommentsRequest{PostUid: postUID, PageSize: sizeNum, PageNumber: pageNum})
+		commentsResponse, err := s.commentClient.ListComments(ctx, &comment.ListCommentsRequest{PostUid: postUID, CommentUid: uid, PageSize: sizeNum, PageNumber: pageNum})
 		if err != nil {
 			handleRPCError(w, err)
 			return

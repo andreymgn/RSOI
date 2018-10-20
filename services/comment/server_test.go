@@ -18,7 +18,7 @@ var (
 
 type mockdb struct{}
 
-func (mdb *mockdb) getAll(postUid uuid.UUID, pageNumber, pageSize int32) ([]*Comment, error) {
+func (mdb *mockdb) getAll(postUID uuid.UUID, parentUID uuid.UUID, pageNumber, pageSize int32) ([]*Comment, error) {
 	result := make([]*Comment, 0)
 	uid1 := uuid.New()
 	uid2 := uuid.New()

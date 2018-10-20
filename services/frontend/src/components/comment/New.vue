@@ -45,14 +45,14 @@ export default {
                 .then(response => {
                     console.log(response)
                     toast.success('Comment created')
-                    this.$parent.closeCommentForm()
+                    this.$parent.closeCommentForm(false)
                 })
                 .catch(error => {
                     toast.error(error.message)
                 })
         },
         cancel() {
-            this.$parent.closeCommentForm()
+            this.$parent.closeCommentForm(true)
         }
     }
 }

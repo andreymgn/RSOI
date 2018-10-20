@@ -8,16 +8,18 @@
     <small v-if="comment.CreatedAt != comment.ModifiedAt">; Modified: {{ comment.ModifiedAt | timeAgo}}</small>
   </div>
   <div class="row">
-    <div class="button button-outline" @click="showCommentForm">Reply</div>
+    <div class="button button-outline" @click="loadReplies">Load replies</div>
+    <div class="button button-outline" style="margin-left:10px;" @click="showCommentForm">Reply</div>
     <div class="button button-clear" style="margin-left:10px;" @click="showEditForm">Edit</div>
     <div class="button button-clear" style="margin-left:10px;" @click="deleteComment">Delete</div>
   </div> 
-    <div v-show="replying">
-      <submitCommentForm :postUID="comment.PostUID" :parentUID="comment.UID"></submitCommentForm>
-    </div>
-    <div v-show="editing">
-      <editCommentForm :comment="comment"></editCommentForm>
-    </div>
+  <div v-show="replying">
+    <submitCommentForm :postUID="comment.PostUID" :parentUID="comment.UID"></submitCommentForm>
+  </div>
+  <div v-show="editing">
+    <editCommentForm :comment="comment"></editCommentForm>
+  </div>
+  <comment v-if="children" v-for="child in children" :key="child.UID" :comment="child"></comment>
   </div>
 </template>
 
@@ -38,16 +40,23 @@ export default {
   data() {
     return {
       replying: false,
-      editing: false
+      editing: false,
+      children: null
     }
   },
   methods: {
     showCommentForm() {
       this.replying = true
     },
-    closeCommentForm() {
+    closeCommentForm(cancelled) {
       this.replying = false
-      this.$parent.fetchComments()
+      if (!cancelled) {
+        if (this.$parent.name == this.name) {
+          this.loadReplies()
+        } else {
+          this.$parent.fetchComments()
+        }
+      }
     },
     showEditForm() {
       this.editing = true
@@ -63,11 +72,30 @@ export default {
           .then(response => {
             console.log(response)
             toast.success('Comment deleted')
-            this.$parent.deleteComment(postUID, commentUID)
+            // do not delete parent comment if child gets deleted
+            if (this.$parent.name != this.name) {
+              this.$parent.deleteComment(postUID, commentUID)
+            } else {
+              for (var i = 0; i < this.$parent.children.length; i++) {
+                if (this.$parent.children[i].UID == commentUID) {
+                  this.$parent.$delete(this.$parent.children, i)
+                }
+              }
+            }
           })
           .catch(error => {
             toast.error(error.message)
           })
+    },
+    loadReplies() {
+      HTTP.get('posts/' + this.comment.PostUID + '/comments/' + this.comment.UID)
+        .then(response => {
+          console.log(response)
+          this.children = response.data.Comments
+        })
+        .catch(error => {
+          toast.error(error.message)
+        })
     }
   }
 }

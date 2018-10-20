@@ -95,6 +95,14 @@
   version = "v0.8.0"
 
 [[projects]]
+  digest = "1:b0c25f00bad20d783d259af2af8666969e2fc343fa0dc9efe52936bbd67fb758"
+  name = "github.com/rs/cors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9a47f48565a795472d43519dd49aac781f3034fb"
+  version = "v1.6.0"
+
+[[projects]]
   digest = "1:104a2d7446f4628e4663d7c029b18da1aad4313735de775f37b6e7720b1d0aa7"
   name = "github.com/uber/jaeger-client-go"
   packages = [
@@ -230,6 +238,7 @@
     "github.com/lib/pq",
     "github.com/opentracing-contrib/go-stdlib/nethttp",
     "github.com/opentracing/opentracing-go",
+    "github.com/rs/cors",
     "github.com/uber/jaeger-client-go/config",
     "golang.org/x/net/context",
     "google.golang.org/grpc",

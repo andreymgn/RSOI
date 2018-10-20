@@ -41,9 +41,9 @@ func newDB(connString string) (*db, error) {
 }
 
 func (db *db) getAll(postUID uuid.UUID, pageSize, pageNumber int32) ([]*Comment, error) {
-	query := "SELECT * FROM comments ORDER BY created_at DESC LIMIT $1 OFFSET $2"
+	query := "SELECT * FROM comments WHERE post_uid=$1 ORDER BY created_at DESC LIMIT $2 OFFSET $3"
 	lastRecord := pageNumber * pageSize
-	rows, err := db.Query(query, pageSize, lastRecord)
+	rows, err := db.Query(query, postUID.String(), pageSize, lastRecord)
 	if err != nil {
 		return nil, err
 	}

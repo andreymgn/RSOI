@@ -14,6 +14,7 @@ import (
 	post "github.com/andreymgn/RSOI/services/post/proto"
 	poststats "github.com/andreymgn/RSOI/services/poststats/proto"
 	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/rs/cors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -59,6 +60,12 @@ func setContentType(next http.Handler) http.Handler {
 
 // Start starts HTTP server which can shut down gracefully
 func (s *Server) Start(port int) {
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},                                         // All origins
+		AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"}, // Allowing only get, just an example
+		AllowedHeaders:   []string{"Origin", "X-Requested-With", "Content-Type", "Accept", "Access-Control-Allow-Origin"},
+		AllowCredentials: true,
+	})
 	s.router.Mux.Use(setContentType)
 	s.routes()
 	srv := &http.Server{
@@ -66,7 +73,7 @@ func (s *Server) Start(port int) {
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
-		Handler:      s.router,
+		Handler:      c.Handler(s.router),
 	}
 
 	go func() {
@@ -75,10 +82,10 @@ func (s *Server) Start(port int) {
 		}
 	}()
 
-	c := make(chan os.Signal, 1)
+	ch := make(chan os.Signal, 1)
 
-	signal.Notify(c, os.Interrupt)
-	<-c
+	signal.Notify(ch, os.Interrupt)
+	<-ch
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()

@@ -88,7 +88,9 @@ services:
     build: .
     command: RSOI -service api -port 8080 -post-server "post:8080" -comment-server "comment:8080" -post-stats-server "poststats:8080" -jaeger-addr jaeger:6831
     ports:
-      - "8081:8080"
+      - "8080:8080"
+    expose:
+      - "8080"
     restart: on-failure
     links:
       - jaeger
@@ -100,3 +102,14 @@ services:
       - post
       - comment
       - poststats
+
+  frontend:
+    build: services/frontend/
+    command: nginx -g 'daemon off;'
+    ports:
+      - "8081:80"
+    restart: on-failure
+    links:
+      - api
+    depends_on:
+      - api

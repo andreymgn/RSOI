@@ -22,6 +22,16 @@ export default new Router({
       path: '/submit',
       name: 'submit',
       component: NewPost
+    },
+    {
+      path: '/422',
+      name: 'UnprocessableEntity',
+      component: () => import(/* webpackChunkName: "about" */ './views/UnprocessableEntity.vue'),
+    },
+    {
+      path: '/404',
+      name: 'NotFound',
+      component: () => import(/* webpackChunkName: "about" */ './views/NotFound.vue'),
     }
   ]
 })

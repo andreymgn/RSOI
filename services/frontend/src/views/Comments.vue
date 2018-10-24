@@ -47,66 +47,72 @@ export default {
     }
   },
   created () {
-    this.fetchPost()
-    this.fetchComments(0, 10)
+    this.fetchData()
   },
   watch: {
-    // call again the method if the route changes
     '$route': 'fetchData'
   },
   methods: {
-      fetchPost() {
-        HTTP.get('posts/' + this.$route.params.uid)
-          .then(response => {
-            console.log(response.data)
-            this.post = response.data
-          })
-          .catch(error => {
-            toast.error(error.message)
-          })
-      },
-      fetchComments(pageNumber, pageSize) {
-        HTTP.get('posts/' + this.$route.params.uid + '/comments/', {
-            params: {
-              size: pageSize,
-              page: pageNumber
-            }
-          })
-          .then(response => {
-            console.log(response.data.Comments)
-            this.comments = response.data.Comments
-            this.itemsLoaded = this.comments.length
-            this.pageNumber = response.data.PageNumber
-            this.pageSize = response.data.PageSize
-          })
-          .catch(error => {
-            toast.error(error.message)
-          })
-      },
-      deleteComment(postUID, commentUID) {
-        for (var i = 0; i < this.comments.length; i++) {
-          if (this.comments[i].UID == commentUID) {
-            this.$delete(this.comments, i)
+    fetchData() {
+      this.fetchPost() && 
+      this.fetchComments(0, 10)
+    },
+    fetchPost() {
+      HTTP.get('posts/' + this.$route.params.uid)
+        .then(response => {
+          console.log(response.data)
+          this.post = response.data
+        })
+        .catch(error => {
+          if (error.response.status == 422)
+            this.$router.push('/422')
+          if (error.response.status == 404)
+            this.$router.push('/404')
+          toast.error(error.message)
+        })
+    },
+    fetchComments(pageNumber, pageSize) {
+      HTTP.get('posts/' + this.$route.params.uid + '/comments/', {
+          params: {
+            size: pageSize,
+            page: pageNumber
           }
+        })
+        .then(response => {
+          console.log(response.data.Comments)
+          this.comments = response.data.Comments
+          this.itemsLoaded = this.comments.length
+          this.pageNumber = response.data.PageNumber
+          this.pageSize = response.data.PageSize
+        })
+        .catch(error => {
+          toast.error(error.message)
+        })
+    },
+    deleteComment(postUID, commentUID) {
+      for (var i = 0; i < this.comments.length; i++) {
+        if (this.comments[i].UID == commentUID) {
+          this.$delete(this.comments, i)
         }
-      },
-      deletePost(postUID) {
-        console.log(postUID)
-        this.$router.push('/')
-      },
-      loadPrevious() {
-        this.fetchComments(this.pageNumber - 1)
-      },
-      loadNext() {
-        this.fetchComments(this.pageNumber + 1)
-      },
-      showCommentForm() {
-        this.editing = true
-      },
-      closeCommentForm() {
-        this.editing = false
-        this.fetchComments()
       }
+    },
+    deletePost(postUID) {
+      console.log(postUID)
+      this.$router.push('/')
+    },
+    loadPrevious() {
+      this.fetchComments(this.pageNumber - 1)
+    },
+    loadNext() {
+      this.fetchComments(this.pageNumber + 1)
+    },
+    showCommentForm() {
+      this.editing = true
+    },
+    closeCommentForm() {
+      this.editing = false
+      this.fetchComments()
+    }
   }
 }
 </script>

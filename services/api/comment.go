@@ -99,6 +99,7 @@ func (s *Server) getPostComments() http.HandlerFunc {
 			return
 		}
 
+		w.WriteHeader(http.StatusOK)
 		w.Write(json)
 	}
 }
@@ -172,6 +173,7 @@ func (s *Server) createComment() http.HandlerFunc {
 			return
 		}
 
+		w.WriteHeader(http.StatusCreated)
 		w.Write(json)
 	}
 }
@@ -217,7 +219,7 @@ func (s *Server) updateComment() http.HandlerFunc {
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
@@ -245,6 +247,6 @@ func (s *Server) deleteComment() http.HandlerFunc {
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusNoContent)
 	}
 }

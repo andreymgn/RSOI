@@ -56,14 +56,14 @@ export default {
   methods: {
     like() {
       this.post.NumLikes++
-      HTTP.get('posts/' + this.post.UID + '/like')
+      HTTP.patch('posts/' + this.post.UID + '/like')
         .catch(error => {
           toast.error(error.message)
         })
     },
     dislike() {
       this.post.NumDislikes++
-      HTTP.get('posts/' + this.post.UID + '/dislike')
+      HTTP.patch('posts/' + this.post.UID + '/dislike')
         .catch(error => {
           toast.error(error.message)
         })

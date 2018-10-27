@@ -10,8 +10,8 @@ func (s *Server) routes() {
 	postsRouter.HandleFunc("/{uid}", s.updatePost()).Methods("PATCH")
 	postsRouter.HandleFunc("/{uid}", s.deletePost()).Methods("DELETE")
 
-	postsRouter.HandleFunc("/{uid}/like", s.likePost()).Methods("GET")
-	postsRouter.HandleFunc("/{uid}/dislike", s.dislikePost()).Methods("GET")
+	postsRouter.HandleFunc("/{uid}/like", s.likePost()).Methods("PATCH")
+	postsRouter.HandleFunc("/{uid}/dislike", s.dislikePost()).Methods("PATCH")
 
 	postsRouter.HandleFunc("/{postuid}/comments/", s.getPostComments()).Methods("GET")
 	postsRouter.HandleFunc("/{postuid}/comments/", s.createComment()).Methods("POST")

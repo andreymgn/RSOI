@@ -95,6 +95,7 @@ func (s *Server) getPosts() http.HandlerFunc {
 			return
 		}
 
+		w.WriteHeader(http.StatusOK)
 		w.Write(json)
 	}
 }
@@ -162,6 +163,7 @@ func (s *Server) createPost() http.HandlerFunc {
 			return
 		}
 
+		w.WriteHeader(http.StatusCreated)
 		w.Write(json)
 	}
 }
@@ -227,6 +229,7 @@ func (s *Server) getPost() http.HandlerFunc {
 			return
 		}
 
+		w.WriteHeader(http.StatusOK)
 		w.Write(json)
 	}
 }
@@ -261,7 +264,7 @@ func (s *Server) updatePost() http.HandlerFunc {
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
@@ -297,7 +300,7 @@ func (s *Server) deletePost() http.HandlerFunc {
 			}
 		}
 
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
@@ -313,7 +316,7 @@ func (s *Server) likePost() http.HandlerFunc {
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
@@ -329,6 +332,6 @@ func (s *Server) dislikePost() http.HandlerFunc {
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusNoContent)
 	}
 }

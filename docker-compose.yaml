@@ -39,6 +39,12 @@ services:
     expose: 
       - "6379"
 
+  redis_poststats:
+    image: redis:4.0.5-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    expose: 
+      - "6379"
+
   jaeger:
       image: jaegertracing/all-in-one:latest
       expose:
@@ -81,16 +87,18 @@ services:
 
   poststats:
     build: .
-    command: RSOI -service poststats -port 8080 -jaeger-addr jaeger:6831 -conn "user=poststats password=poststatspass dbname=poststats sslmode=disable port=5432 host=psql_poststats" -jaeger-addr jaeger:6831
+    command: ["RSOI", "-service", "poststats", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=poststats password=poststatspass dbname=poststats sslmode=disable port=5432 host=psql_poststats", "-jaeger-addr", "jaeger:6831", "-redis-addr", "redis_poststats:6379", "-redis-db", "0"]
     expose:
       - "8080"
     restart: on-failure
     links:
       - jaeger
       - psql_poststats
+      - redis_poststats
     depends_on:
       - jaeger
       - psql_poststats
+      - redis_poststats
 
   api:
     build: .

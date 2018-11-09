@@ -58,7 +58,9 @@ func (s *Server) getPosts() http.HandlerFunc {
 		}
 
 		ctx := r.Context()
-		postResponse, err := s.postClient.client.ListPosts(ctx, &post.ListPostsRequest{PageSize: sizeNum, PageNumber: pageNum})
+		postResponse, err := s.postClient.client.ListPosts(ctx,
+			&post.ListPostsRequest{PageSize: sizeNum, PageNumber: pageNum},
+		)
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -81,7 +83,9 @@ func (s *Server) getPosts() http.HandlerFunc {
 				return
 			}
 
-			postStats, err := s.postStatsClient.GetPostStats(ctx, &poststats.GetPostStatsRequest{PostUid: posts[i].UID})
+			postStats, err := s.postStatsClient.client.GetPostStats(ctx,
+				&poststats.GetPostStatsRequest{PostUid: posts[i].UID},
+			)
 			if err != nil {
 				handleRPCError(w, err)
 				return
@@ -141,7 +145,7 @@ func (s *Server) createPost() http.HandlerFunc {
 		)
 		if err != nil {
 			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
-				err := s.getPostToken()
+				err := s.updatePostToken()
 				if err != nil {
 					handleRPCError(w, err)
 					return
@@ -159,10 +163,27 @@ func (s *Server) createPost() http.HandlerFunc {
 			}
 		}
 
-		_, err = s.postStatsClient.CreatePostStats(ctx, &poststats.CreatePostStatsRequest{PostUid: p.Uid})
+		_, err = s.postStatsClient.client.CreatePostStats(ctx,
+			&poststats.CreatePostStatsRequest{Token: s.postStatsClient.token, PostUid: p.Uid},
+		)
 		if err != nil {
-			handleRPCError(w, err)
-			return
+			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
+				err := s.updatePostStatsToken()
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+				_, err = s.postStatsClient.client.CreatePostStats(ctx,
+					&poststats.CreatePostStatsRequest{Token: s.postStatsClient.token, PostUid: p.Uid},
+				)
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+			} else {
+				handleRPCError(w, err)
+				return
+			}
 		}
 
 		createdAt, err := ptypes.Timestamp(p.CreatedAt)
@@ -206,7 +227,9 @@ func (s *Server) getPost() http.HandlerFunc {
 		uid := vars["uid"]
 
 		ctx := r.Context()
-		postResponse, err := s.postClient.client.GetPost(ctx, &post.GetPostRequest{Uid: uid})
+		postResponse, err := s.postClient.client.GetPost(ctx,
+			&post.GetPostRequest{Uid: uid},
+		)
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -228,7 +251,9 @@ func (s *Server) getPost() http.HandlerFunc {
 			return
 		}
 
-		postStats, err := s.postStatsClient.GetPostStats(ctx, &poststats.GetPostStatsRequest{PostUid: res.UID})
+		postStats, err := s.postStatsClient.client.GetPostStats(ctx,
+			&poststats.GetPostStatsRequest{PostUid: res.UID},
+		)
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -244,10 +269,27 @@ func (s *Server) getPost() http.HandlerFunc {
 			return
 		}
 
-		_, err = s.postStatsClient.IncreaseViews(ctx, &poststats.IncreaseViewsRequest{PostUid: uid})
+		_, err = s.postStatsClient.client.IncreaseViews(ctx,
+			&poststats.IncreaseViewsRequest{Token: s.postStatsClient.token, PostUid: uid},
+		)
 		if err != nil {
-			handleRPCError(w, err)
-			return
+			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
+				err := s.updatePostStatsToken()
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+				_, err = s.postStatsClient.client.IncreaseViews(ctx,
+					&poststats.IncreaseViewsRequest{Token: s.postStatsClient.token, PostUid: uid},
+				)
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+			} else {
+				handleRPCError(w, err)
+				return
+			}
 		}
 
 		w.WriteHeader(http.StatusOK)
@@ -284,7 +326,7 @@ func (s *Server) updatePost() http.HandlerFunc {
 		)
 		if err != nil {
 			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
-				err := s.getPostToken()
+				err := s.updatePostToken()
 				if err != nil {
 					handleRPCError(w, err)
 					return
@@ -317,7 +359,7 @@ func (s *Server) deletePost() http.HandlerFunc {
 		)
 		if err != nil {
 			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
-				err := s.getPostToken()
+				err := s.updatePostToken()
 				if err != nil {
 					handleRPCError(w, err)
 					return
@@ -335,10 +377,27 @@ func (s *Server) deletePost() http.HandlerFunc {
 			}
 		}
 
-		_, err = s.postStatsClient.DeletePostStats(ctx, &poststats.DeletePostStatsRequest{PostUid: uid})
+		_, err = s.postStatsClient.client.DeletePostStats(ctx,
+			&poststats.DeletePostStatsRequest{Token: s.postStatsClient.token, PostUid: uid},
+		)
 		if err != nil {
-			handleRPCError(w, err)
-			return
+			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
+				err := s.updatePostStatsToken()
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+				_, err = s.postStatsClient.client.DeletePostStats(ctx,
+					&poststats.DeletePostStatsRequest{Token: s.postStatsClient.token, PostUid: uid},
+				)
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+			} else {
+				handleRPCError(w, err)
+				return
+			}
 		}
 
 		comments, err := s.commentClient.ListComments(ctx, &comment.ListCommentsRequest{PostUid: uid})
@@ -365,10 +424,27 @@ func (s *Server) likePost() http.HandlerFunc {
 		uid := vars["uid"]
 
 		ctx := r.Context()
-		_, err := s.postStatsClient.LikePost(ctx, &poststats.LikePostRequest{PostUid: uid})
+		_, err := s.postStatsClient.client.LikePost(ctx,
+			&poststats.LikePostRequest{Token: s.postStatsClient.token, PostUid: uid},
+		)
 		if err != nil {
-			handleRPCError(w, err)
-			return
+			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
+				err := s.updatePostStatsToken()
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+				_, err = s.postStatsClient.client.LikePost(ctx,
+					&poststats.LikePostRequest{Token: s.postStatsClient.token, PostUid: uid},
+				)
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+			} else {
+				handleRPCError(w, err)
+				return
+			}
 		}
 
 		w.WriteHeader(http.StatusNoContent)
@@ -381,22 +457,53 @@ func (s *Server) dislikePost() http.HandlerFunc {
 		uid := vars["uid"]
 
 		ctx := r.Context()
-		_, err := s.postStatsClient.DislikePost(ctx, &poststats.DislikePostRequest{PostUid: uid})
+		_, err := s.postStatsClient.client.DislikePost(ctx,
+			&poststats.DislikePostRequest{Token: s.postStatsClient.token, PostUid: uid},
+		)
 		if err != nil {
-			handleRPCError(w, err)
-			return
+			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
+				err := s.updatePostStatsToken()
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+				_, err = s.postStatsClient.client.DislikePost(ctx,
+					&poststats.DislikePostRequest{Token: s.postStatsClient.token, PostUid: uid},
+				)
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+			} else {
+				handleRPCError(w, err)
+				return
+			}
 		}
 
 		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
-func (s *Server) getPostToken() error {
-	token, err := s.postClient.client.GetToken(context.Background(), &post.GetTokenRequest{AppId: s.postClient.appID, AppSecret: s.postClient.appSecret})
+func (s *Server) updatePostToken() error {
+	token, err := s.postClient.client.GetToken(context.Background(),
+		&post.GetTokenRequest{AppId: s.postClient.appID, AppSecret: s.postClient.appSecret},
+	)
 	if err != nil {
 		return err
 	}
 
 	s.postClient.token = token.Token
+	return nil
+}
+
+func (s *Server) updatePostStatsToken() error {
+	token, err := s.postStatsClient.client.GetToken(context.Background(),
+		&poststats.GetTokenRequest{AppId: s.postStatsClient.appID, AppSecret: s.postStatsClient.appSecret},
+	)
+	if err != nil {
+		return err
+	}
+
+	s.postStatsClient.token = token.Token
 	return nil
 }

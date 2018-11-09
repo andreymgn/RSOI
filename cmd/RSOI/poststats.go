@@ -7,15 +7,23 @@ import (
 	"github.com/andreymgn/RSOI/services/poststats"
 )
 
-func runPostStats(port int, connString, jaegerAddr string) error {
+const (
+	PoststatsAppID     = "PostStatsAPI"
+	PoststatsAppSecret = "3BusyNfGQpyCr77J"
+)
+
+func runPostStats(port int, connString, jaegerAddr, redisAddr, redisPassword string, redisDB int) error {
 	tracer, err := tracer.NewTracer("poststats", jaegerAddr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	server, err := poststats.NewServer(connString)
+	knownKeys := map[string]string{PoststatsAppID: PoststatsAppSecret}
+
+	server, err := poststats.NewServer(connString, redisAddr, redisPassword, redisDB, knownKeys)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	return server.Start(port, tracer)
 }

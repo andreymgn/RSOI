@@ -65,8 +65,18 @@ func (mdb *mockdb) delete(uid uuid.UUID) error {
 	return errDummy
 }
 
+type mockAuth struct{}
+
+func (ma *mockAuth) Add(appID, appSecret string) (string, error) {
+	return "valid-token", nil
+}
+
+func (ma *mockAuth) Exists(token string) (bool, error) {
+	return true, nil
+}
+
 func TestGet(t *testing.T) {
-	s := &Server{&mockdb{}}
+	s := &Server{&mockdb{}, &mockAuth{}}
 	req := &pb.GetPostStatsRequest{PostUid: nilUIDString}
 	_, err := s.GetPostStats(context.Background(), req)
 	if err != nil {
@@ -75,7 +85,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestGetFail(t *testing.T) {
-	s := &Server{&mockdb{}}
+	s := &Server{&mockdb{}, &mockAuth{}}
 
 	req := &pb.GetPostStatsRequest{}
 	_, err := s.GetPostStats(context.Background(), req)
@@ -85,7 +95,7 @@ func TestGetFail(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	s := &Server{&mockdb{}}
+	s := &Server{&mockdb{}, &mockAuth{}}
 	req := &pb.CreatePostStatsRequest{PostUid: nilUIDString}
 	_, err := s.CreatePostStats(context.Background(), req)
 	if err != nil {
@@ -94,7 +104,7 @@ func TestCreate(t *testing.T) {
 }
 
 func TestCreateFail(t *testing.T) {
-	s := &Server{&mockdb{}}
+	s := &Server{&mockdb{}, &mockAuth{}}
 
 	req := &pb.CreatePostStatsRequest{}
 	_, err := s.CreatePostStats(context.Background(), req)
@@ -104,7 +114,7 @@ func TestCreateFail(t *testing.T) {
 }
 
 func TestLike(t *testing.T) {
-	s := &Server{&mockdb{}}
+	s := &Server{&mockdb{}, &mockAuth{}}
 	req := &pb.LikePostRequest{PostUid: nilUIDString}
 	_, err := s.LikePost(context.Background(), req)
 	if err != nil {
@@ -113,7 +123,7 @@ func TestLike(t *testing.T) {
 }
 
 func TestLikeFail(t *testing.T) {
-	s := &Server{&mockdb{}}
+	s := &Server{&mockdb{}, &mockAuth{}}
 
 	req := &pb.LikePostRequest{}
 	_, err := s.LikePost(context.Background(), req)
@@ -123,7 +133,7 @@ func TestLikeFail(t *testing.T) {
 }
 
 func TestDislike(t *testing.T) {
-	s := &Server{&mockdb{}}
+	s := &Server{&mockdb{}, &mockAuth{}}
 	req := &pb.DislikePostRequest{PostUid: nilUIDString}
 	_, err := s.DislikePost(context.Background(), req)
 	if err != nil {
@@ -132,7 +142,7 @@ func TestDislike(t *testing.T) {
 }
 
 func TestDislikeFail(t *testing.T) {
-	s := &Server{&mockdb{}}
+	s := &Server{&mockdb{}, &mockAuth{}}
 
 	req := &pb.DislikePostRequest{}
 	_, err := s.DislikePost(context.Background(), req)
@@ -142,7 +152,7 @@ func TestDislikeFail(t *testing.T) {
 }
 
 func TestView(t *testing.T) {
-	s := &Server{&mockdb{}}
+	s := &Server{&mockdb{}, &mockAuth{}}
 	req := &pb.IncreaseViewsRequest{PostUid: nilUIDString}
 	_, err := s.IncreaseViews(context.Background(), req)
 	if err != nil {
@@ -151,7 +161,7 @@ func TestView(t *testing.T) {
 }
 
 func TestViewFail(t *testing.T) {
-	s := &Server{&mockdb{}}
+	s := &Server{&mockdb{}, &mockAuth{}}
 
 	req := &pb.IncreaseViewsRequest{}
 	_, err := s.IncreaseViews(context.Background(), req)
@@ -161,7 +171,7 @@ func TestViewFail(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	s := &Server{&mockdb{}}
+	s := &Server{&mockdb{}, &mockAuth{}}
 	req := &pb.DeletePostStatsRequest{PostUid: nilUIDString}
 	_, err := s.DeletePostStats(context.Background(), req)
 	if err != nil {
@@ -170,7 +180,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestDeleteFail(t *testing.T) {
-	s := &Server{&mockdb{}}
+	s := &Server{&mockdb{}, &mockAuth{}}
 
 	req := &pb.DeletePostStatsRequest{}
 	_, err := s.DeletePostStats(context.Background(), req)

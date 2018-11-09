@@ -39,7 +39,7 @@ func main() {
 		err = runComment(port, conn, ja)
 	case "poststats":
 		fmt.Printf("running post stats service on port %d\n", port)
-		err = runPostStats(port, conn, ja)
+		err = runPostStats(port, conn, ja, ra, rp, rdb)
 	case "api":
 		fmt.Printf("running API service on port %d\n", port)
 		err = runAPI(port, ps, cs, pss, ja)

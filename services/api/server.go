@@ -20,8 +20,10 @@ import (
 )
 
 const (
-	POST_APP_ID     = "PostAPI"
-	POST_APP_SECRET = "0JDt37eVLP0VcEJB"
+	PostAppID          = "PostAPI"
+	PostAppSecret      = "0JDt37eVLP0VcEJB"
+	PostStatsAppID     = "PostStatsAPI"
+	PostStatsAppSecret = "3BusyNfGQpyCr77J"
 )
 
 type PostClient struct {
@@ -31,20 +33,27 @@ type PostClient struct {
 	appSecret string
 }
 
+type PostStatsClient struct {
+	client    poststats.PostStatsClient
+	token     string
+	appID     string
+	appSecret string
+}
+
 type Server struct {
 	router          *tracer.TracedRouter
 	postClient      *PostClient
 	commentClient   comment.CommentClient
-	postStatsClient poststats.PostStatsClient
+	postStatsClient *PostStatsClient
 }
 
 // NewServer returns new instance of Server
 func NewServer(pc post.PostClient, cc comment.CommentClient, psc poststats.PostStatsClient, tr opentracing.Tracer) *Server {
 	return &Server{
 		tracer.NewRouter(tr),
-		&PostClient{pc, "", POST_APP_ID, POST_APP_SECRET},
+		&PostClient{pc, "", PostAppID, PostAppSecret},
 		cc,
-		psc,
+		&PostStatsClient{psc, "", PostStatsAppID, PostStatsAppSecret},
 	}
 }
 

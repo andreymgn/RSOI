@@ -22,7 +22,7 @@ type Server struct {
 }
 
 // NewServer returns a new server
-func NewServer(connString string, addr, password string, dbNum int, knownApps map[string]string) (*Server, error) {
+func NewServer(connString, addr, password string, dbNum int, knownApps map[string]string) (*Server, error) {
 	db, err := newDB(connString)
 	if err != nil {
 		return nil, err

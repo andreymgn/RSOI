@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	APP_ID     = "PostAPI"
-	APP_SECRET = "0JDt37eVLP0VcEJB"
+	PostAppID     = "PostAPI"
+	PostAppSecret = "0JDt37eVLP0VcEJB"
 )
 
 func runPost(port int, connString, jaegerAddr, redisAddr, redisPassword string, redisDB int) error {
@@ -18,7 +18,7 @@ func runPost(port int, connString, jaegerAddr, redisAddr, redisPassword string, 
 		log.Fatal(err)
 	}
 
-	knownKeys := map[string]string{APP_ID: APP_SECRET}
+	knownKeys := map[string]string{PostAppID: PostAppSecret}
 
 	server, err := post.NewServer(connString, redisAddr, redisPassword, redisDB, knownKeys)
 	if err != nil {

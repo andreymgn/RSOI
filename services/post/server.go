@@ -8,39 +8,39 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	auth "github.com/andreymgn/RSOI/services/auth/grpc"
 	pb "github.com/andreymgn/RSOI/services/post/proto"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	opentracing "github.com/opentracing/opentracing-go"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
-var (
-	statusNoPostTitle = status.Error(codes.InvalidArgument, "post title is required")
-	statusNotFound    = status.Error(codes.NotFound, "post not found")
-	statusInvalidUUID = status.Error(codes.InvalidArgument, "invalid UUID")
-)
-
-func internalError(err error) error {
-	return status.Error(codes.Internal, err.Error())
-}
-
 // Server implements posts service
 type Server struct {
-	db datastore
+	db   datastore
+	auth auth.GRPCAuth
 }
 
 // NewServer returns a new server
-func NewServer(connString string) (*Server, error) {
+func NewServer(connString string, addr, password string, dbNum int, knownApps map[string]string) (*Server, error) {
 	db, err := newDB(connString)
-	return &Server{db}, err
+	if err != nil {
+		return nil, err
+	}
+
+	tokenStorage, err := auth.NewTokenStorage(addr, password, dbNum, knownApps)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Server{db, tokenStorage}, nil
 }
 
 // Start starts a server
 func (s *Server) Start(port int, tracer opentracing.Tracer) error {
-	server := grpc.NewServer(grpc.UnaryInterceptor(otgrpc.OpenTracingServerInterceptor(tracer)))
+	server := grpc.NewServer(
+		grpc.UnaryInterceptor(otgrpc.OpenTracingServerInterceptor(tracer)),
+	)
 	pb.RegisterPostServer(server, s)
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
@@ -49,141 +49,11 @@ func (s *Server) Start(port int, tracer opentracing.Tracer) error {
 	return server.Serve(lis)
 }
 
-// SinglePost converts Post to SinglePost
-func (p *Post) SinglePost() (*pb.SinglePost, error) {
-	createdAtProto, err := ptypes.TimestampProto(p.CreatedAt)
+func (s *Server) checkToken(token string) (bool, error) {
+	exists, err := s.auth.Exists(token)
 	if err != nil {
-		return nil, internalError(err)
+		return false, status.Error(codes.Internal, "auth error")
 	}
 
-	modifiedAtProto, err := ptypes.TimestampProto(p.ModifiedAt)
-	if err != nil {
-		return nil, internalError(err)
-	}
-
-	res := new(pb.SinglePost)
-	res.Uid = p.UID.String()
-	res.Title = p.Title
-	res.Url = p.URL
-	res.CreatedAt = createdAtProto
-	res.ModifiedAt = modifiedAtProto
-
-	return res, nil
-}
-
-// ListPosts returns newest posts
-func (s *Server) ListPosts(ctx context.Context, req *pb.ListPostsRequest) (*pb.ListPostsResponse, error) {
-	var pageSize int32
-	if req.PageSize == 0 {
-		pageSize = 10
-	} else {
-		pageSize = req.PageSize
-	}
-
-	posts, err := s.db.getAll(pageSize, req.PageNumber)
-	if err != nil {
-		return nil, internalError(err)
-	}
-	res := new(pb.ListPostsResponse)
-	for _, post := range posts {
-		postResponse, err := post.SinglePost()
-		if err != nil {
-			return nil, err
-		}
-
-		res.Posts = append(res.Posts, postResponse)
-	}
-
-	res.PageSize = pageSize
-	res.PageNumber = req.PageNumber
-
-	return res, nil
-}
-
-// GetPost returns single post by ID
-func (s *Server) GetPost(ctx context.Context, req *pb.GetPostRequest) (*pb.SinglePost, error) {
-	uid, err := uuid.Parse(req.Uid)
-	if err != nil {
-		return nil, statusInvalidUUID
-	}
-
-	post, err := s.db.getOne(uid)
-	switch err {
-	case nil:
-		return post.SinglePost()
-	case errNotFound:
-		return nil, statusNotFound
-	default:
-		return nil, internalError(err)
-	}
-}
-
-// CreatePost creates a new post
-func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb.SinglePost, error) {
-	if req.Title == "" {
-		return nil, statusNoPostTitle
-	}
-
-	post, err := s.db.create(req.Title, req.Url)
-	if err != nil {
-		return nil, internalError(err)
-	}
-
-	return post.SinglePost()
-}
-
-// UpdatePost updates post by ID
-func (s *Server) UpdatePost(ctx context.Context, req *pb.UpdatePostRequest) (*pb.UpdatePostResponse, error) {
-	uid, err := uuid.Parse(req.Uid)
-	if err != nil {
-		return nil, statusInvalidUUID
-	}
-
-	err = s.db.update(uid, req.Title, req.Url)
-	switch err {
-	case nil:
-		return new(pb.UpdatePostResponse), nil
-	case errNotFound:
-		return nil, statusNotFound
-	default:
-		return nil, internalError(err)
-	}
-}
-
-// DeletePost deletes post by ID
-func (s *Server) DeletePost(ctx context.Context, req *pb.DeletePostRequest) (*pb.DeletePostResponse, error) {
-	uid, err := uuid.Parse(req.Uid)
-	if err != nil {
-		return nil, statusInvalidUUID
-	}
-
-	err = s.db.delete(uid)
-	switch err {
-	case nil:
-		return new(pb.DeletePostResponse), nil
-	case errNotFound:
-		return nil, statusNotFound
-	default:
-		return nil, internalError(err)
-	}
-}
-
-// CheckExists checks if post with ID exists in DB
-func (s *Server) CheckExists(ctx context.Context, req *pb.CheckExistsRequest) (*pb.CheckExistsResponse, error) {
-	uid, err := uuid.Parse(req.Uid)
-	if err != nil {
-		return nil, statusInvalidUUID
-	}
-
-	result, err := s.db.checkExists(uid)
-	switch err {
-	case nil:
-		res := new(pb.CheckExistsResponse)
-		res.Exists = result
-		return res, nil
-	case errNotFound:
-		return nil, statusNotFound
-	default:
-		return nil, internalError(err)
-	}
+	return exists, nil
 }

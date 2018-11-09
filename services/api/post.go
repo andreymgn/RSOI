@@ -1,11 +1,15 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	comment "github.com/andreymgn/RSOI/services/comment/proto"
 	post "github.com/andreymgn/RSOI/services/post/proto"
@@ -54,7 +58,7 @@ func (s *Server) getPosts() http.HandlerFunc {
 		}
 
 		ctx := r.Context()
-		postResponse, err := s.postClient.ListPosts(ctx, &post.ListPostsRequest{PageSize: sizeNum, PageNumber: pageNum})
+		postResponse, err := s.postClient.client.ListPosts(ctx, &post.ListPostsRequest{PageSize: sizeNum, PageNumber: pageNum})
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -132,10 +136,27 @@ func (s *Server) createPost() http.HandlerFunc {
 		}
 
 		ctx := r.Context()
-		p, err := s.postClient.CreatePost(ctx, &post.CreatePostRequest{Title: req.Title, Url: req.URL})
+		p, err := s.postClient.client.CreatePost(ctx,
+			&post.CreatePostRequest{Token: s.postClient.token, Title: req.Title, Url: req.URL},
+		)
 		if err != nil {
-			handleRPCError(w, err)
-			return
+			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
+				err := s.getPostToken()
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+				p, err = s.postClient.client.CreatePost(ctx,
+					&post.CreatePostRequest{Token: s.postClient.token, Title: req.Title, Url: req.URL},
+				)
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+			} else {
+				handleRPCError(w, err)
+				return
+			}
 		}
 
 		_, err = s.postStatsClient.CreatePostStats(ctx, &poststats.CreatePostStatsRequest{PostUid: p.Uid})
@@ -185,7 +206,7 @@ func (s *Server) getPost() http.HandlerFunc {
 		uid := vars["uid"]
 
 		ctx := r.Context()
-		postResponse, err := s.postClient.GetPost(ctx, &post.GetPostRequest{Uid: uid})
+		postResponse, err := s.postClient.client.GetPost(ctx, &post.GetPostRequest{Uid: uid})
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -258,10 +279,27 @@ func (s *Server) updatePost() http.HandlerFunc {
 		uid := vars["uid"]
 
 		ctx := r.Context()
-		_, err = s.postClient.UpdatePost(ctx, &post.UpdatePostRequest{Uid: uid, Title: req.Title, Url: req.URL})
+		_, err = s.postClient.client.UpdatePost(ctx,
+			&post.UpdatePostRequest{Token: s.postClient.token, Uid: uid, Title: req.Title, Url: req.URL},
+		)
 		if err != nil {
-			handleRPCError(w, err)
-			return
+			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
+				err := s.getPostToken()
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+				_, err = s.postClient.client.UpdatePost(ctx,
+					&post.UpdatePostRequest{Token: s.postClient.token, Uid: uid, Title: req.Title, Url: req.URL},
+				)
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+			} else {
+				handleRPCError(w, err)
+				return
+			}
 		}
 
 		w.WriteHeader(http.StatusNoContent)
@@ -274,10 +312,27 @@ func (s *Server) deletePost() http.HandlerFunc {
 		uid := vars["uid"]
 
 		ctx := r.Context()
-		_, err := s.postClient.DeletePost(ctx, &post.DeletePostRequest{Uid: uid})
+		_, err := s.postClient.client.DeletePost(ctx,
+			&post.DeletePostRequest{Token: s.postClient.token, Uid: uid},
+		)
 		if err != nil {
-			handleRPCError(w, err)
-			return
+			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
+				err := s.getPostToken()
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+				_, err = s.postClient.client.DeletePost(ctx,
+					&post.DeletePostRequest{Token: s.postClient.token, Uid: uid},
+				)
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+			} else {
+				handleRPCError(w, err)
+				return
+			}
 		}
 
 		_, err = s.postStatsClient.DeletePostStats(ctx, &poststats.DeletePostStatsRequest{PostUid: uid})
@@ -334,4 +389,14 @@ func (s *Server) dislikePost() http.HandlerFunc {
 
 		w.WriteHeader(http.StatusNoContent)
 	}
+}
+
+func (s *Server) getPostToken() error {
+	token, err := s.postClient.client.GetToken(context.Background(), &post.GetTokenRequest{AppId: s.postClient.appID, AppSecret: s.postClient.appSecret})
+	if err != nil {
+		return err
+	}
+
+	s.postClient.token = token.Token
+	return nil
 }

@@ -55,7 +55,7 @@ func (s *Server) getPostComments() http.HandlerFunc {
 		postUID := vars["postuid"]
 
 		ctx := r.Context()
-		checkExistsResponse, err := s.postClient.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
+		checkExistsResponse, err := s.postClient.client.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -137,7 +137,7 @@ func (s *Server) createComment() http.HandlerFunc {
 		postUID := vars["postuid"]
 
 		ctx := r.Context()
-		checkExistsResponse, err := s.postClient.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
+		checkExistsResponse, err := s.postClient.client.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -202,7 +202,7 @@ func (s *Server) updateComment() http.HandlerFunc {
 		postUID := vars["postuid"]
 
 		ctx := r.Context()
-		checkExistsResponse, err := s.postClient.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
+		checkExistsResponse, err := s.postClient.client.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -230,7 +230,7 @@ func (s *Server) deleteComment() http.HandlerFunc {
 		postUID := vars["postuid"]
 
 		ctx := r.Context()
-		checkExistsResponse, err := s.postClient.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
+		checkExistsResponse, err := s.postClient.client.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
 		if err != nil {
 			handleRPCError(w, err)
 			return

@@ -19,16 +19,33 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+const (
+	POST_APP_ID     = "PostAPI"
+	POST_APP_SECRET = "0JDt37eVLP0VcEJB"
+)
+
+type PostClient struct {
+	client    post.PostClient
+	token     string
+	appID     string
+	appSecret string
+}
+
 type Server struct {
 	router          *tracer.TracedRouter
-	postClient      post.PostClient
+	postClient      *PostClient
 	commentClient   comment.CommentClient
 	postStatsClient poststats.PostStatsClient
 }
 
 // NewServer returns new instance of Server
 func NewServer(pc post.PostClient, cc comment.CommentClient, psc poststats.PostStatsClient, tr opentracing.Tracer) *Server {
-	return &Server{tracer.NewRouter(tr), pc, cc, psc}
+	return &Server{
+		tracer.NewRouter(tr),
+		&PostClient{pc, "", POST_APP_ID, POST_APP_SECRET},
+		cc,
+		psc,
+	}
 }
 
 func handleRPCError(w http.ResponseWriter, err error) {

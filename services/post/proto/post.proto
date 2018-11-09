@@ -11,6 +11,7 @@ service Post {
     rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse);
     rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
     rpc CheckExists(CheckExistsRequest) returns (CheckExistsResponse);
+    rpc GetToken(GetTokenRequest) returns (GetTokenResponse);
 }
 
 message ListPostsRequest {
@@ -37,14 +38,16 @@ message SinglePost {
 }
 
 message CreatePostRequest {
-    string title = 1;
-    string url = 2;
+    string token = 1;
+    string title = 2;
+    string url = 3;
 }
 
 message UpdatePostRequest {
-    string uid = 1;
-    string title = 2;
-    string url = 3;
+    string token = 1;
+    string uid = 2;
+    string title = 3;
+    string url = 4;
 }
 
 message UpdatePostResponse {
@@ -52,7 +55,8 @@ message UpdatePostResponse {
 }
 
 message DeletePostRequest {
-    string uid = 1;
+    string token = 1;
+    string uid = 2;
 }
 
 message DeletePostResponse {
@@ -65,4 +69,13 @@ message CheckExistsRequest {
 
 message CheckExistsResponse {
     bool exists = 1;
+}
+
+message GetTokenRequest {
+    string appId = 1;
+    string appSecret = 2;
+}
+
+message GetTokenResponse {
+    string token = 1;
 }

@@ -33,6 +33,12 @@ services:
     volumes:
       - ./services/poststats/sql/script.sql:/docker-entrypoint-initdb.d/init.sql
 
+  redis_post:
+    image: redis:4.0.5-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    expose: 
+      - "6379"
+
   jaeger:
       image: jaegertracing/all-in-one:latest
       expose:
@@ -48,19 +54,21 @@ services:
 
   post:
     build: .
-    command: RSOI -service post -port 8080 -jaeger-addr jaeger:6831 -conn "user=post password=postpass dbname=post sslmode=disable port=5432 host=psql_post"
+    command: ["RSOI", "-service", "post", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=post password=postpass dbname=post sslmode=disable port=5432 host=psql_post", "-redis-addr", "redis_post:6379", "-redis-db", "0"]
     expose:
       - "8080"
     links:
       - jaeger
       - psql_post
+      - redis_post
     depends_on:
       - jaeger
       - psql_post
+      - redis_post
 
   comment:
     build: .
-    command: RSOI -service comment -port 8080 -jaeger-addr jaeger:6831 -conn "user=comment password=commentpass dbname=comment sslmode=disable port=5432 host=psql_comment" -jaeger-addr localhost:6831
+    command: RSOI -service comment -port 8080 -jaeger-addr jaeger:6831 -conn "user=comment password=commentpass dbname=comment sslmode=disable port=5432 host=psql_comment" -jaeger-addr jaeger:6831
     expose:
       - "8080"
     restart: on-failure
@@ -73,7 +81,7 @@ services:
 
   poststats:
     build: .
-    command: RSOI -service poststats -port 8080 -jaeger-addr jaeger:6831 -conn "user=poststats password=poststatspass dbname=poststats sslmode=disable port=5432 host=psql_poststats" -jaeger-addr localhost:6831
+    command: RSOI -service poststats -port 8080 -jaeger-addr jaeger:6831 -conn "user=poststats password=poststatspass dbname=poststats sslmode=disable port=5432 host=psql_poststats" -jaeger-addr jaeger:6831
     expose:
       - "8080"
     restart: on-failure

@@ -1,7 +1,7 @@
 package post
 
 import (
-	auth "github.com/andreymgn/RSOI/services/auth/grpc"
+	"github.com/andreymgn/RSOI/services/auth"
 	pb "github.com/andreymgn/RSOI/services/post/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"

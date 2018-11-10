@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const DEFAULT_EXPIRATION_TIME = time.Minute * 15
+const DefaultExpirationTime = time.Minute * 15
 
 var (
 	ErrNotFound    = errors.New("no app with this ID")
@@ -25,7 +25,7 @@ func generateToken() string {
 }
 
 // NewTokenStorage return new instance of token storage
-func NewTokenStorage(addr, password string, db int, knownApps map[string]string) (*InternalAPITokenStorage, error) {
+func NewInternalAPITokenStorage(addr, password string, db int, knownApps map[string]string) (*InternalAPITokenStorage, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: password,
@@ -47,7 +47,7 @@ func (s *InternalAPITokenStorage) Add(appID, appSecret string) (string, error) {
 	}
 
 	t := generateToken()
-	err := s.redis.Set(t, true, DEFAULT_EXPIRATION_TIME).Err()
+	err := s.redis.Set(t, true, DefaultExpirationTime).Err()
 	return t, err
 }
 

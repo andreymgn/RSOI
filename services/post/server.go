@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	auth "github.com/andreymgn/RSOI/services/auth/grpc"
+	"github.com/andreymgn/RSOI/services/auth"
 	pb "github.com/andreymgn/RSOI/services/post/proto"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	opentracing "github.com/opentracing/opentracing-go"
@@ -18,7 +18,7 @@ import (
 // Server implements posts service
 type Server struct {
 	db   datastore
-	auth auth.GRPCAuth
+	auth auth.Auth
 }
 
 // NewServer returns a new server
@@ -28,7 +28,7 @@ func NewServer(connString, addr, password string, dbNum int, knownApps map[strin
 		return nil, err
 	}
 
-	tokenStorage, err := auth.NewTokenStorage(addr, password, dbNum, knownApps)
+	tokenStorage, err := auth.NewInternalAPITokenStorage(addr, password, dbNum, knownApps)
 	if err != nil {
 		return nil, err
 	}

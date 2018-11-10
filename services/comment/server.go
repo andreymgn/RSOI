@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/andreymgn/RSOI/services/auth/grpc"
+	"github.com/andreymgn/RSOI/services/auth"
 
 	pb "github.com/andreymgn/RSOI/services/comment/proto"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
@@ -18,7 +18,7 @@ import (
 // Server implements comments service
 type Server struct {
 	db   datastore
-	auth auth.GRPCAuth
+	auth auth.Auth
 }
 
 // NewServer returns a new server
@@ -28,7 +28,7 @@ func NewServer(connString, addr, password string, dbNum int, knownApps map[strin
 		return nil, err
 	}
 
-	tokenStorage, err := auth.NewTokenStorage(addr, password, dbNum, knownApps)
+	tokenStorage, err := auth.NewInternalAPITokenStorage(addr, password, dbNum, knownApps)
 	if err != nil {
 		return nil, err
 	}

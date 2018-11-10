@@ -1,6 +1,6 @@
 package auth
 
-type GRPCAuth interface {
+type Auth interface {
 	Add(string, string) (string, error)
 	Exists(string) (bool, error)
 }

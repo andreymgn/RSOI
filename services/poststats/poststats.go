@@ -1,7 +1,7 @@
 package poststats
 
 import (
-	auth "github.com/andreymgn/RSOI/services/auth/grpc"
+	"github.com/andreymgn/RSOI/services/auth"
 	pb "github.com/andreymgn/RSOI/services/poststats/proto"
 	"github.com/google/uuid"
 	"golang.org/x/net/context"

@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	auth "github.com/andreymgn/RSOI/services/auth/grpc"
+	"github.com/andreymgn/RSOI/services/auth"
 	pb "github.com/andreymgn/RSOI/services/poststats/proto"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	opentracing "github.com/opentracing/opentracing-go"
@@ -17,7 +17,7 @@ import (
 // Server implements poststats service
 type Server struct {
 	db   datastore
-	auth auth.GRPCAuth
+	auth auth.Auth
 }
 
 // NewServer returns a new server
@@ -27,7 +27,7 @@ func NewServer(connString, addr, password string, dbNum int, knownApps map[strin
 		return nil, err
 	}
 
-	tokenStorage, err := auth.NewTokenStorage(addr, password, dbNum, knownApps)
+	tokenStorage, err := auth.NewInternalAPITokenStorage(addr, password, dbNum, knownApps)
 	if err != nil {
 		return nil, err
 	}

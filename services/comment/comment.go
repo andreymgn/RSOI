@@ -1,7 +1,7 @@
 package comment
 
 import (
-	auth "github.com/andreymgn/RSOI/services/auth/grpc"
+	"github.com/andreymgn/RSOI/services/auth"
 	pb "github.com/andreymgn/RSOI/services/comment/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"

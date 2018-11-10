@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package user;
+
+service user {
+  rpc GetUserInfo(GetUserInfoRequest) returns (UserInfo);
+  rpc CreateUser(CreateUserRequest) returns (UserInfo);
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+  rpc GetUserPosts(GetUserPostsRequest) returns (GetUserPostsResponse);
+  rpc AddPost(AddPostRequest) returns (AddPostResponse);
+  rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
+  rpc GetServiceToken(GetServiceTokenRequest) returns (GetServiceTokenResponse);
+  rpc GetUserToken(GetUserTokenRequest) returns (GetUserTokenResponse);
+  rpc GetUserByToken(GetUserByTokenRequest) returns (GetUserByTokenResponse);
+}
+
+message GetUserInfoRequest {
+  string uid = 1;
+}
+
+message UserInfo {
+  string uid = 1;
+  string username = 2;
+}
+
+message CreateUserRequest {
+  string token = 1;
+  string username = 2;
+  string password = 3;
+}
+
+message UpdateUserRequest {
+  string apiToken = 1;
+  string userToken = 2;
+  string uid = 3;
+  string password = 4;
+}
+
+message UpdateUserResponse {
+
+}
+
+message DeleteUserRequest {
+  string apiToken = 1;
+  string userToken = 2;
+  string uid = 3;
+}
+
+message DeleteUserResponse {
+
+}
+
+message GetUserPostsRequest {
+  string uid = 1;
+  int32 pageSize = 2;
+  int32 pageNumber = 3;
+}
+
+message GetUserPostsResponse {
+  repeated string postUid = 1;
+  int32 pageSize = 2;
+  int32 pageNumber = 3;
+}
+
+message AddPostRequest {
+  string apiToken = 1;
+  string userToken = 2;
+  string uid = 3;
+  string postUid = 4;
+  google.protobuf.Timestamp createdAt = 5;
+}
+
+message AddPostResponse {
+
+}
+
+message DeletePostRequest {
+  string apiToken = 1;
+  string userToken = 2;
+  string uid = 3;
+  string postUid = 4;
+}
+
+message DeletePostResponse {
+  
+}
+
+message GetServiceTokenRequest {
+  string appId = 1;
+  string appSecret = 2;
+}
+
+message GetServiceTokenResponse {
+  string token = 1;
+}
+
+message GetUserTokenRequest {
+  string apiToken = 1;
+  string uid = 2;
+  string password = 3;
+}
+
+message GetUserTokenResponse {
+  string token = 1;
+}
+
+message GetUserByTokenRequest {
+  string apiToken = 1;
+  string userToken = 2;
+}
+
+message GetUserByTokenResponse {
+  string uid = 1;
+}

@@ -54,7 +54,7 @@ export default {
   },
   methods: {
     fetchData() {
-      this.fetchPost() && 
+      this.fetchPost()
       this.fetchComments(0, 10)
     },
     fetchPost() {

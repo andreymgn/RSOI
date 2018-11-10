@@ -76,10 +76,12 @@ export default {
             if (this.$parent.name != this.name) {
               this.$parent.deleteComment(postUID, commentUID)
             } else {
-              // delete item from parent component
-              for (var i = 0; i < this.$parent.children.length; i++) {
-                if (this.$parent.children[i].UID == commentUID) {
-                  this.$parent.$delete(this.$parent.children, i)
+              if (this.$parent.children) {
+                // delete item from parent component
+                for (var i = 0; i < this.$parent.children.length; i++) {
+                  if (this.$parent.children[i].UID == commentUID) {
+                    this.$parent.$delete(this.$parent.children, i)
+                  }
                 }
               }
             }

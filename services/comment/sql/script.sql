@@ -2,6 +2,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE comments (
     uid UUID PRIMARY KEY,
+    user_uid UUID NOT NULL,
     post_uid UUID NOT NULL,
     body TEXT NOT NULL,
     parent_uid UUID,

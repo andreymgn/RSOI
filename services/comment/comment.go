@@ -34,6 +34,7 @@ func (c *Comment) SingleComment() (*pb.SingleComment, error) {
 
 	res := new(pb.SingleComment)
 	res.Uid = c.UID.String()
+	res.UserUid = c.UserUID.String()
 	res.PostUid = c.PostUID.String()
 	res.Body = c.Body
 	res.ParentUid = c.ParentUID.String()
@@ -111,7 +112,12 @@ func (s *Server) CreateComment(ctx context.Context, req *pb.CreateCommentRequest
 		}
 	}
 
-	comment, err := s.db.create(postUID, req.Body, parentUID)
+	userUID, err := uuid.Parse(req.UserUid)
+	if err != nil {
+		return nil, statusInvalidUUID
+	}
+
+	comment, err := s.db.create(postUID, req.Body, parentUID, userUID)
 	if err != nil {
 		return nil, internalError(err)
 	}

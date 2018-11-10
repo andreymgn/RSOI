@@ -17,6 +17,7 @@ var (
 // Comment describes comment to a post
 type Comment struct {
 	UID        uuid.UUID
+	UserUID    uuid.UUID
 	PostUID    uuid.UUID
 	Body       string
 	ParentUID  uuid.UUID
@@ -26,7 +27,7 @@ type Comment struct {
 
 type datastore interface {
 	getAll(uuid.UUID, uuid.UUID, int32, int32) ([]*Comment, error)
-	create(uuid.UUID, string, uuid.UUID) (*Comment, error)
+	create(uuid.UUID, string, uuid.UUID, uuid.UUID) (*Comment, error)
 	update(uuid.UUID, string) error
 	delete(uuid.UUID) error
 }
@@ -53,13 +54,18 @@ func (db *db) getAll(postUID uuid.UUID, parentUID uuid.UUID, pageSize, pageNumbe
 	result := make([]*Comment, 0)
 	for rows.Next() {
 		comment := new(Comment)
-		var uid, pUID, parentUID string
-		err := rows.Scan(&uid, &pUID, &comment.Body, &parentUID, &comment.CreatedAt, &comment.ModifiedAt)
+		var uid, userUID, pUID, parentUID string
+		err := rows.Scan(&uid, &userUID, &pUID, &comment.Body, &parentUID, &comment.CreatedAt, &comment.ModifiedAt)
 		if err != nil {
 			return nil, err
 		}
 
 		comment.UID, err = uuid.Parse(uid)
+		if err != nil {
+			return nil, err
+		}
+
+		comment.UserUID, err = uuid.Parse(userUID)
 		if err != nil {
 			return nil, err
 		}
@@ -88,22 +94,23 @@ func (db *db) getAll(postUID uuid.UUID, parentUID uuid.UUID, pageSize, pageNumbe
 	return result, nil
 }
 
-func (db *db) create(postUID uuid.UUID, body string, parentUID uuid.UUID) (*Comment, error) {
+func (db *db) create(postUID uuid.UUID, body string, parentUID, userUID uuid.UUID) (*Comment, error) {
 	comment := new(Comment)
 
-	query := "INSERT INTO comments (uid, post_uid, body, parent_uid, created_at, modified_at) VALUES ($1, $2, $3, $4, $5, $6)"
+	query := "INSERT INTO comments (uid, user_uid, post_uid, body, parent_uid, created_at, modified_at) VALUES ($1, $2, $3, $4, $5, $6, $7)"
 
 	uid := uuid.New()
 	now := time.Now()
 
 	comment.UID = uid
+	comment.UserUID = userUID
 	comment.PostUID = postUID
 	comment.Body = body
 	comment.ParentUID = parentUID
 	comment.CreatedAt = now
 	comment.ModifiedAt = now
 
-	result, err := db.Exec(query, uid.String(), postUID.String(), body, parentUID.String(), now, now)
+	result, err := db.Exec(query, uid.String(), userUID.String(), postUID.String(), body, parentUID.String(), now, now)
 	nRows, err := result.RowsAffected()
 	if err != nil {
 		return nil, err

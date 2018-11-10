@@ -27,11 +27,12 @@ message ListCommentsResponse {
 
 message SingleComment {
     string uid = 1;
-    string postUid = 2;
-    string body = 3;
-    string parentUid = 4;
-    google.protobuf.Timestamp createdAt = 5;
-    google.protobuf.Timestamp modifiedAt = 6;
+    string userUid = 2;
+    string postUid = 3;
+    string body = 4;
+    string parentUid = 5;
+    google.protobuf.Timestamp createdAt = 6;
+    google.protobuf.Timestamp modifiedAt = 7;
 }
 
 message CreateCommentRequest {
@@ -39,6 +40,7 @@ message CreateCommentRequest {
     string postUid = 2;
     string body = 3;
     string parentUid = 4;
+    string userUid = 5;
 }
 
 message UpdateCommentRequest {

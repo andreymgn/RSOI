@@ -25,16 +25,16 @@ func (mdb *mockdb) getAll(postUID uuid.UUID, parentUID uuid.UUID, pageNumber, pa
 	uid3 := uuid.New()
 	pUID := uuid.New()
 
-	result = append(result, &Comment{uid1, pUID, "first comment body", uuid.Nil, time.Now(), time.Now()})
-	result = append(result, &Comment{uid2, pUID, "second comment body", uuid.Nil, time.Now(), time.Now()})
-	result = append(result, &Comment{uid3, pUID, "third comment body", uid1, time.Now(), time.Now()})
+	result = append(result, &Comment{uid1, uid2, pUID, "first comment body", uuid.Nil, time.Now(), time.Now()})
+	result = append(result, &Comment{uid2, uid3, pUID, "second comment body", uuid.Nil, time.Now(), time.Now()})
+	result = append(result, &Comment{uid3, uid1, pUID, "third comment body", uid1, time.Now(), time.Now()})
 	return result, nil
 }
 
-func (mdb *mockdb) create(postUID uuid.UUID, body string, parentUid uuid.UUID) (*Comment, error) {
+func (mdb *mockdb) create(postUID uuid.UUID, body string, parentUID, userUID uuid.UUID) (*Comment, error) {
 	if postUID == uuid.Nil {
 		uid := uuid.New()
-		return &Comment{uid, uid, "first comment body", uuid.Nil, time.Now(), time.Now()}, nil
+		return &Comment{uid, userUID, postUID, "first comment body", uuid.Nil, time.Now(), time.Now()}, nil
 	}
 
 	return nil, errDummy
@@ -82,7 +82,7 @@ func TestListComments(t *testing.T) {
 
 func TestCreateComment(t *testing.T) {
 	s := &Server{&mockdb{}, &mockAuth{}}
-	req := &pb.CreateCommentRequest{PostUid: nilUIDString}
+	req := &pb.CreateCommentRequest{PostUid: nilUIDString, UserUid: nilUIDString}
 	_, err := s.CreateComment(context.Background(), req)
 	if err != nil {
 		t.Errorf("unexpected error %v", err)

@@ -25,9 +25,9 @@ func (mdb *mockdb) getAll(pageSize, pageNumber int32) ([]*Post, error) {
 	uid2 := uuid.New()
 	uid3 := uuid.New()
 
-	result = append(result, &Post{uid1, "First post", "google.com", time.Now(), time.Now()})
-	result = append(result, &Post{uid2, "Second post", "", time.Now(), time.Now().Add(time.Second * 10)})
-	result = append(result, &Post{uid3, "Third post", "yandex.ru", time.Now(), time.Now()})
+	result = append(result, &Post{uid1, uid2, "First post", "google.com", time.Now(), time.Now()})
+	result = append(result, &Post{uid2, uid3, "Second post", "", time.Now(), time.Now().Add(time.Second * 10)})
+	result = append(result, &Post{uid3, uid1, "Third post", "yandex.ru", time.Now(), time.Now()})
 	return result, nil
 }
 
@@ -35,17 +35,17 @@ func (mdb *mockdb) getOne(uid uuid.UUID) (*Post, error) {
 	if uid == uuid.Nil {
 		uid := uuid.New()
 
-		return &Post{uid, "First post", "google.com", time.Now(), time.Now()}, nil
+		return &Post{uid, uid, "First post", "google.com", time.Now(), time.Now()}, nil
 	}
 
 	return nil, errDummy
 }
 
-func (mdb *mockdb) create(title, url string) (*Post, error) {
+func (mdb *mockdb) create(title, url string, userUID uuid.UUID) (*Post, error) {
 	if title == "success" {
 		uid := uuid.New()
 
-		return &Post{uid, "First post", "google.com", time.Now(), time.Now()}, nil
+		return &Post{uid, userUID, "First post", "google.com", time.Now(), time.Now()}, nil
 	}
 
 	return nil, errDummy
@@ -123,7 +123,7 @@ func TestGetPostFail(t *testing.T) {
 
 func TestCreatePost(t *testing.T) {
 	s := &Server{&mockdb{}, &mockAuth{}}
-	req := &pb.CreatePostRequest{Title: "success"}
+	req := &pb.CreatePostRequest{Title: "success", UserUid: nilUIDString}
 	_, err := s.CreatePost(context.Background(), req)
 	if err != nil {
 		t.Errorf("unexpected error %v", err)

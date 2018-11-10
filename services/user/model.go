@@ -3,7 +3,6 @@ package user
 import (
 	"database/sql"
 	"errors"
-	"time"
 
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
@@ -31,9 +30,6 @@ type datastore interface {
 	create(string, string) (*User, error)
 	update(uuid.UUID, string) error
 	delete(uuid.UUID) error
-	getPosts(uuid.UUID, int32, int32) ([]uuid.UUID, error)
-	addPost(uuid.UUID, uuid.UUID, time.Time) error
-	deletePost(uuid.UUID, uuid.UUID) error
 	checkPassword(uuid.UUID, string) (bool, error)
 }
 
@@ -120,68 +116,6 @@ func (db *db) update(uid uuid.UUID, newPassword string) error {
 func (db *db) delete(uid uuid.UUID) error {
 	query := "DELETE FROM users WHERE uid=$1"
 	result, err := db.Exec(query, uid.String())
-	nRows, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if nRows == 0 {
-		return errNotFound
-	}
-
-	return nil
-}
-
-func (db *db) getPosts(uid uuid.UUID, pageSize, pageNumber int32) ([]uuid.UUID, error) {
-	query := "SELECT post_uid FROM user_posts WHERE uid=$1 ORDER BY created_at DESC LIMIT $2 OFFSET $3"
-	lastRecord := pageNumber * pageSize
-	rows, err := db.Query(query, uid.String(), pageSize, lastRecord)
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-	result := make([]uuid.UUID, 0)
-	for rows.Next() {
-		var uidString string
-		err := rows.Scan(&uid)
-		if err != nil {
-			return nil, err
-		}
-
-		postUID, err := uuid.Parse(uidString)
-		if err != nil {
-			return nil, err
-		}
-
-		result = append(result, postUID)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (db *db) addPost(uid, postUID uuid.UUID, createdAt time.Time) error {
-	query := "INSERT INTO user_posts (uid, post_uid, created_at) VALUES ($1, $2, $3)"
-	result, err := db.Exec(query, uid.String(), postUID.String(), createdAt)
-	nRows, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if nRows == 0 {
-		return errUserPostNotCreated
-	}
-
-	return nil
-}
-
-func (db *db) deletePost(uid, postUID uuid.UUID) error {
-	query := "DELETE FROM user_posts WHERE uid=$1 AND post_uid=$2"
-	result, err := db.Exec(query, uid.String(), postUID.String())
 	nRows, err := result.RowsAffected()
 	if err != nil {
 		return err

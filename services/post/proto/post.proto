@@ -31,16 +31,18 @@ message GetPostRequest {
 
 message SinglePost {
     string uid = 1;
-    string title = 2;
-    string url = 3;
-    google.protobuf.Timestamp createdAt = 4;
-    google.protobuf.Timestamp modifiedAt = 5;
+    string userUid = 2;
+    string title = 3;
+    string url = 4;
+    google.protobuf.Timestamp createdAt = 5;
+    google.protobuf.Timestamp modifiedAt = 6;
 }
 
 message CreatePostRequest {
     string token = 1;
     string title = 2;
     string url = 3;
+    string userUid = 4;
 }
 
 message UpdatePostRequest {

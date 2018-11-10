@@ -17,6 +17,7 @@ var (
 // Post describes a post
 type Post struct {
 	UID        uuid.UUID
+	UserUID    uuid.UUID
 	Title      string
 	URL        string
 	CreatedAt  time.Time
@@ -26,7 +27,7 @@ type Post struct {
 type datastore interface {
 	getAll(int32, int32) ([]*Post, error)
 	getOne(uuid.UUID) (*Post, error)
-	create(string, string) (*Post, error)
+	create(string, string, uuid.UUID) (*Post, error)
 	update(uuid.UUID, string, string) error
 	delete(uuid.UUID) error
 	checkExists(uuid.UUID) (bool, error)
@@ -53,13 +54,18 @@ func (db *db) getAll(pageSize, pageNumber int32) ([]*Post, error) {
 	result := make([]*Post, 0)
 	for rows.Next() {
 		post := new(Post)
-		var uid string
-		err := rows.Scan(&uid, &post.Title, &post.URL, &post.CreatedAt, &post.ModifiedAt)
+		var uid, userUID string
+		err := rows.Scan(&uid, &userUID, &post.Title, &post.URL, &post.CreatedAt, &post.ModifiedAt)
 		if err != nil {
 			return nil, err
 		}
 
 		post.UID, err = uuid.Parse(uid)
+		if err != nil {
+			return nil, err
+		}
+
+		post.UserUID, err = uuid.Parse(userUID)
 
 		result = append(result, post)
 	}
@@ -75,10 +81,16 @@ func (db *db) getOne(uid uuid.UUID) (*Post, error) {
 	query := "SELECT * FROM posts WHERE uid=$1"
 	row := db.QueryRow(query, uid.String())
 	result := new(Post)
-	var stringUID string
-	switch err := row.Scan(&stringUID, &result.Title, &result.URL, &result.CreatedAt, &result.ModifiedAt); err {
+	var stringUID, stringUserUID string
+	switch err := row.Scan(&stringUID, &stringUserUID, &result.Title, &result.URL, &result.CreatedAt, &result.ModifiedAt); err {
 	case nil:
 		result.UID = uid
+		userUID, err := uuid.Parse(stringUserUID)
+		if err != nil {
+			return nil, err
+		}
+
+		result.UserUID = userUID
 		return result, nil
 	case sql.ErrNoRows:
 		return nil, errNotFound
@@ -87,21 +99,22 @@ func (db *db) getOne(uid uuid.UUID) (*Post, error) {
 	}
 }
 
-func (db *db) create(title, url string) (*Post, error) {
+func (db *db) create(title, url string, userUID uuid.UUID) (*Post, error) {
 	post := new(Post)
 
-	query := "INSERT INTO posts (uid, title, url, created_at, modified_at) VALUES ($1, $2, $3, $4, $5)"
+	query := "INSERT INTO posts (uid, user_uid, title, url, created_at, modified_at) VALUES ($1, $2, $3, $4, $5, $6)"
 	uid := uuid.New()
 
 	now := time.Now()
 
 	post.UID = uid
+	post.UserUID = userUID
 	post.Title = title
 	post.URL = url
 	post.CreatedAt = now
 	post.ModifiedAt = now
 
-	result, err := db.Exec(query, post.UID.String(), post.Title, post.URL, post.CreatedAt, post.ModifiedAt)
+	result, err := db.Exec(query, post.UID.String(), userUID.String(), post.Title, post.URL, post.CreatedAt, post.ModifiedAt)
 	nRows, err := result.RowsAffected()
 	if err != nil {
 		return nil, err

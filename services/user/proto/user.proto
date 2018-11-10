@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "google/protobuf/timestamp.proto";
-
 package user;
 
 service user {
@@ -9,9 +7,6 @@ service user {
   rpc CreateUser(CreateUserRequest) returns (UserInfo);
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
-  rpc GetUserPosts(GetUserPostsRequest) returns (GetUserPostsResponse);
-  rpc AddPost(AddPostRequest) returns (AddPostResponse);
-  rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
   rpc GetServiceToken(GetServiceTokenRequest) returns (GetServiceTokenResponse);
   rpc GetUserToken(GetUserTokenRequest) returns (GetUserTokenResponse);
   rpc GetUserByToken(GetUserByTokenRequest) returns (GetUserByTokenResponse);
@@ -51,41 +46,6 @@ message DeleteUserRequest {
 
 message DeleteUserResponse {
 
-}
-
-message GetUserPostsRequest {
-  string uid = 1;
-  int32 pageSize = 2;
-  int32 pageNumber = 3;
-}
-
-message GetUserPostsResponse {
-  repeated string postUid = 1;
-  int32 pageSize = 2;
-  int32 pageNumber = 3;
-}
-
-message AddPostRequest {
-  string apiToken = 1;
-  string userToken = 2;
-  string uid = 3;
-  string postUid = 4;
-  google.protobuf.Timestamp createdAt = 5;
-}
-
-message AddPostResponse {
-
-}
-
-message DeletePostRequest {
-  string apiToken = 1;
-  string userToken = 2;
-  string uid = 3;
-  string postUid = 4;
-}
-
-message DeletePostResponse {
-  
 }
 
 message GetServiceTokenRequest {

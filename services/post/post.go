@@ -35,6 +35,7 @@ func (p *Post) SinglePost() (*pb.SinglePost, error) {
 
 	res := new(pb.SinglePost)
 	res.Uid = p.UID.String()
+	res.UserUid = p.UserUID.String()
 	res.Title = p.Title
 	res.Url = p.URL
 	res.CreatedAt = createdAtProto
@@ -105,7 +106,12 @@ func (s *Server) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb
 		return nil, statusNoPostTitle
 	}
 
-	post, err := s.db.create(req.Title, req.Url)
+	userUID, err := uuid.Parse(req.UserUid)
+	if err != nil {
+		return nil, statusInvalidUUID
+	}
+
+	post, err := s.db.create(req.Title, req.Url, userUID)
 	if err != nil {
 		return nil, internalError(err)
 	}

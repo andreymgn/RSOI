@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
-
 	"github.com/andreymgn/RSOI/services/auth"
 	pb "github.com/andreymgn/RSOI/services/user/proto"
 	"github.com/google/uuid"
@@ -119,91 +117,6 @@ func (s *Server) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb
 	default:
 		return nil, internalError(err)
 	}
-}
-
-func (s *Server) GetUserPosts(ctx context.Context, req *pb.GetUserPostsRequest) (*pb.GetUserPostsResponse, error) {
-	var pageSize int32
-	if req.PageSize == 0 {
-		pageSize = 10
-	} else {
-		pageSize = req.PageSize
-	}
-
-	uid, err := uuid.Parse(req.Uid)
-	if err != nil {
-		return nil, statusInvalidUUID
-	}
-
-	uids, err := s.db.getPosts(uid, pageSize, req.PageNumber)
-	res := new(pb.GetUserPostsResponse)
-	res.PageSize = pageSize
-	res.PageNumber = req.PageNumber
-	for _, u := range uids {
-		res.PostUid = append(res.PostUid, u.String())
-	}
-
-	return res, nil
-}
-
-func (s *Server) AddPost(ctx context.Context, req *pb.AddPostRequest) (*pb.AddPostResponse, error) {
-	valid, err := s.checkServiceToken(req.ApiToken)
-	if err != nil {
-		return nil, err
-	}
-
-	if !valid {
-		return nil, statusInvalidToken
-	}
-
-	uid, err := uuid.Parse(req.Uid)
-	if err != nil {
-		return nil, statusInvalidUUID
-	}
-
-	postUID, err := uuid.Parse(req.PostUid)
-	if err != nil {
-		return nil, statusInvalidUUID
-	}
-
-	createdAt, err := ptypes.Timestamp(req.CreatedAt)
-	if err != nil {
-		return nil, internalError(err)
-	}
-
-	err = s.db.addPost(uid, postUID, createdAt)
-	if err != nil {
-		return nil, internalError(err)
-	}
-
-	return new(pb.AddPostResponse), nil
-}
-
-func (s *Server) DeletePost(ctx context.Context, req *pb.DeletePostRequest) (*pb.DeletePostResponse, error) {
-	valid, err := s.checkServiceToken(req.ApiToken)
-	if err != nil {
-		return nil, err
-	}
-
-	if !valid {
-		return nil, statusInvalidToken
-	}
-
-	uid, err := uuid.Parse(req.Uid)
-	if err != nil {
-		return nil, statusInvalidUUID
-	}
-
-	postUID, err := uuid.Parse(req.PostUid)
-	if err != nil {
-		return nil, statusInvalidUUID
-	}
-
-	err = s.db.deletePost(uid, postUID)
-	if err != nil {
-		return nil, internalError(err)
-	}
-
-	return new(pb.DeletePostResponse), nil
 }
 
 func (s *Server) GetServiceToken(ctx context.Context, req *pb.GetServiceTokenRequest) (*pb.GetServiceTokenResponse, error) {

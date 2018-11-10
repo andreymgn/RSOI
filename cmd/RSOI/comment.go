@@ -7,13 +7,20 @@ import (
 	"github.com/andreymgn/RSOI/services/comment"
 )
 
-func runComment(port int, connString, jaegerAddr string) error {
+const (
+	CommentAppID     = "CommentAPI"
+	CommentAppSecret = "PT6RUHLokksaBdIj"
+)
+
+func runComment(port int, connString, jaegerAddr, redisAddr, redisPassword string, redisDB int) error {
 	tracer, err := tracer.NewTracer("comment", jaegerAddr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	server, err := comment.NewServer(connString)
+	knownKeys := map[string]string{CommentAppID: CommentAppSecret}
+
+	server, err := comment.NewServer(connString, redisAddr, redisPassword, redisDB, knownKeys)
 	if err != nil {
 		log.Fatal(err)
 	}

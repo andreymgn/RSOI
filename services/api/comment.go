@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -11,6 +12,8 @@ import (
 	post "github.com/andreymgn/RSOI/services/post/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/gorilla/mux"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (s *Server) getPostComments() http.HandlerFunc {
@@ -55,7 +58,9 @@ func (s *Server) getPostComments() http.HandlerFunc {
 		postUID := vars["postuid"]
 
 		ctx := r.Context()
-		checkExistsResponse, err := s.postClient.client.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
+		checkExistsResponse, err := s.postClient.client.CheckExists(ctx,
+			&post.CheckExistsRequest{Uid: postUID},
+		)
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -66,7 +71,9 @@ func (s *Server) getPostComments() http.HandlerFunc {
 			return
 		}
 
-		commentsResponse, err := s.commentClient.ListComments(ctx, &comment.ListCommentsRequest{PostUid: postUID, CommentUid: uid, PageSize: sizeNum, PageNumber: pageNum})
+		commentsResponse, err := s.commentClient.client.ListComments(ctx,
+			&comment.ListCommentsRequest{PostUid: postUID, CommentUid: uid, PageSize: sizeNum, PageNumber: pageNum},
+		)
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -137,7 +144,9 @@ func (s *Server) createComment() http.HandlerFunc {
 		postUID := vars["postuid"]
 
 		ctx := r.Context()
-		checkExistsResponse, err := s.postClient.client.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
+		checkExistsResponse, err := s.postClient.client.CheckExists(ctx,
+			&post.CheckExistsRequest{Uid: postUID},
+		)
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -148,10 +157,27 @@ func (s *Server) createComment() http.HandlerFunc {
 			return
 		}
 
-		c, err := s.commentClient.CreateComment(ctx, &comment.CreateCommentRequest{PostUid: postUID, Body: req.Body, ParentUid: req.ParentUID})
+		c, err := s.commentClient.client.CreateComment(ctx,
+			&comment.CreateCommentRequest{Token: s.commentClient.token, PostUid: postUID, Body: req.Body, ParentUid: req.ParentUID},
+		)
 		if err != nil {
-			handleRPCError(w, err)
-			return
+			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
+				err := s.updateCommentToken()
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+				c, err = s.commentClient.client.CreateComment(ctx,
+					&comment.CreateCommentRequest{Token: s.commentClient.token, PostUid: postUID, Body: req.Body, ParentUid: req.ParentUID},
+				)
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+			} else {
+				handleRPCError(w, err)
+				return
+			}
 		}
 
 		createdAt, err := ptypes.Timestamp(c.CreatedAt)
@@ -202,7 +228,9 @@ func (s *Server) updateComment() http.HandlerFunc {
 		postUID := vars["postuid"]
 
 		ctx := r.Context()
-		checkExistsResponse, err := s.postClient.client.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
+		checkExistsResponse, err := s.postClient.client.CheckExists(ctx,
+			&post.CheckExistsRequest{Uid: postUID},
+		)
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -213,10 +241,27 @@ func (s *Server) updateComment() http.HandlerFunc {
 			return
 		}
 
-		_, err = s.commentClient.UpdateComment(ctx, &comment.UpdateCommentRequest{Uid: uid, Body: req.Body})
+		_, err = s.commentClient.client.UpdateComment(ctx,
+			&comment.UpdateCommentRequest{Token: s.commentClient.token, Uid: uid, Body: req.Body},
+		)
 		if err != nil {
-			handleRPCError(w, err)
-			return
+			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
+				err := s.updateCommentToken()
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+				_, err = s.commentClient.client.UpdateComment(ctx,
+					&comment.UpdateCommentRequest{Token: s.commentClient.token, Uid: uid, Body: req.Body},
+				)
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+			} else {
+				handleRPCError(w, err)
+				return
+			}
 		}
 
 		w.WriteHeader(http.StatusNoContent)
@@ -230,7 +275,9 @@ func (s *Server) deleteComment() http.HandlerFunc {
 		postUID := vars["postuid"]
 
 		ctx := r.Context()
-		checkExistsResponse, err := s.postClient.client.CheckExists(ctx, &post.CheckExistsRequest{Uid: postUID})
+		checkExistsResponse, err := s.postClient.client.CheckExists(ctx,
+			&post.CheckExistsRequest{Uid: postUID},
+		)
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -241,12 +288,41 @@ func (s *Server) deleteComment() http.HandlerFunc {
 			return
 		}
 
-		_, err = s.commentClient.DeleteComment(ctx, &comment.DeleteCommentRequest{Uid: uid})
+		_, err = s.commentClient.client.DeleteComment(ctx,
+			&comment.DeleteCommentRequest{Token: s.commentClient.token, Uid: uid},
+		)
 		if err != nil {
-			handleRPCError(w, err)
-			return
+			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
+				err := s.updateCommentToken()
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+				_, err = s.commentClient.client.DeleteComment(ctx,
+					&comment.DeleteCommentRequest{Token: s.commentClient.token, Uid: uid},
+				)
+				if err != nil {
+					handleRPCError(w, err)
+					return
+				}
+			} else {
+				handleRPCError(w, err)
+				return
+			}
 		}
 
 		w.WriteHeader(http.StatusNoContent)
 	}
+}
+
+func (s *Server) updateCommentToken() error {
+	token, err := s.commentClient.client.GetToken(context.Background(),
+		&comment.GetTokenRequest{AppId: s.commentClient.appID, AppSecret: s.commentClient.appSecret},
+	)
+	if err != nil {
+		return err
+	}
+
+	s.commentClient.token = token.Token
+	return nil
 }

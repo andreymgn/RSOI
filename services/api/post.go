@@ -400,14 +400,14 @@ func (s *Server) deletePost() http.HandlerFunc {
 			}
 		}
 
-		comments, err := s.commentClient.ListComments(ctx, &comment.ListCommentsRequest{PostUid: uid})
+		comments, err := s.commentClient.client.ListComments(ctx, &comment.ListCommentsRequest{PostUid: uid})
 		if err != nil {
 			handleRPCError(w, err)
 			return
 		}
 
 		for _, c := range comments.Comments {
-			s.commentClient.DeleteComment(ctx, &comment.DeleteCommentRequest{Uid: c.Uid})
+			s.commentClient.client.DeleteComment(ctx, &comment.DeleteCommentRequest{Uid: c.Uid})
 			if err != nil {
 				handleRPCError(w, err)
 				return

@@ -39,6 +39,12 @@ services:
     expose: 
       - "6379"
 
+  redis_comment:
+    image: redis:4.0.5-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    expose: 
+      - "6379"
+
   redis_poststats:
     image: redis:4.0.5-alpine
     command: ["redis-server", "--appendonly", "yes"]
@@ -74,20 +80,22 @@ services:
 
   comment:
     build: .
-    command: RSOI -service comment -port 8080 -jaeger-addr jaeger:6831 -conn "user=comment password=commentpass dbname=comment sslmode=disable port=5432 host=psql_comment" -jaeger-addr jaeger:6831
+    command: ["RSOI", "-service", "comment", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=comment password=commentpass dbname=comment sslmode=disable port=5432 host=psql_comment", "-redis-addr", "redis_comment:6379", "-redis-db", "0"]
     expose:
       - "8080"
     restart: on-failure
     links:
       - jaeger
       - psql_comment
+      - redis_comment
     depends_on:
       - jaeger
       - psql_comment
+      - redis_comment
 
   poststats:
     build: .
-    command: ["RSOI", "-service", "poststats", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=poststats password=poststatspass dbname=poststats sslmode=disable port=5432 host=psql_poststats", "-jaeger-addr", "jaeger:6831", "-redis-addr", "redis_poststats:6379", "-redis-db", "0"]
+    command: ["RSOI", "-service", "poststats", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=poststats password=poststatspass dbname=poststats sslmode=disable port=5432 host=psql_poststats", "-redis-addr", "redis_poststats:6379", "-redis-db", "0"]
     expose:
       - "8080"
     restart: on-failure

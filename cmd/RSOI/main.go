@@ -36,7 +36,7 @@ func main() {
 		err = runPost(port, conn, ja, ra, rp, rdb)
 	case "comment":
 		fmt.Printf("running comment service on port %d\n", port)
-		err = runComment(port, conn, ja)
+		err = runComment(port, conn, ja, ra, rp, rdb)
 	case "poststats":
 		fmt.Printf("running post stats service on port %d\n", port)
 		err = runPostStats(port, conn, ja, ra, rp, rdb)

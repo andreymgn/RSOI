@@ -210,3 +210,23 @@ func (s *Server) GetToken(ctx context.Context, req *pb.GetTokenRequest) (*pb.Get
 		return nil, internalError(err)
 	}
 }
+
+// GetOwner returns post owner
+func (s *Server) GetOwner(ctx context.Context, req *pb.GetOwnerRequest) (*pb.GetOwnerResponse, error) {
+	uid, err := uuid.Parse(req.Uid)
+	if err != nil {
+		return nil, statusInvalidUUID
+	}
+
+	result, err := s.db.getOwner(uid)
+	switch err {
+	case nil:
+		res := new(pb.GetOwnerResponse)
+		res.OwnerUid = result
+		return res, nil
+	case errNotFound:
+		return nil, statusNotFound
+	default:
+		return nil, internalError(err)
+	}
+}

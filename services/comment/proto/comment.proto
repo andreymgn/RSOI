@@ -9,7 +9,8 @@ service Comment {
     rpc CreateComment(CreateCommentRequest) returns (SingleComment);
     rpc UpdateComment(UpdateCommentRequest) returns (UpdateCommentResponse);
     rpc DeleteComment(DeleteCommentRequest) returns (DeleteCommentResponse);
-    rpc GetToken(GetTokenRequest) returns (GetTokenResponse); 
+    rpc GetToken(GetTokenRequest) returns (GetTokenResponse);
+    rpc GetOwner(GetOwnerRequest) returns (GetOwnerResponse); 
 }
 
 message ListCommentsRequest {
@@ -69,4 +70,12 @@ message GetTokenRequest {
 
 message GetTokenResponse {
     string token = 1;
+}
+
+message GetOwnerRequest {
+    string uid = 1;
+}
+
+message GetOwnerResponse {
+    string ownerUid = 1;
 }

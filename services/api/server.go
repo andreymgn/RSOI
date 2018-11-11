@@ -7,12 +7,14 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/andreymgn/RSOI/pkg/tracer"
 	comment "github.com/andreymgn/RSOI/services/comment/proto"
 	post "github.com/andreymgn/RSOI/services/post/proto"
 	poststats "github.com/andreymgn/RSOI/services/poststats/proto"
+	user "github.com/andreymgn/RSOI/services/user/proto"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/rs/cors"
 	"google.golang.org/grpc/codes"
@@ -26,6 +28,8 @@ const (
 	CommentAppSecret   = "PT6RUHLokksaBdIj"
 	PostStatsAppID     = "PostStatsAPI"
 	PostStatsAppSecret = "3BusyNfGQpyCr77J"
+	UserAppID          = "UserAPI"
+	UserAppSecret      = "fzFKf3g6QeIdqbP7"
 )
 
 type PostClient struct {
@@ -49,21 +53,40 @@ type PostStatsClient struct {
 	appSecret string
 }
 
+type UserClient struct {
+	client    user.UserClient
+	token     string
+	appID     string
+	appSecret string
+}
+
 type Server struct {
 	router          *tracer.TracedRouter
 	postClient      *PostClient
 	commentClient   *CommentClient
 	postStatsClient *PostStatsClient
+	userClient      *UserClient
 }
 
 // NewServer returns new instance of Server
-func NewServer(pc post.PostClient, cc comment.CommentClient, psc poststats.PostStatsClient, tr opentracing.Tracer) *Server {
+func NewServer(pc post.PostClient, cc comment.CommentClient, psc poststats.PostStatsClient, uc user.UserClient, tr opentracing.Tracer) *Server {
 	return &Server{
 		tracer.NewRouter(tr),
 		&PostClient{pc, "", PostAppID, PostAppSecret},
 		&CommentClient{cc, "", CommentAppID, CommentAppSecret},
 		&PostStatsClient{psc, "", PostStatsAppID, PostStatsAppSecret},
+		&UserClient{uc, "", UserAppID, UserAppSecret},
 	}
+}
+
+func getAuthrizationToken(r *http.Request) string {
+	auth := r.Header.Get("Authorization")
+	splitToken := strings.Split(auth, "Bearer ")
+	if len(splitToken) == 2 {
+		return splitToken[1]
+	}
+
+	return ""
 }
 
 func handleRPCError(w http.ResponseWriter, err error) {
@@ -80,6 +103,8 @@ func handleRPCError(w http.ResponseWriter, err error) {
 	case codes.InvalidArgument:
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		return
+	case codes.Unauthenticated:
+		w.WriteHeader(http.StatusForbidden)
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
 		return

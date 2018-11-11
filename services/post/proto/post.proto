@@ -12,6 +12,7 @@ service Post {
     rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
     rpc CheckExists(CheckExistsRequest) returns (CheckExistsResponse);
     rpc GetToken(GetTokenRequest) returns (GetTokenResponse);
+    rpc GetOwner(GetOwnerRequest) returns (GetOwnerResponse);
 }
 
 message ListPostsRequest {
@@ -80,4 +81,12 @@ message GetTokenRequest {
 
 message GetTokenResponse {
     string token = 1;
+}
+
+message GetOwnerRequest {
+    string uid = 1;
+}
+
+message GetOwnerResponse {
+    string ownerUid = 1;
 }

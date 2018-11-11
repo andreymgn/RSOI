@@ -19,6 +19,7 @@ import (
 func (s *Server) getPostComments() http.HandlerFunc {
 	type c struct {
 		UID        string
+		UserUID    string
 		PostUID    string
 		Body       string
 		ParentUID  string
@@ -82,6 +83,7 @@ func (s *Server) getPostComments() http.HandlerFunc {
 		comments := make([]c, len(commentsResponse.Comments))
 		for i, singleComment := range commentsResponse.Comments {
 			comments[i].UID = singleComment.Uid
+			comments[i].UserUID = singleComment.UserUid
 			comments[i].PostUID = singleComment.PostUid
 			comments[i].Body = singleComment.Body
 			comments[i].ParentUID = singleComment.ParentUid
@@ -119,6 +121,7 @@ func (s *Server) createComment() http.HandlerFunc {
 
 	type response struct {
 		UID        string
+		UserUID    string
 		PostUID    string
 		Body       string
 		ParentUID  string
@@ -127,6 +130,23 @@ func (s *Server) createComment() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		userToken := getAuthrizationToken(r)
+		if userToken == "" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		userUID, err := s.getUserByToken(userToken)
+		if err != nil {
+			handleRPCError(w, err)
+			return
+		}
+
+		if userUID == "" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
 		var req request
 		b, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -158,7 +178,7 @@ func (s *Server) createComment() http.HandlerFunc {
 		}
 
 		c, err := s.commentClient.client.CreateComment(ctx,
-			&comment.CreateCommentRequest{Token: s.commentClient.token, PostUid: postUID, Body: req.Body, ParentUid: req.ParentUID},
+			&comment.CreateCommentRequest{Token: s.commentClient.token, PostUid: postUID, Body: req.Body, ParentUid: req.ParentUID, UserUid: userUID},
 		)
 		if err != nil {
 			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
@@ -168,7 +188,7 @@ func (s *Server) createComment() http.HandlerFunc {
 					return
 				}
 				c, err = s.commentClient.client.CreateComment(ctx,
-					&comment.CreateCommentRequest{Token: s.commentClient.token, PostUid: postUID, Body: req.Body, ParentUid: req.ParentUID},
+					&comment.CreateCommentRequest{Token: s.commentClient.token, PostUid: postUID, Body: req.Body, ParentUid: req.ParentUID, UserUid: userUID},
 				)
 				if err != nil {
 					handleRPCError(w, err)
@@ -192,7 +212,7 @@ func (s *Server) createComment() http.HandlerFunc {
 			return
 		}
 
-		response := response{c.Uid, c.PostUid, c.Body, c.ParentUid, createdAt, modifiedAt}
+		response := response{c.Uid, c.UserUid, c.PostUid, c.Body, c.ParentUid, createdAt, modifiedAt}
 		json, err := json.Marshal(response)
 		if err != nil {
 			handleRPCError(w, err)
@@ -210,6 +230,23 @@ func (s *Server) updateComment() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		userToken := getAuthrizationToken(r)
+		if userToken == "" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		userUID, err := s.getUserByToken(userToken)
+		if err != nil {
+			handleRPCError(w, err)
+			return
+		}
+
+		if userUID == "" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
 		var req request
 		b, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -238,6 +275,19 @@ func (s *Server) updateComment() http.HandlerFunc {
 
 		if !checkExistsResponse.Exists {
 			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		owner, err := s.commentClient.client.GetOwner(ctx,
+			&comment.GetOwnerRequest{Uid: uid},
+		)
+		if err != nil {
+			handleRPCError(w, err)
+			return
+		}
+
+		if userUID != owner.OwnerUid {
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
@@ -270,6 +320,23 @@ func (s *Server) updateComment() http.HandlerFunc {
 
 func (s *Server) deleteComment() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		userToken := getAuthrizationToken(r)
+		if userToken == "" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		userUID, err := s.getUserByToken(userToken)
+		if err != nil {
+			handleRPCError(w, err)
+			return
+		}
+
+		if userUID == "" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
 		vars := mux.Vars(r)
 		uid := vars["uid"]
 		postUID := vars["postuid"]
@@ -285,6 +352,19 @@ func (s *Server) deleteComment() http.HandlerFunc {
 
 		if !checkExistsResponse.Exists {
 			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		owner, err := s.commentClient.client.GetOwner(ctx,
+			&comment.GetOwnerRequest{Uid: uid},
+		)
+		if err != nil {
+			handleRPCError(w, err)
+			return
+		}
+
+		if userUID != owner.OwnerUid {
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 

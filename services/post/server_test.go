@@ -79,6 +79,10 @@ func (mdb *mockdb) checkToken(token string) (bool, error) {
 	return true, nil
 }
 
+func (mdb *mockdb) getOwner(uid uuid.UUID) (string, error) {
+	return nilUIDString, nil
+}
+
 type mockAuth struct{}
 
 func (ma *mockAuth) Add(appID, appSecret string) (string, error) {

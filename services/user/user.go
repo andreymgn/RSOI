@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/go-redis/redis"
+
 	"github.com/andreymgn/RSOI/services/auth"
 	pb "github.com/andreymgn/RSOI/services/user/proto"
 	"github.com/google/uuid"
@@ -148,7 +150,7 @@ func (s *Server) GetUserToken(ctx context.Context, req *pb.GetUserTokenRequest) 
 	}
 
 	token := uuid.New().String()
-	err = s.userTokenAuth.Set(token, uid, DefaultExpirationTime).Err()
+	err = s.userTokenAuth.Set(token, uid.String(), DefaultExpirationTime).Err()
 	if err != nil {
 		return nil, internalError(err)
 	}
@@ -161,7 +163,9 @@ func (s *Server) GetUserToken(ctx context.Context, req *pb.GetUserTokenRequest) 
 func (s *Server) GetUserByToken(ctx context.Context, req *pb.GetUserByTokenRequest) (*pb.GetUserByTokenResponse, error) {
 	token := req.UserToken
 	uid, err := s.userTokenAuth.Get(token).Result()
-	if err != nil {
+	if err == redis.Nil {
+		return nil, statusInvalidUserToken
+	} else if err != nil {
 		return nil, internalError(err)
 	}
 

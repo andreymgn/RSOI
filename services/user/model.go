@@ -129,7 +129,7 @@ func (db *db) delete(uid uuid.UUID) error {
 }
 
 func (db *db) checkPassword(uid uuid.UUID, password string) (bool, error) {
-	query := "SELECT password FROM users WHERE uid=$1"
+	query := "SELECT password_hash FROM users WHERE uid=$1"
 	row := db.QueryRow(query, uid.String())
 	var passwordFromDB string
 	switch err := row.Scan(&passwordFromDB); err {

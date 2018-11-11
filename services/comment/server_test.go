@@ -56,6 +56,10 @@ func (mdb *mockdb) delete(uid uuid.UUID) error {
 	return errDummy
 }
 
+func (mdb *mockdb) getOwner(uid uuid.UUID) (string, error) {
+	return nilUIDString, nil
+}
+
 type mockAuth struct{}
 
 func (ma *mockAuth) Add(appID, appSecret string) (string, error) {

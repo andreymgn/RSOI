@@ -31,6 +31,7 @@ type datastore interface {
 	update(uuid.UUID, string, string) error
 	delete(uuid.UUID) error
 	checkExists(uuid.UUID) (bool, error)
+	getOwner(uuid.UUID) (string, error)
 }
 
 type db struct {
@@ -168,5 +169,19 @@ func (db *db) checkExists(uid uuid.UUID) (bool, error) {
 		return false, errNotFound
 	default:
 		return false, err
+	}
+}
+
+func (db *db) getOwner(uid uuid.UUID) (string, error) {
+	query := "SELECT user_uid FROM posts WHERE uid=$1"
+	row := db.QueryRow(query, uid.String())
+	var result string
+	switch err := row.Scan(&result); err {
+	case nil:
+		return result, nil
+	case sql.ErrNoRows:
+		return "", errNotFound
+	default:
+		return "", err
 	}
 }

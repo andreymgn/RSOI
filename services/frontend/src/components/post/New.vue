@@ -43,7 +43,7 @@ export default {
       e.preventDefault()
     },
     submitPost() {
-      HTTP.post('posts/', JSON.stringify({'title': this.title, 'url': this.URL}))
+      HTTP.post('posts/', JSON.stringify({'title': this.title, 'url': this.URL}), {headers: {'Authorization': 'Bearer ' + localStorage.token}})
       .then(response => {
         toast.success('Post created')
         this.$router.push('/post/' + response.data.UID)

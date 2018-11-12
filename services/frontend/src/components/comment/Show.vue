@@ -66,29 +66,30 @@ export default {
       this.$parent.fetchComments()
     },
     deleteComment() {
+      // think about it
       var postUID = this.comment.PostUID
       var commentUID = this.comment.UID
       HTTP.delete('posts/' + postUID + '/comments/' + commentUID)
-          .then(response => {
-            console.log(response)
-            toast.success('Comment deleted')
-            // do not delete parent comment if child gets deleted
-            if (this.$parent.name != this.name) {
-              this.$parent.deleteComment(postUID, commentUID)
-            } else {
-              if (this.$parent.children) {
-                // delete item from parent component
-                for (var i = 0; i < this.$parent.children.length; i++) {
-                  if (this.$parent.children[i].UID == commentUID) {
-                    this.$parent.$delete(this.$parent.children, i)
-                  }
+        .then(response => {
+          console.log(response)
+          toast.success('Comment deleted')
+          // do not delete parent comment if child gets deleted
+          if (this.$parent.name != this.name) {
+            this.$parent.deleteComment(postUID, commentUID)
+          } else {
+            if (this.$parent.children) {
+              // delete item from parent component
+              for (var i = 0; i < this.$parent.children.length; i++) {
+                if (this.$parent.children[i].UID == commentUID) {
+                  this.$parent.$delete(this.$parent.children, i)
                 }
               }
             }
-          })
-          .catch(error => {
-            toast.error(error.message)
-          })
+          }
+        })
+        .catch(error => {
+          toast.error(error.message)
+        })
     },
     loadReplies() {
       HTTP.get('posts/' + this.comment.PostUID + '/comments/' + this.comment.UID)

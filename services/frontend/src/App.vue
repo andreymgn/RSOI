@@ -1,12 +1,28 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">Home</router-link> | 
-      <router-link :to="'/submit'">New post</router-link>
+      <router-link :to="'/'">Home</router-link> | 
+      <router-link :to="'/submit'">New post</router-link> | 
+      <router-link v-if="!isLoggedIn" :to="'/login'">Log in</router-link> | 
+      <a href="#" v-if="isLoggedIn" @click="logout">Logout</a>
+      <router-link v-else :to="'/register'">Register</router-link>
     </div>
     <router-view/>
   </div>
 </template>
+
+<script>
+import Vuex from 'vuex'
+export default {
+  methods: {
+    ...Vuex.mapActions(["logout"])
+  },
+  computed: {
+    ...Vuex.mapGetters(["isLoggedIn"])
+  }
+}
+</script>
+
 
 <style>
 #app {

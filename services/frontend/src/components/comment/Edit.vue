@@ -41,7 +41,7 @@ export default {
             e.preventDefault()
         },
         editComment() {
-            HTTP.patch('posts/' + this.comment.PostUID + '/comments/' + this.comment.UID, JSON.stringify({'body': this.body }))
+            HTTP.patch('posts/' + this.comment.PostUID + '/comments/' + this.comment.UID, JSON.stringify({'body': this.body }), {headers: {'Authorization': 'Bearer ' + localStorage.token}})
                 .then(response => {
                     console.log(response)
                     toast.success('Comment changed')

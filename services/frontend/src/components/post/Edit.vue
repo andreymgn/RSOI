@@ -46,7 +46,7 @@ export default {
       e.preventDefault()
     },
     updatePost() {
-      HTTP.patch('posts/' + this.post.UID, JSON.stringify({'title': this.title, 'url': this.URL}))
+      HTTP.patch('posts/' + this.post.UID, JSON.stringify({'title': this.title, 'url': this.URL}), {headers: {'Authorization': 'Bearer ' + localStorage.token}})
         .then(response => {
           console.log(response)
           toast.success('Post updated')

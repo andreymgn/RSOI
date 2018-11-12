@@ -55,22 +55,26 @@ export default {
   },
   methods: {
     like() {
-      this.post.NumLikes++
-      HTTP.patch('posts/' + this.post.UID + '/like')
+      HTTP.patch('posts/' + this.post.UID + '/like', '', {headers: {'Authorization': 'Bearer ' + localStorage.token}})
+        .then(() => {
+          this.post.NumLikes++
+        })
         .catch(error => {
           toast.error(error.message)
         })
     },
     dislike() {
-      this.post.NumDislikes++
-      HTTP.patch('posts/' + this.post.UID + '/dislike')
+      HTTP.patch('posts/' + this.post.UID + '/dislike', '', {headers: {'Authorization': 'Bearer ' + localStorage.token}})
+        .then(() => {
+          this.post.NumDislikes++
+        })
         .catch(error => {
           toast.error(error.message)
         })
     },
     deletePost() {
       var postUID = this.post.UID
-      HTTP.delete('posts/' + this.post.UID)
+      HTTP.delete('posts/' + this.post.UID, {headers: {'Authorization': 'Bearer ' + localStorage.token}})
         .then(response => {
           console.log(response)
           toast.success('Post deleted')

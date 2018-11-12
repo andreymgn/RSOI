@@ -41,7 +41,7 @@ export default {
             e.preventDefault()
         },
         submitComment() {
-            HTTP.post('posts/' + this.postUID + '/comments/', JSON.stringify({'body': this.body, 'parent_uid': this.parentUID }))
+            HTTP.post('posts/' + this.postUID + '/comments/', JSON.stringify({'body': this.body, 'parent_uid': this.parentUID }), {headers: {'Authorization': 'Bearer ' + localStorage.token}})
                 .then(response => {
                     console.log(response)
                     toast.success('Comment created')

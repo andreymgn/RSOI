@@ -59,7 +59,7 @@ message GetServiceTokenResponse {
 
 message GetUserTokenRequest {
   string apiToken = 1;
-  string uid = 2;
+  string username = 2;
   string password = 3;
 }
 

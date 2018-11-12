@@ -31,6 +31,7 @@ type datastore interface {
 	update(uuid.UUID, string) error
 	delete(uuid.UUID) error
 	checkPassword(uuid.UUID, string) (bool, error)
+	getUIDByUsername(string) (uuid.UUID, error)
 }
 
 type db struct {
@@ -139,5 +140,19 @@ func (db *db) checkPassword(uid uuid.UUID, password string) (bool, error) {
 		return false, errNotFound
 	default:
 		return false, err
+	}
+}
+
+func (db *db) getUIDByUsername(username string) (uuid.UUID, error) {
+	query := "SELECT uid FROM users WHERE username=$1"
+	row := db.QueryRow(query, username)
+	var uid string
+	switch err := row.Scan(&uid); err {
+	case nil:
+		return uuid.Parse(uid)
+	case sql.ErrNoRows:
+		return uuid.Nil, errNotFound
+	default:
+		return uuid.Nil, err
 	}
 }

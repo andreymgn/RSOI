@@ -74,7 +74,7 @@ func (s *Server) createUser() http.HandlerFunc {
 
 func (s *Server) getUserToken() http.HandlerFunc {
 	type request struct {
-		UID      string
+		Username string
 		Password string
 	}
 
@@ -98,7 +98,7 @@ func (s *Server) getUserToken() http.HandlerFunc {
 
 		ctx := r.Context()
 		tokenResponse, err := s.userClient.client.GetUserToken(ctx,
-			&user.GetUserTokenRequest{ApiToken: s.userClient.token, Uid: req.UID, Password: req.Password},
+			&user.GetUserTokenRequest{ApiToken: s.userClient.token, Username: req.Username, Password: req.Password},
 		)
 		if err != nil {
 			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
@@ -108,7 +108,7 @@ func (s *Server) getUserToken() http.HandlerFunc {
 					return
 				}
 				tokenResponse, err = s.userClient.client.GetUserToken(ctx,
-					&user.GetUserTokenRequest{ApiToken: s.userClient.token, Uid: req.UID, Password: req.Password},
+					&user.GetUserTokenRequest{ApiToken: s.userClient.token, Username: req.Username, Password: req.Password},
 				)
 				if err != nil {
 					handleRPCError(w, err)

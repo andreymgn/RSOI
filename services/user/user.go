@@ -139,9 +139,9 @@ func (s *Server) GetServiceToken(ctx context.Context, req *pb.GetServiceTokenReq
 }
 
 func (s *Server) GetUserToken(ctx context.Context, req *pb.GetUserTokenRequest) (*pb.GetUserTokenResponse, error) {
-	uid, err := uuid.Parse(req.Uid)
+	uid, err := s.db.getUIDByUsername(req.Username)
 	if err != nil {
-		return nil, statusInvalidUUID
+		return nil, internalError(err)
 	}
 
 	samePassword, err := s.db.checkPassword(uid, req.Password)

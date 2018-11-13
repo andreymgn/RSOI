@@ -20,7 +20,9 @@ func (s *Server) routes() {
 	postsRouter.HandleFunc("/{postuid}/comments/{uid}", s.deleteComment()).Methods("DELETE")
 
 	s.router.Mux.HandleFunc("/api/user", s.createUser()).Methods("POST")
-	s.router.Mux.HandleFunc("/api/auth", s.getUserToken()).Methods("POST")
+	s.router.Mux.HandleFunc("/api/user/{uid}", s.getUserInfo()).Methods("GET")
+	s.router.Mux.HandleFunc("/api/auth/token", s.getToken()).Methods("POST")
+	s.router.Mux.HandleFunc("/api/auth/refresh", s.refreshToken()).Methods("POST")
 
 	s.router.Mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("Hello, world!")) })
 }

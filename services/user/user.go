@@ -13,7 +13,10 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const DefaultExpirationTime = time.Minute * 15
+const (
+	AccessTokenExpirationTime  = time.Minute * 15
+	RefreshTokenExpirationTime = time.Hour * 24 * 7 * 2
+)
 
 var (
 	statusNoUsername       = status.Error(codes.InvalidArgument, "username is empty")
@@ -27,6 +30,7 @@ func internalError(err error) error {
 	return status.Error(codes.Internal, err.Error())
 }
 
+// UserInfo converts User to protobuf struct
 func (u *User) UserInfo() *pb.UserInfo {
 	result := new(pb.UserInfo)
 	result.Uid = u.UID.String()
@@ -34,6 +38,7 @@ func (u *User) UserInfo() *pb.UserInfo {
 	return result
 }
 
+// GetUserInfo returns User
 func (s *Server) GetUserInfo(ctx context.Context, req *pb.GetUserInfoRequest) (*pb.UserInfo, error) {
 	uid, err := uuid.Parse(req.Uid)
 	if err != nil {
@@ -51,6 +56,7 @@ func (s *Server) GetUserInfo(ctx context.Context, req *pb.GetUserInfoRequest) (*
 	}
 }
 
+// CreateUser creates a new user
 func (s *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.UserInfo, error) {
 	valid, err := s.checkServiceToken(req.Token)
 	if err != nil {
@@ -69,6 +75,7 @@ func (s *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb
 	return user.UserInfo(), nil
 }
 
+// UpdateUser updates user
 func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
 	valid, err := s.checkServiceToken(req.ApiToken)
 	if err != nil {
@@ -95,6 +102,7 @@ func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb
 	}
 }
 
+// DeleteUser deletes user
 func (s *Server) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb.DeleteUserResponse, error) {
 	valid, err := s.checkServiceToken(req.ApiToken)
 	if err != nil {
@@ -121,6 +129,7 @@ func (s *Server) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb
 	}
 }
 
+// GetServiceToken returns token for user service access
 func (s *Server) GetServiceToken(ctx context.Context, req *pb.GetServiceTokenRequest) (*pb.GetServiceTokenResponse, error) {
 	appID, appSecret := req.AppId, req.AppSecret
 	token, err := s.apiTokenAuth.Add(appID, appSecret)
@@ -138,7 +147,17 @@ func (s *Server) GetServiceToken(ctx context.Context, req *pb.GetServiceTokenReq
 	}
 }
 
-func (s *Server) GetUserToken(ctx context.Context, req *pb.GetUserTokenRequest) (*pb.GetUserTokenResponse, error) {
+// GetAccessToken returns authorization token for user
+func (s *Server) GetAccessToken(ctx context.Context, req *pb.GetTokenRequest) (*pb.GetAccessTokenResponse, error) {
+	valid, err := s.checkServiceToken(req.ApiToken)
+	if err != nil {
+		return nil, err
+	}
+
+	if !valid {
+		return nil, statusInvalidToken
+	}
+
 	uid, err := s.db.getUIDByUsername(req.Username)
 	if err == errNotFound {
 		return nil, statusNotFound
@@ -152,19 +171,29 @@ func (s *Server) GetUserToken(ctx context.Context, req *pb.GetUserTokenRequest) 
 	}
 
 	token := uuid.New().String()
-	err = s.userTokenAuth.Set(token, uid.String(), DefaultExpirationTime).Err()
+	err = s.accessTokenStorage.Set(token, uid.String(), AccessTokenExpirationTime).Err()
 	if err != nil {
 		return nil, internalError(err)
 	}
 
-	res := new(pb.GetUserTokenResponse)
+	res := new(pb.GetAccessTokenResponse)
 	res.Token = token
 	return res, nil
 }
 
-func (s *Server) GetUserByToken(ctx context.Context, req *pb.GetUserByTokenRequest) (*pb.GetUserByTokenResponse, error) {
+// GetUserByAccessToken checks access token existance and refreshes token expiration time
+func (s *Server) GetUserByAccessToken(ctx context.Context, req *pb.GetUserByAccessTokenRequest) (*pb.GetUserByAccessTokenResponse, error) {
+	valid, err := s.checkServiceToken(req.ApiToken)
+	if err != nil {
+		return nil, err
+	}
+
+	if !valid {
+		return nil, statusInvalidToken
+	}
+
 	token := req.UserToken
-	uid, err := s.userTokenAuth.Get(token).Result()
+	uid, err := s.accessTokenStorage.Get(token).Result()
 	if err == redis.Nil {
 		return nil, statusInvalidUserToken
 	} else if err != nil {
@@ -175,7 +204,91 @@ func (s *Server) GetUserByToken(ctx context.Context, req *pb.GetUserByTokenReque
 		return nil, statusInvalidUserToken
 	}
 
-	res := new(pb.GetUserByTokenResponse)
+	err = s.accessTokenStorage.Expire(token, AccessTokenExpirationTime).Err()
+	if err != nil {
+		return nil, internalError(err)
+	}
+
+	res := new(pb.GetUserByAccessTokenResponse)
 	res.Uid = uid
+	return res, nil
+}
+
+// GetRefreshToken returns token which can be used to refresh access token
+func (s *Server) GetRefreshToken(ctx context.Context, req *pb.GetTokenRequest) (*pb.GetRefreshTokenResponse, error) {
+	valid, err := s.checkServiceToken(req.ApiToken)
+	if err != nil {
+		return nil, err
+	}
+
+	if !valid {
+		return nil, statusInvalidToken
+	}
+
+	uid, err := s.db.getUIDByUsername(req.Username)
+	if err == errNotFound {
+		return nil, statusNotFound
+	} else if err != nil {
+		return nil, internalError(err)
+	}
+
+	samePassword, err := s.db.checkPassword(uid, req.Password)
+	if !samePassword {
+		return nil, status.Error(codes.Unauthenticated, "wrong password")
+	}
+
+	token := uuid.New().String()
+	err = s.refreshTokenStorage.Set(token, uid.String(), RefreshTokenExpirationTime).Err()
+	if err != nil {
+		return nil, internalError(err)
+	}
+
+	res := new(pb.GetRefreshTokenResponse)
+	res.Token = token
+	return res, nil
+}
+
+func (s *Server) RefreshAccessToken(ctx context.Context, req *pb.RefreshAccessTokenRequest) (*pb.RefreshAccessTokenResponse, error) {
+	valid, err := s.checkServiceToken(req.ApiToken)
+	if err != nil {
+		return nil, err
+	}
+
+	if !valid {
+		return nil, statusInvalidToken
+	}
+
+	token := req.RefreshToken
+	uid, err := s.refreshTokenStorage.Get(token).Result()
+	if err == redis.Nil {
+		return nil, statusInvalidUserToken
+	} else if err != nil {
+		return nil, internalError(err)
+	}
+
+	if _, err := uuid.Parse(uid); err != nil {
+		return nil, statusInvalidUserToken
+	}
+
+	err = s.refreshTokenStorage.Del(token).Err()
+	if err != nil {
+		return nil, internalError(err)
+	}
+
+	refreshToken := uuid.New().String()
+	err = s.refreshTokenStorage.Set(refreshToken, uid, RefreshTokenExpirationTime).Err()
+	if err != nil {
+		return nil, internalError(err)
+	}
+
+	accessToken := uuid.New().String()
+	err = s.accessTokenStorage.Set(accessToken, uid, AccessTokenExpirationTime).Err()
+	if err != nil {
+		return nil, internalError(err)
+	}
+
+	res := new(pb.RefreshAccessTokenResponse)
+	res.RefreshToken = refreshToken
+	res.AccessToken = accessToken
 	return res, nil
 }

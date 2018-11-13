@@ -432,7 +432,7 @@ func (m *GetServiceTokenResponse) GetToken() string {
 	return ""
 }
 
-type GetUserTokenRequest struct {
+type GetTokenRequest struct {
 	ApiToken             string   `protobuf:"bytes,1,opt,name=apiToken,proto3" json:"apiToken,omitempty"`
 	Username             string   `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	Password             string   `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
@@ -441,92 +441,92 @@ type GetUserTokenRequest struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetUserTokenRequest) Reset()         { *m = GetUserTokenRequest{} }
-func (m *GetUserTokenRequest) String() string { return proto.CompactTextString(m) }
-func (*GetUserTokenRequest) ProtoMessage()    {}
-func (*GetUserTokenRequest) Descriptor() ([]byte, []int) {
+func (m *GetTokenRequest) Reset()         { *m = GetTokenRequest{} }
+func (m *GetTokenRequest) String() string { return proto.CompactTextString(m) }
+func (*GetTokenRequest) ProtoMessage()    {}
+func (*GetTokenRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_5f65f38375cad887, []int{9}
 }
 
-func (m *GetUserTokenRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetUserTokenRequest.Unmarshal(m, b)
+func (m *GetTokenRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetTokenRequest.Unmarshal(m, b)
 }
-func (m *GetUserTokenRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetUserTokenRequest.Marshal(b, m, deterministic)
+func (m *GetTokenRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetTokenRequest.Marshal(b, m, deterministic)
 }
-func (m *GetUserTokenRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetUserTokenRequest.Merge(m, src)
+func (m *GetTokenRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetTokenRequest.Merge(m, src)
 }
-func (m *GetUserTokenRequest) XXX_Size() int {
-	return xxx_messageInfo_GetUserTokenRequest.Size(m)
+func (m *GetTokenRequest) XXX_Size() int {
+	return xxx_messageInfo_GetTokenRequest.Size(m)
 }
-func (m *GetUserTokenRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetUserTokenRequest.DiscardUnknown(m)
+func (m *GetTokenRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetTokenRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetUserTokenRequest proto.InternalMessageInfo
+var xxx_messageInfo_GetTokenRequest proto.InternalMessageInfo
 
-func (m *GetUserTokenRequest) GetApiToken() string {
+func (m *GetTokenRequest) GetApiToken() string {
 	if m != nil {
 		return m.ApiToken
 	}
 	return ""
 }
 
-func (m *GetUserTokenRequest) GetUsername() string {
+func (m *GetTokenRequest) GetUsername() string {
 	if m != nil {
 		return m.Username
 	}
 	return ""
 }
 
-func (m *GetUserTokenRequest) GetPassword() string {
+func (m *GetTokenRequest) GetPassword() string {
 	if m != nil {
 		return m.Password
 	}
 	return ""
 }
 
-type GetUserTokenResponse struct {
+type GetAccessTokenResponse struct {
 	Token                string   `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetUserTokenResponse) Reset()         { *m = GetUserTokenResponse{} }
-func (m *GetUserTokenResponse) String() string { return proto.CompactTextString(m) }
-func (*GetUserTokenResponse) ProtoMessage()    {}
-func (*GetUserTokenResponse) Descriptor() ([]byte, []int) {
+func (m *GetAccessTokenResponse) Reset()         { *m = GetAccessTokenResponse{} }
+func (m *GetAccessTokenResponse) String() string { return proto.CompactTextString(m) }
+func (*GetAccessTokenResponse) ProtoMessage()    {}
+func (*GetAccessTokenResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_5f65f38375cad887, []int{10}
 }
 
-func (m *GetUserTokenResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetUserTokenResponse.Unmarshal(m, b)
+func (m *GetAccessTokenResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetAccessTokenResponse.Unmarshal(m, b)
 }
-func (m *GetUserTokenResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetUserTokenResponse.Marshal(b, m, deterministic)
+func (m *GetAccessTokenResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetAccessTokenResponse.Marshal(b, m, deterministic)
 }
-func (m *GetUserTokenResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetUserTokenResponse.Merge(m, src)
+func (m *GetAccessTokenResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetAccessTokenResponse.Merge(m, src)
 }
-func (m *GetUserTokenResponse) XXX_Size() int {
-	return xxx_messageInfo_GetUserTokenResponse.Size(m)
+func (m *GetAccessTokenResponse) XXX_Size() int {
+	return xxx_messageInfo_GetAccessTokenResponse.Size(m)
 }
-func (m *GetUserTokenResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetUserTokenResponse.DiscardUnknown(m)
+func (m *GetAccessTokenResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetAccessTokenResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetUserTokenResponse proto.InternalMessageInfo
+var xxx_messageInfo_GetAccessTokenResponse proto.InternalMessageInfo
 
-func (m *GetUserTokenResponse) GetToken() string {
+func (m *GetAccessTokenResponse) GetToken() string {
 	if m != nil {
 		return m.Token
 	}
 	return ""
 }
 
-type GetUserByTokenRequest struct {
+type GetUserByAccessTokenRequest struct {
 	ApiToken             string   `protobuf:"bytes,1,opt,name=apiToken,proto3" json:"apiToken,omitempty"`
 	UserToken            string   `protobuf:"bytes,2,opt,name=userToken,proto3" json:"userToken,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -534,80 +534,213 @@ type GetUserByTokenRequest struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetUserByTokenRequest) Reset()         { *m = GetUserByTokenRequest{} }
-func (m *GetUserByTokenRequest) String() string { return proto.CompactTextString(m) }
-func (*GetUserByTokenRequest) ProtoMessage()    {}
-func (*GetUserByTokenRequest) Descriptor() ([]byte, []int) {
+func (m *GetUserByAccessTokenRequest) Reset()         { *m = GetUserByAccessTokenRequest{} }
+func (m *GetUserByAccessTokenRequest) String() string { return proto.CompactTextString(m) }
+func (*GetUserByAccessTokenRequest) ProtoMessage()    {}
+func (*GetUserByAccessTokenRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_5f65f38375cad887, []int{11}
 }
 
-func (m *GetUserByTokenRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetUserByTokenRequest.Unmarshal(m, b)
+func (m *GetUserByAccessTokenRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetUserByAccessTokenRequest.Unmarshal(m, b)
 }
-func (m *GetUserByTokenRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetUserByTokenRequest.Marshal(b, m, deterministic)
+func (m *GetUserByAccessTokenRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetUserByAccessTokenRequest.Marshal(b, m, deterministic)
 }
-func (m *GetUserByTokenRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetUserByTokenRequest.Merge(m, src)
+func (m *GetUserByAccessTokenRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetUserByAccessTokenRequest.Merge(m, src)
 }
-func (m *GetUserByTokenRequest) XXX_Size() int {
-	return xxx_messageInfo_GetUserByTokenRequest.Size(m)
+func (m *GetUserByAccessTokenRequest) XXX_Size() int {
+	return xxx_messageInfo_GetUserByAccessTokenRequest.Size(m)
 }
-func (m *GetUserByTokenRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetUserByTokenRequest.DiscardUnknown(m)
+func (m *GetUserByAccessTokenRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetUserByAccessTokenRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetUserByTokenRequest proto.InternalMessageInfo
+var xxx_messageInfo_GetUserByAccessTokenRequest proto.InternalMessageInfo
 
-func (m *GetUserByTokenRequest) GetApiToken() string {
+func (m *GetUserByAccessTokenRequest) GetApiToken() string {
 	if m != nil {
 		return m.ApiToken
 	}
 	return ""
 }
 
-func (m *GetUserByTokenRequest) GetUserToken() string {
+func (m *GetUserByAccessTokenRequest) GetUserToken() string {
 	if m != nil {
 		return m.UserToken
 	}
 	return ""
 }
 
-type GetUserByTokenResponse struct {
+type GetUserByAccessTokenResponse struct {
 	Uid                  string   `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetUserByTokenResponse) Reset()         { *m = GetUserByTokenResponse{} }
-func (m *GetUserByTokenResponse) String() string { return proto.CompactTextString(m) }
-func (*GetUserByTokenResponse) ProtoMessage()    {}
-func (*GetUserByTokenResponse) Descriptor() ([]byte, []int) {
+func (m *GetUserByAccessTokenResponse) Reset()         { *m = GetUserByAccessTokenResponse{} }
+func (m *GetUserByAccessTokenResponse) String() string { return proto.CompactTextString(m) }
+func (*GetUserByAccessTokenResponse) ProtoMessage()    {}
+func (*GetUserByAccessTokenResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_5f65f38375cad887, []int{12}
 }
 
-func (m *GetUserByTokenResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetUserByTokenResponse.Unmarshal(m, b)
+func (m *GetUserByAccessTokenResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetUserByAccessTokenResponse.Unmarshal(m, b)
 }
-func (m *GetUserByTokenResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetUserByTokenResponse.Marshal(b, m, deterministic)
+func (m *GetUserByAccessTokenResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetUserByAccessTokenResponse.Marshal(b, m, deterministic)
 }
-func (m *GetUserByTokenResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetUserByTokenResponse.Merge(m, src)
+func (m *GetUserByAccessTokenResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetUserByAccessTokenResponse.Merge(m, src)
 }
-func (m *GetUserByTokenResponse) XXX_Size() int {
-	return xxx_messageInfo_GetUserByTokenResponse.Size(m)
+func (m *GetUserByAccessTokenResponse) XXX_Size() int {
+	return xxx_messageInfo_GetUserByAccessTokenResponse.Size(m)
 }
-func (m *GetUserByTokenResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetUserByTokenResponse.DiscardUnknown(m)
+func (m *GetUserByAccessTokenResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetUserByAccessTokenResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetUserByTokenResponse proto.InternalMessageInfo
+var xxx_messageInfo_GetUserByAccessTokenResponse proto.InternalMessageInfo
 
-func (m *GetUserByTokenResponse) GetUid() string {
+func (m *GetUserByAccessTokenResponse) GetUid() string {
 	if m != nil {
 		return m.Uid
+	}
+	return ""
+}
+
+type GetRefreshTokenResponse struct {
+	Token                string   `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetRefreshTokenResponse) Reset()         { *m = GetRefreshTokenResponse{} }
+func (m *GetRefreshTokenResponse) String() string { return proto.CompactTextString(m) }
+func (*GetRefreshTokenResponse) ProtoMessage()    {}
+func (*GetRefreshTokenResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_5f65f38375cad887, []int{13}
+}
+
+func (m *GetRefreshTokenResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetRefreshTokenResponse.Unmarshal(m, b)
+}
+func (m *GetRefreshTokenResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetRefreshTokenResponse.Marshal(b, m, deterministic)
+}
+func (m *GetRefreshTokenResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetRefreshTokenResponse.Merge(m, src)
+}
+func (m *GetRefreshTokenResponse) XXX_Size() int {
+	return xxx_messageInfo_GetRefreshTokenResponse.Size(m)
+}
+func (m *GetRefreshTokenResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetRefreshTokenResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetRefreshTokenResponse proto.InternalMessageInfo
+
+func (m *GetRefreshTokenResponse) GetToken() string {
+	if m != nil {
+		return m.Token
+	}
+	return ""
+}
+
+type RefreshAccessTokenRequest struct {
+	ApiToken             string   `protobuf:"bytes,1,opt,name=apiToken,proto3" json:"apiToken,omitempty"`
+	RefreshToken         string   `protobuf:"bytes,2,opt,name=refreshToken,proto3" json:"refreshToken,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *RefreshAccessTokenRequest) Reset()         { *m = RefreshAccessTokenRequest{} }
+func (m *RefreshAccessTokenRequest) String() string { return proto.CompactTextString(m) }
+func (*RefreshAccessTokenRequest) ProtoMessage()    {}
+func (*RefreshAccessTokenRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_5f65f38375cad887, []int{14}
+}
+
+func (m *RefreshAccessTokenRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RefreshAccessTokenRequest.Unmarshal(m, b)
+}
+func (m *RefreshAccessTokenRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RefreshAccessTokenRequest.Marshal(b, m, deterministic)
+}
+func (m *RefreshAccessTokenRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RefreshAccessTokenRequest.Merge(m, src)
+}
+func (m *RefreshAccessTokenRequest) XXX_Size() int {
+	return xxx_messageInfo_RefreshAccessTokenRequest.Size(m)
+}
+func (m *RefreshAccessTokenRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RefreshAccessTokenRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RefreshAccessTokenRequest proto.InternalMessageInfo
+
+func (m *RefreshAccessTokenRequest) GetApiToken() string {
+	if m != nil {
+		return m.ApiToken
+	}
+	return ""
+}
+
+func (m *RefreshAccessTokenRequest) GetRefreshToken() string {
+	if m != nil {
+		return m.RefreshToken
+	}
+	return ""
+}
+
+type RefreshAccessTokenResponse struct {
+	AccessToken          string   `protobuf:"bytes,1,opt,name=accessToken,proto3" json:"accessToken,omitempty"`
+	RefreshToken         string   `protobuf:"bytes,2,opt,name=refreshToken,proto3" json:"refreshToken,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *RefreshAccessTokenResponse) Reset()         { *m = RefreshAccessTokenResponse{} }
+func (m *RefreshAccessTokenResponse) String() string { return proto.CompactTextString(m) }
+func (*RefreshAccessTokenResponse) ProtoMessage()    {}
+func (*RefreshAccessTokenResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_5f65f38375cad887, []int{15}
+}
+
+func (m *RefreshAccessTokenResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RefreshAccessTokenResponse.Unmarshal(m, b)
+}
+func (m *RefreshAccessTokenResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RefreshAccessTokenResponse.Marshal(b, m, deterministic)
+}
+func (m *RefreshAccessTokenResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RefreshAccessTokenResponse.Merge(m, src)
+}
+func (m *RefreshAccessTokenResponse) XXX_Size() int {
+	return xxx_messageInfo_RefreshAccessTokenResponse.Size(m)
+}
+func (m *RefreshAccessTokenResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RefreshAccessTokenResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RefreshAccessTokenResponse proto.InternalMessageInfo
+
+func (m *RefreshAccessTokenResponse) GetAccessToken() string {
+	if m != nil {
+		return m.AccessToken
+	}
+	return ""
+}
+
+func (m *RefreshAccessTokenResponse) GetRefreshToken() string {
+	if m != nil {
+		return m.RefreshToken
 	}
 	return ""
 }
@@ -622,10 +755,13 @@ func init() {
 	proto.RegisterType((*DeleteUserResponse)(nil), "user.DeleteUserResponse")
 	proto.RegisterType((*GetServiceTokenRequest)(nil), "user.GetServiceTokenRequest")
 	proto.RegisterType((*GetServiceTokenResponse)(nil), "user.GetServiceTokenResponse")
-	proto.RegisterType((*GetUserTokenRequest)(nil), "user.GetUserTokenRequest")
-	proto.RegisterType((*GetUserTokenResponse)(nil), "user.GetUserTokenResponse")
-	proto.RegisterType((*GetUserByTokenRequest)(nil), "user.GetUserByTokenRequest")
-	proto.RegisterType((*GetUserByTokenResponse)(nil), "user.GetUserByTokenResponse")
+	proto.RegisterType((*GetTokenRequest)(nil), "user.GetTokenRequest")
+	proto.RegisterType((*GetAccessTokenResponse)(nil), "user.GetAccessTokenResponse")
+	proto.RegisterType((*GetUserByAccessTokenRequest)(nil), "user.GetUserByAccessTokenRequest")
+	proto.RegisterType((*GetUserByAccessTokenResponse)(nil), "user.GetUserByAccessTokenResponse")
+	proto.RegisterType((*GetRefreshTokenResponse)(nil), "user.GetRefreshTokenResponse")
+	proto.RegisterType((*RefreshAccessTokenRequest)(nil), "user.RefreshAccessTokenRequest")
+	proto.RegisterType((*RefreshAccessTokenResponse)(nil), "user.RefreshAccessTokenResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -645,8 +781,10 @@ type UserClient interface {
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 	GetServiceToken(ctx context.Context, in *GetServiceTokenRequest, opts ...grpc.CallOption) (*GetServiceTokenResponse, error)
-	GetUserToken(ctx context.Context, in *GetUserTokenRequest, opts ...grpc.CallOption) (*GetUserTokenResponse, error)
-	GetUserByToken(ctx context.Context, in *GetUserByTokenRequest, opts ...grpc.CallOption) (*GetUserByTokenResponse, error)
+	GetAccessToken(ctx context.Context, in *GetTokenRequest, opts ...grpc.CallOption) (*GetAccessTokenResponse, error)
+	GetRefreshToken(ctx context.Context, in *GetTokenRequest, opts ...grpc.CallOption) (*GetRefreshTokenResponse, error)
+	RefreshAccessToken(ctx context.Context, in *RefreshAccessTokenRequest, opts ...grpc.CallOption) (*RefreshAccessTokenResponse, error)
+	GetUserByAccessToken(ctx context.Context, in *GetUserByAccessTokenRequest, opts ...grpc.CallOption) (*GetUserByAccessTokenResponse, error)
 }
 
 type userClient struct {
@@ -702,18 +840,36 @@ func (c *userClient) GetServiceToken(ctx context.Context, in *GetServiceTokenReq
 	return out, nil
 }
 
-func (c *userClient) GetUserToken(ctx context.Context, in *GetUserTokenRequest, opts ...grpc.CallOption) (*GetUserTokenResponse, error) {
-	out := new(GetUserTokenResponse)
-	err := c.cc.Invoke(ctx, "/user.user/GetUserToken", in, out, opts...)
+func (c *userClient) GetAccessToken(ctx context.Context, in *GetTokenRequest, opts ...grpc.CallOption) (*GetAccessTokenResponse, error) {
+	out := new(GetAccessTokenResponse)
+	err := c.cc.Invoke(ctx, "/user.user/GetAccessToken", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userClient) GetUserByToken(ctx context.Context, in *GetUserByTokenRequest, opts ...grpc.CallOption) (*GetUserByTokenResponse, error) {
-	out := new(GetUserByTokenResponse)
-	err := c.cc.Invoke(ctx, "/user.user/GetUserByToken", in, out, opts...)
+func (c *userClient) GetRefreshToken(ctx context.Context, in *GetTokenRequest, opts ...grpc.CallOption) (*GetRefreshTokenResponse, error) {
+	out := new(GetRefreshTokenResponse)
+	err := c.cc.Invoke(ctx, "/user.user/GetRefreshToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) RefreshAccessToken(ctx context.Context, in *RefreshAccessTokenRequest, opts ...grpc.CallOption) (*RefreshAccessTokenResponse, error) {
+	out := new(RefreshAccessTokenResponse)
+	err := c.cc.Invoke(ctx, "/user.user/RefreshAccessToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetUserByAccessToken(ctx context.Context, in *GetUserByAccessTokenRequest, opts ...grpc.CallOption) (*GetUserByAccessTokenResponse, error) {
+	out := new(GetUserByAccessTokenResponse)
+	err := c.cc.Invoke(ctx, "/user.user/GetUserByAccessToken", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -727,8 +883,10 @@ type UserServer interface {
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
 	GetServiceToken(context.Context, *GetServiceTokenRequest) (*GetServiceTokenResponse, error)
-	GetUserToken(context.Context, *GetUserTokenRequest) (*GetUserTokenResponse, error)
-	GetUserByToken(context.Context, *GetUserByTokenRequest) (*GetUserByTokenResponse, error)
+	GetAccessToken(context.Context, *GetTokenRequest) (*GetAccessTokenResponse, error)
+	GetRefreshToken(context.Context, *GetTokenRequest) (*GetRefreshTokenResponse, error)
+	RefreshAccessToken(context.Context, *RefreshAccessTokenRequest) (*RefreshAccessTokenResponse, error)
+	GetUserByAccessToken(context.Context, *GetUserByAccessTokenRequest) (*GetUserByAccessTokenResponse, error)
 }
 
 func RegisterUserServer(s *grpc.Server, srv UserServer) {
@@ -825,38 +983,74 @@ func _User_GetServiceToken_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_GetUserToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserTokenRequest)
+func _User_GetAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).GetUserToken(ctx, in)
+		return srv.(UserServer).GetAccessToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.user/GetUserToken",
+		FullMethod: "/user.user/GetAccessToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).GetUserToken(ctx, req.(*GetUserTokenRequest))
+		return srv.(UserServer).GetAccessToken(ctx, req.(*GetTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_GetUserByToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserByTokenRequest)
+func _User_GetRefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).GetUserByToken(ctx, in)
+		return srv.(UserServer).GetRefreshToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.user/GetUserByToken",
+		FullMethod: "/user.user/GetRefreshToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).GetUserByToken(ctx, req.(*GetUserByTokenRequest))
+		return srv.(UserServer).GetRefreshToken(ctx, req.(*GetTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_RefreshAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RefreshAccessTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).RefreshAccessToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.user/RefreshAccessToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).RefreshAccessToken(ctx, req.(*RefreshAccessTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetUserByAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserByAccessTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserByAccessToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.user/GetUserByAccessToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserByAccessToken(ctx, req.(*GetUserByAccessTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -886,12 +1080,20 @@ var _User_serviceDesc = grpc.ServiceDesc{
 			Handler:    _User_GetServiceToken_Handler,
 		},
 		{
-			MethodName: "GetUserToken",
-			Handler:    _User_GetUserToken_Handler,
+			MethodName: "GetAccessToken",
+			Handler:    _User_GetAccessToken_Handler,
 		},
 		{
-			MethodName: "GetUserByToken",
-			Handler:    _User_GetUserByToken_Handler,
+			MethodName: "GetRefreshToken",
+			Handler:    _User_GetRefreshToken_Handler,
+		},
+		{
+			MethodName: "RefreshAccessToken",
+			Handler:    _User_RefreshAccessToken_Handler,
+		},
+		{
+			MethodName: "GetUserByAccessToken",
+			Handler:    _User_GetUserByAccessToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -901,33 +1103,38 @@ var _User_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("services/user/proto/user.proto", fileDescriptor_5f65f38375cad887) }
 
 var fileDescriptor_5f65f38375cad887 = []byte{
-	// 439 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0x5d, 0x6b, 0xdb, 0x30,
-	0x14, 0x25, 0x73, 0x36, 0x92, 0xbb, 0x91, 0x2d, 0x5a, 0xb6, 0x78, 0x5e, 0x36, 0x86, 0x1e, 0xc6,
-	0x18, 0x23, 0x81, 0x8d, 0xb1, 0xbd, 0x05, 0xfa, 0x41, 0x08, 0x2d, 0x85, 0x26, 0xcd, 0x73, 0x71,
-	0x93, 0x5b, 0x30, 0x6d, 0x6d, 0xd5, 0x72, 0x5a, 0x4a, 0xff, 0x6a, 0x7f, 0x4c, 0xd1, 0x97, 0x6d,
-	0x45, 0xae, 0x29, 0x85, 0xbe, 0xe9, 0xfa, 0x48, 0xe7, 0xe8, 0xea, 0x9e, 0x63, 0xf8, 0xca, 0x31,
-	0xbd, 0x8a, 0x96, 0xc8, 0x47, 0x6b, 0x8e, 0xe9, 0x88, 0xa5, 0x49, 0x96, 0xc8, 0xe5, 0x50, 0x2e,
-	0x49, 0x53, 0xac, 0xe9, 0x77, 0x20, 0x13, 0xcc, 0x16, 0x1c, 0xd3, 0x69, 0x7c, 0x9a, 0xcc, 0xf0,
-	0x72, 0x8d, 0x3c, 0x23, 0xef, 0xc0, 0x5b, 0x47, 0x2b, 0xbf, 0xf1, 0xad, 0xf1, 0xa3, 0x3d, 0x13,
-	0x4b, 0xfa, 0x1f, 0x5a, 0x66, 0x93, 0x8b, 0x92, 0x00, 0x5a, 0x82, 0x2d, 0x0e, 0x2f, 0xd0, 0x7f,
-	0x21, 0x3f, 0xe7, 0x35, 0x0d, 0xa1, 0xbb, 0x9d, 0x62, 0x98, 0xa1, 0x38, 0x6f, 0x04, 0x7a, 0xf0,
-	0x32, 0x4b, 0xce, 0x30, 0xd6, 0x24, 0xaa, 0xa8, 0xa3, 0x11, 0x18, 0x0b, 0x39, 0xbf, 0x4e, 0xd2,
-	0x95, 0xef, 0x29, 0xcc, 0xd4, 0xf4, 0x16, 0xba, 0x0b, 0xb6, 0xda, 0x90, 0x08, 0xa0, 0x15, 0xb2,
-	0xe8, 0xa8, 0xa4, 0x92, 0xd7, 0x64, 0x00, 0x6d, 0x41, 0xac, 0x40, 0xa5, 0x54, 0x7c, 0x30, 0xfd,
-	0x79, 0x56, 0x7f, 0xb9, 0x78, 0x73, 0x43, 0xbc, 0x07, 0xa4, 0x2c, 0xce, 0x59, 0x12, 0x73, 0xa4,
-	0xc7, 0xd0, 0xdd, 0xc1, 0x73, 0x7c, 0xb6, 0x2b, 0x09, 0xd9, 0xb2, 0x80, 0x96, 0xdd, 0x87, 0x8f,
-	0x13, 0xcc, 0xe6, 0x6a, 0xf2, 0xf2, 0x68, 0xe9, 0xc5, 0x43, 0xc6, 0xa6, 0x66, 0x6c, 0xaa, 0x10,
-	0xaa, 0x21, 0x63, 0x73, 0x5c, 0xa6, 0x98, 0x19, 0xd5, 0xfc, 0x03, 0x1d, 0x41, 0xdf, 0x61, 0x53,
-	0x42, 0xd5, 0x03, 0xa4, 0x11, 0xbc, 0xd7, 0x6e, 0xb2, 0xb4, 0xeb, 0xfa, 0x7e, 0xea, 0xcc, 0x7f,
-	0x41, 0xcf, 0x96, 0xaa, 0xbd, 0xd8, 0x21, 0x7c, 0xd0, 0xbb, 0xb7, 0x6e, 0x1e, 0x7d, 0xb5, 0xda,
-	0x91, 0xd0, 0x9f, 0xf2, 0xa9, 0x2d, 0x4a, 0x7d, 0x05, 0x27, 0x1f, 0xbf, 0xef, 0x3c, 0x90, 0x71,
-	0x23, 0xff, 0xe0, 0x75, 0x29, 0x6e, 0xc4, 0x1f, 0xca, 0x40, 0xba, 0x09, 0x0c, 0x3a, 0x0a, 0xc9,
-	0x77, 0xfe, 0x05, 0x28, 0x52, 0x44, 0xfa, 0x0a, 0x75, 0x72, 0xe5, 0x1c, 0x1b, 0x03, 0x14, 0xe6,
-	0x34, 0xc7, 0x9c, 0xac, 0x04, 0xbe, 0x0b, 0xe8, 0x5e, 0xc6, 0x00, 0x85, 0xcd, 0x0c, 0x81, 0xe3,
-	0x6c, 0x43, 0xe0, 0x3a, 0x92, 0x1c, 0xc0, 0xdb, 0x0d, 0x0f, 0x91, 0x41, 0xde, 0x75, 0x85, 0x51,
-	0x83, 0x2f, 0x0f, 0xa0, 0x9a, 0x6f, 0x17, 0xde, 0x94, 0xe7, 0x4e, 0x3e, 0x59, 0x4f, 0x68, 0x31,
-	0x05, 0x55, 0x90, 0xa6, 0xd9, 0x83, 0x8e, 0x3d, 0x3d, 0xf2, 0xd9, 0xda, 0x6d, 0xdb, 0x24, 0x18,
-	0x54, 0x83, 0x8a, 0xec, 0xe4, 0x95, 0xfc, 0xa3, 0xfe, 0xb9, 0x0f, 0x00, 0x00, 0xff, 0xff, 0x69,
-	0x59, 0x1d, 0x17, 0x73, 0x05, 0x00, 0x00,
+	// 516 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x55, 0x4d, 0x6f, 0x13, 0x31,
+	0x10, 0x55, 0x49, 0x8b, 0xd2, 0x57, 0x54, 0x88, 0x15, 0xe8, 0xb2, 0x04, 0x08, 0x3e, 0x20, 0x4e,
+	0x09, 0x02, 0x21, 0xb8, 0x55, 0x7c, 0x29, 0xaa, 0x84, 0x38, 0xa4, 0x54, 0x3d, 0x20, 0x84, 0xb6,
+	0xc9, 0x54, 0x44, 0x40, 0xd6, 0xd8, 0x1b, 0x10, 0xe2, 0x4f, 0xf0, 0x93, 0xd1, 0xfa, 0x63, 0xd7,
+	0x1b, 0x3b, 0x51, 0x00, 0xf5, 0x66, 0xcf, 0x78, 0xde, 0x9b, 0xd9, 0x99, 0x37, 0x8b, 0x3b, 0x8a,
+	0xe4, 0xf7, 0xd9, 0x84, 0xd4, 0x70, 0xa1, 0x48, 0x0e, 0x85, 0xcc, 0x8b, 0x5c, 0x1f, 0x07, 0xfa,
+	0xc8, 0xb6, 0xcb, 0x33, 0xbf, 0x0f, 0x36, 0xa2, 0xe2, 0x44, 0x91, 0x3c, 0x9a, 0x9f, 0xe7, 0x63,
+	0xfa, 0xb6, 0x20, 0x55, 0xb0, 0x6b, 0x68, 0x2d, 0x66, 0xd3, 0x64, 0xab, 0xbf, 0xf5, 0x60, 0x77,
+	0x5c, 0x1e, 0xf9, 0x33, 0xb4, 0xdd, 0xa3, 0xd0, 0xcb, 0x52, 0xb4, 0x4b, 0xb4, 0x79, 0xf6, 0x95,
+	0x92, 0x4b, 0xda, 0x5c, 0xdd, 0x79, 0x86, 0xce, 0x4b, 0x49, 0x59, 0x41, 0x65, 0xbc, 0x23, 0xe8,
+	0x62, 0xa7, 0xc8, 0x3f, 0xd3, 0xdc, 0x82, 0x98, 0xcb, 0x3a, 0x98, 0xd2, 0x27, 0x32, 0xa5, 0x7e,
+	0xe4, 0x72, 0x9a, 0xb4, 0x8c, 0xcf, 0xdd, 0xf9, 0x2f, 0x74, 0x4e, 0xc4, 0x74, 0x89, 0x22, 0x45,
+	0x3b, 0x13, 0xb3, 0x77, 0x1e, 0x4b, 0x75, 0x67, 0x3d, 0xec, 0x96, 0xc0, 0xc6, 0x69, 0x98, 0x6a,
+	0x83, 0xab, 0xaf, 0xd5, 0xa8, 0xaf, 0x22, 0xdf, 0x5e, 0x22, 0xef, 0x82, 0xf9, 0xe4, 0x4a, 0xe4,
+	0x73, 0x45, 0xfc, 0x23, 0x3a, 0xaf, 0xe8, 0x0b, 0x5d, 0x58, 0x4a, 0x25, 0xad, 0x4f, 0x60, 0x69,
+	0xdf, 0xe0, 0xc6, 0x88, 0x8a, 0x63, 0xd3, 0x79, 0x1d, 0xea, 0x7d, 0xf1, 0x4c, 0x88, 0x23, 0xd7,
+	0x36, 0x73, 0x29, 0x59, 0x33, 0x21, 0x8e, 0x69, 0x22, 0xa9, 0x70, 0xac, 0x95, 0x81, 0x0f, 0x71,
+	0x10, 0xa0, 0x19, 0xa2, 0x78, 0x03, 0x39, 0xe1, 0xea, 0x88, 0x8a, 0x06, 0xef, 0xba, 0x9a, 0xff,
+	0xb5, 0xdf, 0x03, 0x5d, 0xe5, 0xf3, 0xc9, 0x84, 0x94, 0xda, 0x24, 0xad, 0x53, 0xdc, 0xb2, 0x43,
+	0xfe, 0xe2, 0x67, 0x23, 0xea, 0x3f, 0xdb, 0xc2, 0x1f, 0xa2, 0x17, 0x07, 0xb6, 0xe9, 0x84, 0x3a,
+	0x32, 0x9f, 0x74, 0x4c, 0xe7, 0x92, 0xd4, 0xa7, 0x4d, 0x72, 0x7f, 0x8f, 0x9b, 0xf6, 0xf5, 0x5f,
+	0x66, 0xce, 0x71, 0x45, 0x7a, 0x34, 0x36, 0xf9, 0x86, 0x8d, 0x9f, 0x21, 0x8d, 0x81, 0xdb, 0x84,
+	0xfa, 0xd8, 0xcb, 0x6a, 0xb3, 0x25, 0xf0, 0x4d, 0x9b, 0x70, 0x3c, 0xfa, 0xbd, 0x03, 0xbd, 0x6a,
+	0xd8, 0x53, 0xec, 0x79, 0xab, 0x86, 0x25, 0x03, 0xbd, 0x8c, 0xc2, 0xed, 0x93, 0xee, 0x1b, 0x4f,
+	0xf5, 0xf2, 0x09, 0x50, 0x6f, 0x10, 0x76, 0x60, 0xbc, 0xc1, 0x4e, 0x09, 0xc2, 0x0e, 0x81, 0x5a,
+	0x98, 0x2e, 0x2c, 0xd8, 0x13, 0x69, 0x12, 0x3a, 0x6c, 0xfd, 0x87, 0x40, 0x2d, 0x31, 0x07, 0x10,
+	0xa8, 0xda, 0x01, 0x84, 0x6a, 0x64, 0x6f, 0xb5, 0x1c, 0x7c, 0xfd, 0xb0, 0x5e, 0x55, 0x75, 0x44,
+	0xa4, 0xe9, 0xed, 0x15, 0x5e, 0x8b, 0xf7, 0x1a, 0xfb, 0xcd, 0xb9, 0x67, 0xd7, 0xab, 0x80, 0x06,
+	0x4e, 0xcd, 0x12, 0xeb, 0xeb, 0x48, 0xa7, 0xe5, 0xcf, 0xe0, 0x2a, 0x9c, 0x3a, 0x9f, 0xe8, 0xc4,
+	0x9e, 0x82, 0x85, 0xe3, 0xc3, 0xee, 0x9a, 0xa0, 0x95, 0x53, 0x9b, 0xf6, 0x57, 0x3f, 0xb0, 0xc0,
+	0x1f, 0xd0, 0x8d, 0xe9, 0x8a, 0xdd, 0x6b, 0xcc, 0x4c, 0x4c, 0xcc, 0x29, 0x5f, 0xf7, 0xc4, 0xc0,
+	0x9f, 0x5d, 0xd6, 0x7f, 0xc0, 0xc7, 0x7f, 0x02, 0x00, 0x00, 0xff, 0xff, 0x32, 0x9a, 0x8a, 0x32,
+	0x23, 0x07, 0x00, 0x00,
 }

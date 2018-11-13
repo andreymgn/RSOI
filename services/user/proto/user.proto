@@ -8,8 +8,11 @@ service user {
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
   rpc GetServiceToken(GetServiceTokenRequest) returns (GetServiceTokenResponse);
-  rpc GetUserToken(GetUserTokenRequest) returns (GetUserTokenResponse);
-  rpc GetUserByToken(GetUserByTokenRequest) returns (GetUserByTokenResponse);
+  rpc GetAccessToken(GetTokenRequest) returns (GetAccessTokenResponse);
+  rpc GetRefreshToken(GetTokenRequest) returns (GetRefreshTokenResponse);
+  rpc RefreshAccessToken(RefreshAccessTokenRequest) returns (RefreshAccessTokenResponse);
+  rpc GetUserByAccessToken(GetUserByAccessTokenRequest) returns (GetUserByAccessTokenResponse);
+  
 }
 
 message GetUserInfoRequest {
@@ -57,21 +60,35 @@ message GetServiceTokenResponse {
   string token = 1;
 }
 
-message GetUserTokenRequest {
+message GetTokenRequest {
   string apiToken = 1;
   string username = 2;
   string password = 3;
 }
 
-message GetUserTokenResponse {
+message GetAccessTokenResponse {
   string token = 1;
 }
 
-message GetUserByTokenRequest {
+message GetUserByAccessTokenRequest {
   string apiToken = 1;
   string userToken = 2;
 }
 
-message GetUserByTokenResponse {
+message GetUserByAccessTokenResponse {
   string uid = 1;
+}
+
+message GetRefreshTokenResponse {
+  string token = 1;
+}
+
+message RefreshAccessTokenRequest {
+  string apiToken = 1;
+  string refreshToken = 2;
+}
+
+message RefreshAccessTokenResponse {
+  string accessToken = 1;
+  string refreshToken = 2;
 }

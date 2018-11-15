@@ -136,7 +136,7 @@ func (s *Server) createPost() http.HandlerFunc {
 			return
 		}
 
-		userUID, err := s.getUserByToken(userToken)
+		userUID, err := s.getUIDByToken(userToken)
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -333,7 +333,7 @@ func (s *Server) updatePost() http.HandlerFunc {
 			return
 		}
 
-		userUID, err := s.getUserByToken(userToken)
+		userUID, err := s.getUIDByToken(userToken)
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -409,7 +409,7 @@ func (s *Server) deletePost() http.HandlerFunc {
 			return
 		}
 
-		userUID, err := s.getUserByToken(userToken)
+		userUID, err := s.getUIDByToken(userToken)
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -528,7 +528,7 @@ func (s *Server) likePost() http.HandlerFunc {
 			return
 		}
 
-		userUID, err := s.getUserByToken(userToken)
+		userUID, err := s.getUIDByToken(userToken)
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -578,7 +578,7 @@ func (s *Server) dislikePost() http.HandlerFunc {
 			return
 		}
 
-		userUID, err := s.getUserByToken(userToken)
+		userUID, err := s.getUIDByToken(userToken)
 		if err != nil {
 			handleRPCError(w, err)
 			return

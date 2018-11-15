@@ -255,7 +255,7 @@ func (s *Server) refreshToken() http.HandlerFunc {
 	}
 }
 
-func (s *Server) getUserByToken(token string) (string, error) {
+func (s *Server) getUIDByToken(token string) (string, error) {
 	ctx := context.Background()
 	uid, err := s.userClient.client.GetUserByAccessToken(ctx,
 		&user.GetUserByAccessTokenRequest{ApiToken: s.userClient.token, UserToken: token},

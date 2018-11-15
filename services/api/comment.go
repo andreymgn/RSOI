@@ -136,7 +136,7 @@ func (s *Server) createComment() http.HandlerFunc {
 			return
 		}
 
-		userUID, err := s.getUserByToken(userToken)
+		userUID, err := s.getUIDByToken(userToken)
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -236,7 +236,7 @@ func (s *Server) updateComment() http.HandlerFunc {
 			return
 		}
 
-		userUID, err := s.getUserByToken(userToken)
+		userUID, err := s.getUIDByToken(userToken)
 		if err != nil {
 			handleRPCError(w, err)
 			return
@@ -326,7 +326,7 @@ func (s *Server) deleteComment() http.HandlerFunc {
 			return
 		}
 
-		userUID, err := s.getUserByToken(userToken)
+		userUID, err := s.getUIDByToken(userToken)
 		if err != nil {
 			handleRPCError(w, err)
 			return

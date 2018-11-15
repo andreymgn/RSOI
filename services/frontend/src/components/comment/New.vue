@@ -40,16 +40,24 @@ export default {
             }
             e.preventDefault()
         },
-        submitComment() {
-            HTTP.post('posts/' + this.postUID + '/comments/', JSON.stringify({'body': this.body, 'parent_uid': this.parentUID }), {headers: {'Authorization': 'Bearer ' + localStorage.token}})
-                .then(response => {
-                    console.log(response)
-                    toast.success('Comment created')
-                    this.$parent.closeCommentForm(false)
-                })
-                .catch(error => {
-                    toast.error(error.message)
-                })
+        submitComment(retry=true) {
+            HTTP.post('posts/' + this.postUID + '/comments/', JSON.stringify({'body': this.body, 'parent_uid': this.parentUID }), {headers: {'Authorization': 'Bearer ' + localStorage.getItem('accessToken')}})
+            .then(() => {
+                toast.success('Comment created')
+                this.$parent.closeCommentForm(false)
+            })
+            .catch(error => {
+                if (retry && error.response.status === 403) {
+                    if (localStorage.getItem('refreshToken')) {
+                        this.$store.dispatch('refresh')
+                        this.submitComment(retry=false)
+                    } else {
+                        this.$store.dispatch('logout')
+                        this.$router.push('/login/')
+                    }
+                }
+                toast.error(error.message)
+            })
         },
         cancel() {
             this.$parent.closeCommentForm(true)

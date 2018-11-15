@@ -12,7 +12,7 @@ const LOGOUT = "LOGOUT"
 
 export default new Vuex.Store({
   state: {
-    isLoggedIn: localStorage.getItem("token")
+    isLoggedIn: localStorage.getItem("accessToken")
   },
   mutations: {
     [LOGIN] (state) {
@@ -29,23 +29,35 @@ export default new Vuex.Store({
   actions: {
     login({ commit }, payload) {
       commit(LOGIN)
-      return new Promise(resolve => {
-        HTTP.post('auth', JSON.stringify({'username': payload['username'], 'password': payload['password']}))
-        .then(response => {
-          console.log(response.data)
-          toast.success('Logged in')
-          localStorage.setItem("token", response.data['Token'])
-          commit(LOGIN_SUCCESS)
-          resolve()
-        })
-        .catch(error => {
-          toast.error(error.message)
-        })
-      });
+      HTTP.post('auth/token', JSON.stringify({'username': payload['username'], 'password': payload['password'], 'refresh': payload['refresh']}))
+      .then(response => {
+        toast.success('Logged in')
+        localStorage.setItem("accessToken", response.data['AccessToken'])
+        if (response.data['RefreshToken']) {
+          localStorage.setItem("refreshToken", response.data['RefreshToken'])
+        }
+        commit(LOGIN_SUCCESS)
+      })
+      .catch(error => {
+        toast.error(error.message)
+      })
     },
     logout({ commit }) {
-      localStorage.removeItem("token");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       commit(LOGOUT);
+    },
+    refresh() {
+      HTTP.post('auth/refresh', JSON.stringify({'token': localStorage.getItem('refreshToken')}))
+      .then(response => {
+        localStorage.setItem("accessToken", response.data['AccessToken'])
+        if (response.data['RefreshToken']) {
+          localStorage.setItem("refreshToken", response.data['RefreshToken'])
+        }
+      })
+      .catch(error => {
+        toast.error(error.message)
+      })
     }
  },
  getters: {

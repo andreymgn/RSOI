@@ -40,16 +40,24 @@ export default {
             }
             e.preventDefault()
         },
-        editComment() {
-            HTTP.patch('posts/' + this.comment.PostUID + '/comments/' + this.comment.UID, JSON.stringify({'body': this.body }), {headers: {'Authorization': 'Bearer ' + localStorage.token}})
-                .then(response => {
-                    console.log(response)
-                    toast.success('Comment changed')
-                    this.$parent.closeEditForm()
-                })
-                .catch(error => {
-                    toast.error(error.message)
-                })
+        editComment(retry=true) {
+            HTTP.patch('posts/' + this.comment.PostUID + '/comments/' + this.comment.UID, JSON.stringify({'body': this.body }), {headers: {'Authorization': 'Bearer ' + localStorage.getItem('accessToken')}})
+            .then(() => {
+                toast.success('Comment changed')
+                this.$parent.closeEditForm()
+            })
+            .catch(error => {
+                if (retry && error.response.status === 403) {
+                    if (localStorage.getItem('refreshToken')) {
+                        this.$store.dispatch('refresh')
+                        this.submitComment(retry=false)
+                    } else {
+                        this.$store.dispatch('logout')
+                        this.$router.push('/login/')
+                    }
+                }
+                toast.error(error.message)
+            })
         },
         cancel() {
             this.$parent.closeEditForm()

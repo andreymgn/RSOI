@@ -59,35 +59,33 @@ export default {
     },
     fetchPost() {
       HTTP.get('posts/' + this.$route.params.uid)
-        .then(response => {
-          console.log(response.data)
-          this.post = response.data
-        })
-        .catch(error => {
-          if (error.response.status == 422)
-            this.$router.push('/422')
-          if (error.response.status == 404)
-            this.$router.push('/404')
-          toast.error(error.message)
-        })
+      .then(response => {
+        this.post = response.data
+      })
+      .catch(error => {
+        if (error.response.status == 422)
+          this.$router.push('/422')
+        if (error.response.status == 404)
+          this.$router.push('/404')
+        toast.error(error.message)
+      })
     },
     fetchComments(pageNumber, pageSize) {
       HTTP.get('posts/' + this.$route.params.uid + '/comments/', {
-          params: {
-            size: pageSize,
-            page: pageNumber
-          }
-        })
-        .then(response => {
-          console.log(response.data.Comments)
-          this.comments = response.data.Comments
-          this.itemsLoaded = this.comments.length
-          this.pageNumber = response.data.PageNumber
-          this.pageSize = response.data.PageSize
-        })
-        .catch(error => {
-          toast.error(error.message)
-        })
+        params: {
+          size: pageSize,
+          page: pageNumber
+        }
+      })
+      .then(response => {
+        this.comments = response.data.Comments
+        this.itemsLoaded = this.comments.length
+        this.pageNumber = response.data.PageNumber
+        this.pageSize = response.data.PageSize
+      })
+      .catch(error => {
+        toast.error(error.message)
+      })
     },
     deleteComment(postUID, commentUID) {
       for (var i = 0; i < this.comments.length; i++) {

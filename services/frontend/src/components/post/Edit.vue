@@ -45,16 +45,24 @@ export default {
       }
       e.preventDefault()
     },
-    updatePost() {
-      HTTP.patch('posts/' + this.post.UID, JSON.stringify({'title': this.title, 'url': this.URL}), {headers: {'Authorization': 'Bearer ' + localStorage.token}})
-        .then(response => {
-          console.log(response)
-          toast.success('Post updated')
-          this.$parent.closeEditForm()
-        })
-        .catch(error => {
-          toast.error(error.message)
-        })
+    updatePost(retry=true) {
+      HTTP.patch('posts/' + this.post.UID, JSON.stringify({'title': this.title, 'url': this.URL}), {headers: {'Authorization': 'Bearer ' + localStorage.getItem('accessToken')}})
+      .then(() => {
+        toast.success('Post updated')
+        this.$parent.closeEditForm()
+      })
+      .catch(error => {
+        if (retry && error.response.status === 403) {
+          if (localStorage.getItem('refreshToken')) {
+            this.$store.dispatch('refresh')
+            this.updatePost(retry=false)
+          } else {
+            this.$store.dispatch('logout')
+            this.$router.push('/login/')
+          }
+        }
+        toast.error(error.message)
+      })
     },
     cancel() {
       this.$parent.closeEditForm()

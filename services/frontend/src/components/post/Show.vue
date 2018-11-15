@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="row">
-      <small>Created {{ post.CreatedAt | timeAgo }}</small>
+      <small>Created {{ post.CreatedAt | timeAgo }} by {{ username }} </small>
       <small v-if="post.CreatedAt != post.ModifiedAt">; Modified: {{ post.ModifiedAt | timeAgo}}</small>
     </div>
     <div v-if="comments" class="row">
@@ -50,37 +50,49 @@ export default {
   props: ['post', 'comments'],
   data () {
     return {
+      username: '',
       editing: false,
     }
   },
+  created () {
+    this.fetchUser()
+  },
   methods: {
-    like() {
-      HTTP.patch('posts/' + this.post.UID + '/like', '', {headers: {'Authorization': 'Bearer ' + localStorage.token}})
+    like(retry=true) {
+      HTTP.patch('posts/' + this.post.UID + '/like', '', {headers: {'Authorization': 'Bearer ' + localStorage.getItem('accessToken')}})
         .then(() => {
           this.post.NumLikes++
         })
         .catch(error => {
+          if (retry && error.response.status === 403) {
+            this.handle403(() => this.like(retry=false))
+          }
           toast.error(error.message)
         })
     },
-    dislike() {
-      HTTP.patch('posts/' + this.post.UID + '/dislike', '', {headers: {'Authorization': 'Bearer ' + localStorage.token}})
+    dislike(retry=true) {
+      HTTP.patch('posts/' + this.post.UID + '/dislike', '', {headers: {'Authorization': 'Bearer ' + localStorage.getItem('accessToken')}})
         .then(() => {
           this.post.NumDislikes++
         })
         .catch(error => {
+          if (retry && error.response.status === 403) {
+            this.handle403(() => this.dislike(retry=false))
+          }
           toast.error(error.message)
         })
     },
-    deletePost() {
+    deletePost(retry=true) {
       var postUID = this.post.UID
-      HTTP.delete('posts/' + this.post.UID, {headers: {'Authorization': 'Bearer ' + localStorage.token}})
-        .then(response => {
-          console.log(response)
+      HTTP.delete('posts/' + this.post.UID, {headers: {'Authorization': 'Bearer ' + localStorage.getItem('accessToken')}})
+        .then(() => {
           toast.success('Post deleted')
           this.$parent.deletePost(postUID)
         })
         .catch(error => {
+          if (retry && error.response.status === 403) {
+            this.handle403(() => this.deletePost(retry=false))
+          }
           toast.error(error.message)
         })
     },
@@ -89,6 +101,25 @@ export default {
     },
     closeEditForm() {
       this.editing = false
+    },
+    handle403(func) {
+      if (localStorage.getItem('refreshToken')) {
+        this.$store.dispatch('refresh')
+        func()
+      } else {
+        this.$store.dispatch('logout')
+        this.$router.push('/login/')
+      }
+    },
+    fetchUser() {
+      HTTP.get('user/' + this.post.UserUID)
+      .then((response) => {
+        this.username = response.data.Username
+        this.uid = response.data.ID
+      })
+      .catch(error => {
+        toast.error(error.message)
+      })
     }
   }
 }

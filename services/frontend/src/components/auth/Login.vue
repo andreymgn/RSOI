@@ -9,8 +9,10 @@
     </div>
       <label for="username">Username</label>
       <input type="text" name="username" id="username" v-model="username">
-      <label for="Password">Password</label>
+      <label for="password">Password</label>
       <input type="password" name="password" id="password" v-model="password">
+      <label for="remember">Remember me</label>
+      <input type="checkbox" name="remember" id="remember" value="Remember" v-model="remember">
       <br>
       <input class="button-primary" type="submit" value="Log in">
     </form>
@@ -25,7 +27,8 @@ export default {
     return {
       errors: [],
       username: null,
-      password: null
+      password: null,
+      remember: false
     }
   },
   methods: {
@@ -43,7 +46,7 @@ export default {
       e.preventDefault()
     },
     login() {
-      this.$store.dispatch("login", {username: this.username, password: this.password})
+      this.$store.dispatch("login", {username: this.username, password: this.password, refresh: this.remember})
       .then(this.$router.push('/'))
     }
   }

@@ -42,13 +42,22 @@ export default {
       }
       e.preventDefault()
     },
-    submitPost() {
-      HTTP.post('posts/', JSON.stringify({'title': this.title, 'url': this.URL}), {headers: {'Authorization': 'Bearer ' + localStorage.token}})
+    submitPost(retry=true) {
+      HTTP.post('posts/', JSON.stringify({'title': this.title, 'url': this.URL}), {headers: {'Authorization': 'Bearer ' + localStorage.getItem('accessToken')}})
       .then(response => {
         toast.success('Post created')
         this.$router.push('/post/' + response.data.UID)
       })
       .catch(error => {
+        if (retry && error.response.status === 403) {
+          if (localStorage.getItem('refreshToken')) {
+            this.$store.dispatch('refresh')
+            this.submitPost(retry=false)
+          } else {
+            this.$store.dispatch('logout')
+            this.$router.push('/login/')
+          }
+        }
         toast.error(error.message)
       })
     }

@@ -40,6 +40,7 @@ func (c *Comment) SingleComment() (*pb.SingleComment, error) {
 	res.ParentUid = c.ParentUID.String()
 	res.CreatedAt = createdAtProto
 	res.ModifiedAt = modifiedAtProto
+	res.IsDeleted = c.IsDeleted
 
 	return res, nil
 }
@@ -145,6 +146,32 @@ func (s *Server) UpdateComment(ctx context.Context, req *pb.UpdateCommentRequest
 	switch err {
 	case nil:
 		return new(pb.UpdateCommentResponse), nil
+	case errNotFound:
+		return nil, statusNotFound
+	default:
+		return nil, internalError(err)
+	}
+}
+
+func (s *Server) RemoveContent(ctx context.Context, req *pb.RemoveContentRequest) (*pb.RemoveContentResponse, error) {
+	valid, err := s.checkToken(req.Token)
+	if err != nil {
+		return nil, err
+	}
+
+	if !valid {
+		return nil, statusInvalidToken
+	}
+
+	uid, err := uuid.Parse(req.Uid)
+	if err != nil {
+		return nil, statusInvalidUUID
+	}
+
+	err = s.db.removeContent(uid)
+	switch err {
+	case nil:
+		return new(pb.RemoveContentResponse), nil
 	case errNotFound:
 		return nil, statusNotFound
 	default:

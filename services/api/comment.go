@@ -83,9 +83,8 @@ func (s *Server) getPostComments() http.HandlerFunc {
 		comments := make([]c, len(commentsResponse.Comments))
 		for i, singleComment := range commentsResponse.Comments {
 			comments[i].UID = singleComment.Uid
-			comments[i].UserUID = singleComment.UserUid
 			comments[i].PostUID = singleComment.PostUid
-			comments[i].Body = singleComment.Body
+			comments[i].Body = "[deleted]"
 			comments[i].ParentUID = singleComment.ParentUid
 			comments[i].CreatedAt, err = ptypes.Timestamp(singleComment.CreatedAt)
 			if err != nil {
@@ -97,6 +96,12 @@ func (s *Server) getPostComments() http.HandlerFunc {
 			if err != nil {
 				handleRPCError(w, err)
 				return
+			}
+
+			if !singleComment.IsDeleted {
+				comments[i].UserUID = singleComment.UserUid
+				comments[i].Body = singleComment.Body
+
 			}
 		}
 
@@ -368,8 +373,8 @@ func (s *Server) deleteComment() http.HandlerFunc {
 			return
 		}
 
-		_, err = s.commentClient.client.DeleteComment(ctx,
-			&comment.DeleteCommentRequest{Token: s.commentClient.token, Uid: uid},
+		_, err = s.commentClient.client.RemoveContent(ctx,
+			&comment.RemoveContentRequest{Token: s.commentClient.token, Uid: uid},
 		)
 		if err != nil {
 			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
@@ -378,8 +383,8 @@ func (s *Server) deleteComment() http.HandlerFunc {
 					handleRPCError(w, err)
 					return
 				}
-				_, err = s.commentClient.client.DeleteComment(ctx,
-					&comment.DeleteCommentRequest{Token: s.commentClient.token, Uid: uid},
+				_, err = s.commentClient.client.RemoveContent(ctx,
+					&comment.RemoveContentRequest{Token: s.commentClient.token, Uid: uid},
 				)
 				if err != nil {
 					handleRPCError(w, err)

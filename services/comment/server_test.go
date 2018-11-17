@@ -25,22 +25,30 @@ func (mdb *mockdb) getAll(postUID uuid.UUID, parentUID uuid.UUID, pageNumber, pa
 	uid3 := uuid.New()
 	pUID := uuid.New()
 
-	result = append(result, &Comment{uid1, uid2, pUID, "first comment body", uuid.Nil, time.Now(), time.Now()})
-	result = append(result, &Comment{uid2, uid3, pUID, "second comment body", uuid.Nil, time.Now(), time.Now()})
-	result = append(result, &Comment{uid3, uid1, pUID, "third comment body", uid1, time.Now(), time.Now()})
+	result = append(result, &Comment{uid1, uid2, pUID, "first comment body", uuid.Nil, time.Now(), time.Now(), false})
+	result = append(result, &Comment{uid2, uid3, pUID, "second comment body", uuid.Nil, time.Now(), time.Now(), false})
+	result = append(result, &Comment{uid3, uid1, pUID, "third comment body", uid1, time.Now(), time.Now(), false})
 	return result, nil
 }
 
 func (mdb *mockdb) create(postUID uuid.UUID, body string, parentUID, userUID uuid.UUID) (*Comment, error) {
 	if postUID == uuid.Nil {
 		uid := uuid.New()
-		return &Comment{uid, userUID, postUID, "first comment body", uuid.Nil, time.Now(), time.Now()}, nil
+		return &Comment{uid, userUID, postUID, "first comment body", uuid.Nil, time.Now(), time.Now(), false}, nil
 	}
 
 	return nil, errDummy
 }
 
 func (mdb *mockdb) update(uid uuid.UUID, body string) error {
+	if uid == uuid.Nil {
+		return nil
+	}
+
+	return errDummy
+}
+
+func (mdb *mockdb) removeContent(uid uuid.UUID) error {
 	if uid == uuid.Nil {
 		return nil
 	}

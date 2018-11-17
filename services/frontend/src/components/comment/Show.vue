@@ -4,7 +4,7 @@
     {{ comment.Body }}
   </div>
   <div class="row">
-    <small>Created {{ comment.CreatedAt | timeAgo }}</small>
+    <small>Created {{ comment.CreatedAt | timeAgo }} by  {{ username }}</small>
     <small v-if="comment.CreatedAt != comment.ModifiedAt">; Modified: {{ comment.ModifiedAt | timeAgo}}</small>
   </div>
   <div class="row">
@@ -41,8 +41,12 @@ export default {
     return {
       replying: false,
       editing: false,
-      children: null
+      children: null,
+      username: ''
     }
+  },
+  created () {
+    this.fetchUser()
   },
   methods: {
     showCommentForm() {
@@ -66,26 +70,13 @@ export default {
       this.$parent.fetchComments()
     },
     deleteComment() {
-      // think about it
       var postUID = this.comment.PostUID
       var commentUID = this.comment.UID
-      HTTP.delete('posts/' + postUID + '/comments/' + commentUID)
-        .then(response => {
-          console.log(response)
+      HTTP.delete('posts/' + postUID + '/comments/' + commentUID, {headers: {'Authorization': 'Bearer ' + localStorage.getItem('accessToken')}})
+        .then(() => {
           toast.success('Comment deleted')
-          // do not delete parent comment if child gets deleted
-          if (this.$parent.name != this.name) {
-            this.$parent.deleteComment(postUID, commentUID)
-          } else {
-            if (this.$parent.children) {
-              // delete item from parent component
-              for (var i = 0; i < this.$parent.children.length; i++) {
-                if (this.$parent.children[i].UID == commentUID) {
-                  this.$parent.$delete(this.$parent.children, i)
-                }
-              }
-            }
-          }
+          this.comment.Body = '[deleted]'
+          this.username = '[deleted]'
         })
         .catch(error => {
           toast.error(error.message)
@@ -94,12 +85,25 @@ export default {
     loadReplies() {
       HTTP.get('posts/' + this.comment.PostUID + '/comments/' + this.comment.UID)
         .then(response => {
-          console.log(response)
           this.children = response.data.Comments
         })
         .catch(error => {
           toast.error(error.message)
         })
+    },
+    fetchUser() {
+      if (this.comment.UserUID === '') {
+        this.username = '[deleted]'
+      } else {
+        HTTP.get('user/' + this.comment.UserUID)
+        .then((response) => {
+          this.username = response.data.Username
+          this.uid = response.data.ID
+        })
+        .catch(error => {
+          toast.error(error.message)
+        })
+      }
     }
   }
 }

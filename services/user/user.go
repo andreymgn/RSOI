@@ -178,6 +178,7 @@ func (s *Server) GetAccessToken(ctx context.Context, req *pb.GetTokenRequest) (*
 
 	res := new(pb.GetAccessTokenResponse)
 	res.Token = token
+	res.Uid = uid.String()
 	return res, nil
 }
 

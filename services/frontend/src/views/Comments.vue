@@ -3,7 +3,7 @@
     <div class="row">
       <post v-if="post" :post="post"></post>
     </div>
-    <div class="button float-left" @click="showCommentForm">New comment</div>
+    <div v-if="isLoggedIn" class="button float-left" @click="showCommentForm">New comment</div>
     <div class="row">
       <div v-if="editing">
         <submitCommentForm :postUID="post.UID"></submitCommentForm>
@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import Vuex from 'vuex'
+
 import {HTTP} from '@/util/http'
 import toast from '@/util/toast'
 
@@ -45,6 +47,9 @@ export default {
       pageSize: null,
       itemsLoaded: 0
     }
+  },
+  computed: {
+    ...Vuex.mapGetters(['isLoggedIn'])
   },
   created () {
     this.fetchData()
@@ -93,10 +98,6 @@ export default {
           this.$delete(this.comments, i)
         }
       }
-    },
-    deletePost(postUID) {
-      console.log(postUID)
-      this.$router.push('/')
     },
     loadPrevious() {
       this.fetchComments(this.pageNumber - 1)

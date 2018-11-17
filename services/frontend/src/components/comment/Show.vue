@@ -1,17 +1,20 @@
 <template>
 <div class="container border">
   <div class="row">
+    By {{ username }}:
+  </div>
+  <div class="row">
     {{ comment.Body }}
   </div>
   <div class="row">
-    <small>Created {{ comment.CreatedAt | timeAgo }} by  {{ username }}</small>
+    <small>Created {{ comment.CreatedAt | timeAgo }}</small>
     <small v-if="comment.CreatedAt != comment.ModifiedAt">; Modified: {{ comment.ModifiedAt | timeAgo}}</small>
   </div>
   <div class="row">
     <div class="button button-outline" @click="loadReplies">Load replies</div>
-    <div class="button button-outline" style="margin-left:10px;" @click="showCommentForm">Reply</div>
-    <div class="button button-clear" style="margin-left:10px;" @click="showEditForm">Edit</div>
-    <div class="button button-clear" style="margin-left:10px;" @click="deleteComment">Delete</div>
+    <div v-if="comment.UserUID === uid" class="button button-outline" style="margin-left:10px;" @click="showCommentForm">Reply</div>
+    <div v-if="comment.UserUID === uid" class="button button-clear" style="margin-left:10px;" @click="showEditForm">Edit</div>
+    <div v-if="comment.UserUID === uid" class="button button-clear" style="margin-left:10px;" @click="deleteComment">Delete</div>
   </div> 
   <div v-show="replying">
     <submitCommentForm :postUID="comment.PostUID" :parentUID="comment.UID"></submitCommentForm>
@@ -42,7 +45,8 @@ export default {
       replying: false,
       editing: false,
       children: null,
-      username: ''
+      username: '',
+      uid: localStorage.getItem('UID')
     }
   },
   created () {
@@ -69,7 +73,7 @@ export default {
       this.editing = false
       this.$parent.fetchComments()
     },
-    deleteComment() {
+    deleteComment(retry=true) {
       var postUID = this.comment.PostUID
       var commentUID = this.comment.UID
       HTTP.delete('posts/' + postUID + '/comments/' + commentUID, {headers: {'Authorization': 'Bearer ' + localStorage.getItem('accessToken')}})
@@ -79,6 +83,15 @@ export default {
           this.username = '[deleted]'
         })
         .catch(error => {
+          if (retry && error.response.status === 403) {
+            if (localStorage.getItem('refreshToken')) {
+              this.$store.dispatch('refresh')
+              this.deleteComment(retry=false)
+            } else {
+              this.$store.dispatch('logout')
+              this.$router.push('/login/')
+            }
+          }
           toast.error(error.message)
         })
     },
@@ -98,7 +111,6 @@ export default {
         HTTP.get('user/' + this.comment.UserUID)
         .then((response) => {
           this.username = response.data.Username
-          this.uid = response.data.ID
         })
         .catch(error => {
           toast.error(error.message)

@@ -33,22 +33,39 @@ services:
     volumes:
       - ./services/poststats/sql/script.sql:/docker-entrypoint-initdb.d/init.sql
 
+  psql_user:
+    image: postgres:10-alpine
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_DB=user
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=userpass
+    volumes:
+      - ./services/user/sql/script.sql:/docker-entrypoint-initdb.d/init.sql
+
   redis_post:
     image: redis:4.0.5-alpine
     command: ["redis-server", "--appendonly", "yes"]
-    expose: 
+    expose:
       - "6379"
 
   redis_comment:
     image: redis:4.0.5-alpine
     command: ["redis-server", "--appendonly", "yes"]
-    expose: 
+    expose:
       - "6379"
 
   redis_poststats:
     image: redis:4.0.5-alpine
     command: ["redis-server", "--appendonly", "yes"]
-    expose: 
+    expose:
+      - "6379"
+
+  redis_user:
+    image: redis:4.0.5-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    expose:
       - "6379"
 
   jaeger:
@@ -108,9 +125,24 @@ services:
       - psql_poststats
       - redis_poststats
 
+  user:
+    build: .
+    command: ["RSOI", "-service", "user", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=user password=userpass dbname=user sslmode=disable port=5432 host=psql_user", "-redis-addr", "redis_user:6379", "-redis-db", "0"]
+    expose:
+      - "8080"
+    restart: on-failure
+    links:
+      - jaeger
+      - psql_user
+      - redis_user
+    depends_on:
+      - jaeger
+      - psql_user
+      - redis_user
+
   api:
     build: .
-    command: RSOI -service api -port 8080 -post-server "post:8080" -comment-server "comment:8080" -post-stats-server "poststats:8080" -jaeger-addr jaeger:6831
+    command: RSOI -service api -port 8080 -post-server "post:8080" -comment-server "comment:8080" -post-stats-server "poststats:8080" -user-server "user:8080" -jaeger-addr jaeger:6831
     ports:
       - "8080:8080"
     expose:
@@ -121,11 +153,13 @@ services:
       - post
       - comment
       - poststats
+      - user
     depends_on:
       - jaeger
       - post
       - comment
       - poststats
+      - user
 
   frontend:
     build: services/frontend/

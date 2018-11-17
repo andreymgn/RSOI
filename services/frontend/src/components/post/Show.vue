@@ -26,7 +26,7 @@
     <div v-if="comments" class="row">
       <router-link :to="'/post/' + post.UID"><small>Read comments</small></router-link>
     </div>
-    <div class="row">
+    <div v-if="post.UserUID === uid" class="row">
       <div class="button" @click="showEditForm">Edit</div>
       <div class="button button-outline" style="margin-left:10px;" @click="deletePost">Delete</div>
     </div>
@@ -50,8 +50,9 @@ export default {
   props: ['post', 'comments'],
   data () {
     return {
-      username: '',
       editing: false,
+      uid: localStorage.getItem('UID'),
+      username: ''
     }
   },
   created () {
@@ -115,7 +116,6 @@ export default {
       HTTP.get('user/' + this.post.UserUID)
       .then((response) => {
         this.username = response.data.Username
-        this.uid = response.data.ID
       })
       .catch(error => {
         toast.error(error.message)

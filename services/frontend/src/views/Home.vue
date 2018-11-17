@@ -21,11 +21,9 @@ export default {
   components: {
     Post
   },
-
   props: {
     type: String
   },
-
   data () {
     return {
       posts: null,
@@ -34,11 +32,9 @@ export default {
       itemsLoaded: 0
     }
   },
-
   mounted () {
     this.getPage(0, 10)
   },
-
   methods: {
     getPage(pageNumber, pageSize) {
       HTTP.get('posts/', {

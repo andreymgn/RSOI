@@ -112,6 +112,7 @@ func (s *Server) getToken() http.HandlerFunc {
 	}
 
 	type response struct {
+		UID          string
 		AccessToken  string
 		RefreshToken string `json:",omitempty"`
 	}
@@ -156,6 +157,7 @@ func (s *Server) getToken() http.HandlerFunc {
 
 		resp := response{}
 		resp.AccessToken = accessTokenResponse.Token
+		resp.UID = accessTokenResponse.Uid
 
 		if req.Refresh {
 			refreshTokenResponse, err := s.userClient.client.GetRefreshToken(ctx,

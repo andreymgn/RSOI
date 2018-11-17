@@ -3,9 +3,14 @@
     <div id="nav">
       <router-link :to="'/'">Home</router-link> | 
       <router-link :to="'/submit'">New post</router-link> | 
-      <router-link v-if="!isLoggedIn" :to="'/login'">Log in</router-link> | 
-      <a href="#" v-if="isLoggedIn" @click="logout">Logout</a>
-      <router-link v-else :to="'/register'">Register</router-link>
+      <span v-if="isLoggedIn">
+        Logged in as {{ username }}
+        <a href="#" v-if="isLoggedIn" @click="logout">(logout)</a>
+      </span>
+      <span v-else>
+        <router-link :to="'/login'">Log in</router-link> | 
+        <router-link :to="'/register'">Register</router-link>
+      </span>
     </div>
     <router-view/>
   </div>
@@ -14,11 +19,16 @@
 <script>
 import Vuex from 'vuex'
 export default {
+  data () {
+    return {
+      username: localStorage.getItem('username'),
+    }
+  },
   methods: {
-    ...Vuex.mapActions(["logout"])
+    ...Vuex.mapActions(['logout'])
   },
   computed: {
-    ...Vuex.mapGetters(["isLoggedIn"])
+    ...Vuex.mapGetters(['isLoggedIn'])
   }
 }
 </script>

@@ -1,5 +1,8 @@
 <template>
 <div class="container">
+  <div v-if="pending">
+    Logging in
+  </div>
   <form @submit="checkForm" novalidate="true">
     <div class="row error" v-if="errors.length">
       <b>Please correct the following error(s):</b>
@@ -20,6 +23,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 export default {
   name: 'loginForm',
 
@@ -30,6 +35,9 @@ export default {
       password: null,
       remember: false
     }
+  },
+  computed: {
+    ...mapState(['pending'])
   },
   methods: {
     checkForm(e) {
@@ -47,7 +55,7 @@ export default {
     },
     login() {
       this.$store.dispatch("login", {username: this.username, password: this.password, refresh: this.remember})
-      .then(this.$router.push('/'))
+      .then(() => this.$router.push('/'))
     }
   }
 }

@@ -12,7 +12,10 @@ service user {
   rpc GetRefreshToken(GetTokenRequest) returns (GetRefreshTokenResponse);
   rpc RefreshAccessToken(RefreshAccessTokenRequest) returns (RefreshAccessTokenResponse);
   rpc GetUserByAccessToken(GetUserByAccessTokenRequest) returns (GetUserByAccessTokenResponse);
-  
+  rpc CreateApp(CreateAppRequest) returns (CreateAppResponse);
+  rpc GetAppInfo(GetAppInfoRequest) returns (GetAppInfoResponse);
+  rpc GetOAuthCode(GetOAuthCodeRequest) returns (GetOAuthCodeResponse);
+  rpc GetTokenFromCode(GetTokenFromCodeRequest) returns (GetTokenFromCodeResponse);
 }
 
 message GetUserInfoRequest {
@@ -90,6 +93,49 @@ message RefreshAccessTokenRequest {
 }
 
 message RefreshAccessTokenResponse {
+  string accessToken = 1;
+  string refreshToken = 2;
+}
+
+message CreateAppRequest {
+  string apiToken = 1;
+  string owner = 2;
+  string name = 3;
+}
+
+message CreateAppResponse {
+  string id = 1;
+  string secret = 2;
+}
+
+message GetAppInfoRequest {
+  string id = 1;
+}
+
+message GetAppInfoResponse {
+  string owner = 1;
+  string name = 2;
+}
+
+message GetOAuthCodeRequest {
+  string apiToken = 1;
+  string appUid = 2;
+  string username = 3;
+  string password = 4;
+}
+
+message GetOAuthCodeResponse {
+  string code = 1;
+}
+
+message GetTokenFromCodeRequest {
+  string apiToken = 1;
+  string code = 2;
+  string appUid = 3;
+  string appSecret = 4;
+}
+
+message GetTokenFromCodeResponse {
   string accessToken = 1;
   string refreshToken = 2;
 }

@@ -22,6 +22,7 @@ type Server struct {
 	apiTokenAuth        auth.Auth
 	accessTokenStorage  *redis.Client
 	refreshTokenStorage *redis.Client
+	oauthCodeStorage    *redis.Client
 }
 
 // NewServer returns a new server
@@ -58,7 +59,18 @@ func NewServer(connString, redisAddr, redisPassword string, apiTokenDBNum int, a
 		return nil, err
 	}
 
-	return &Server{db, tokenStorage, accessTokenStorage, refreshTokenStorage}, nil
+	oauthCodeStorage := redis.NewClient(&redis.Options{
+		Addr:     redisAddr,
+		Password: redisPassword,
+		DB:       apiTokenDBNum + 3,
+	})
+
+	_, err = oauthCodeStorage.Ping().Result()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Server{db, tokenStorage, accessTokenStorage, refreshTokenStorage, oauthCodeStorage}, nil
 }
 
 // Start starts a server

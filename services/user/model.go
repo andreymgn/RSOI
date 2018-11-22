@@ -16,13 +16,27 @@ var (
 )
 
 const (
-	bcryptCost = 14
+	bcryptCost = 4
 )
 
 // User describes public user info
 type User struct {
 	UID      uuid.UUID
 	Username string
+}
+
+// App describes third-party app
+type App struct {
+	UID    uuid.UUID
+	Secret uuid.UUID
+	Owner  uuid.UUID
+	Name   string
+}
+
+// AppInfo describes third-party app public info
+type AppInfo struct {
+	Owner uuid.UUID
+	Name  string
 }
 
 type datastore interface {
@@ -32,6 +46,9 @@ type datastore interface {
 	delete(uuid.UUID) error
 	checkPassword(uuid.UUID, string) (bool, error)
 	getUIDByUsername(string) (uuid.UUID, error)
+	createApp(uuid.UUID, string) (*App, error)
+	getAppInfo(uuid.UUID) (*AppInfo, error)
+	isValidAppCredentials(uuid.UUID, uuid.UUID) (bool, error)
 }
 
 type db struct {
@@ -154,5 +171,57 @@ func (db *db) getUIDByUsername(username string) (uuid.UUID, error) {
 		return uuid.Nil, errNotFound
 	default:
 		return uuid.Nil, err
+	}
+}
+
+func (db *db) createApp(owner uuid.UUID, name string) (*App, error) {
+	query := "INSERT INTO apps (uid, secret, owner, name) VALUES ($1, $2, $3, $3)"
+	uid := uuid.New()
+	secret := uuid.New()
+
+	result, err := db.Exec(query, uid, secret, owner.String(), name)
+	nRows, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+
+	if nRows == 0 {
+		return nil, errNotCreated
+	}
+
+	app := new(App)
+	app.UID = uid
+	app.Secret = secret
+	app.Owner = owner
+	app.Name = name
+
+	return app, nil
+}
+
+func (db *db) getAppInfo(appID uuid.UUID) (*AppInfo, error) {
+	query := "SELECT owner, name FROM apps WHERE uid=$1"
+	row := db.QueryRow(query, appID.String())
+	result := new(AppInfo)
+	switch err := row.Scan(&result.Owner, &result.Name); err {
+	case nil:
+		return result, nil
+	case sql.ErrNoRows:
+		return nil, errNotFound
+	default:
+		return nil, err
+	}
+}
+
+func (db *db) isValidAppCredentials(appID, appSecret uuid.UUID) (bool, error) {
+	query := "SELECT EXISTS(SELECT 1 FROM apps WHERE uid=$1 AND secret=$2)"
+	row := db.QueryRow(query, appID.String(), appSecret.String())
+	var result bool
+	switch err := row.Scan(&result); err {
+	case nil:
+		return result, nil
+	case sql.ErrNoRows:
+		return false, errNotFound
+	default:
+		return false, err
 	}
 }

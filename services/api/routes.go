@@ -24,5 +24,10 @@ func (s *Server) routes() {
 	s.router.Mux.HandleFunc("/api/auth/token", s.getToken()).Methods("POST")
 	s.router.Mux.HandleFunc("/api/auth/refresh", s.refreshToken()).Methods("POST")
 
+	s.router.Mux.HandleFunc("/api/oauth/app", s.createApp()).Methods("POST")
+	s.router.Mux.HandleFunc("/api/oauth/app/{uid}", s.getAppInfo()).Methods("GET")
+	s.router.Mux.HandleFunc("/api/oauth/authorize", s.getOAuthCode()).Methods("POST")
+	s.router.Mux.HandleFunc("/api/oauth/token", s.getTokenFromOAuthCode()).Methods("POST")
+
 	s.router.Mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("Hello, world!")) })
 }

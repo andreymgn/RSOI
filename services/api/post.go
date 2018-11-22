@@ -114,7 +114,6 @@ func (s *Server) createPost() http.HandlerFunc {
 	type request struct {
 		Title string `json:"title"`
 		URL   string `json:"url"`
-		Token string
 	}
 
 	type response struct {

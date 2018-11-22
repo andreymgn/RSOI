@@ -5,6 +5,8 @@ import Comments from './views/Comments.vue'
 import NewPost from './views/NewPost.vue'
 import Register from './views/Register.vue'
 import Login from './views/Login.vue'
+import NewApp from './views/NewApp.vue'
+import OAuthLogin from './views/OAuthLogin.vue'
 
 Vue.use(Router)
 
@@ -36,14 +38,24 @@ export default new Router({
       component: Login
     },
     {
+      path: '/oauth/register',
+      name: 'newApp',
+      component: NewApp
+    },
+    {
+      path: '/oauth/authorize',
+      name: 'oauthLogin',
+      component: OAuthLogin
+    },
+    {
       path: '/422',
       name: 'UnprocessableEntity',
-      component: () => import(/* webpackChunkName: "about" */ './views/UnprocessableEntity.vue'),
+      component: () => import(/* webpackChunkName: "UnprocessableEntity" */ './views/UnprocessableEntity.vue'),
     },
     {
       path: '/404',
       name: 'NotFound',
-      component: () => import(/* webpackChunkName: "about" */ './views/NotFound.vue'),
+      component: () => import(/* webpackChunkName: "NotFound" */ './views/NotFound.vue'),
     }
   ]
 })

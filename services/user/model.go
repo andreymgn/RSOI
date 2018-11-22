@@ -175,7 +175,7 @@ func (db *db) getUIDByUsername(username string) (uuid.UUID, error) {
 }
 
 func (db *db) createApp(owner uuid.UUID, name string) (*App, error) {
-	query := "INSERT INTO apps (uid, secret, owner, name) VALUES ($1, $2, $3, $3)"
+	query := "INSERT INTO apps (uid, secret, owner, name) VALUES ($1, $2, $3, $4)"
 	uid := uuid.New()
 	secret := uuid.New()
 

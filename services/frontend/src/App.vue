@@ -5,7 +5,8 @@
       <router-link :to="'/submit'">New post</router-link> | 
       <span v-if="isLoggedIn">
         Logged in as {{ username }}
-        <a href="#" v-if="isLoggedIn" @click="logout">(logout)</a>
+        <a href="#" v-if="isLoggedIn" @click="logout">(logout)</a> | 
+        <router-link :to="'/oauth/register'">New third-party app</router-link>
       </span>
       <span v-else>
         <router-link :to="'/login'">Log in</router-link> | 

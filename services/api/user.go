@@ -452,34 +452,23 @@ func (s *Server) getOAuthCode() http.HandlerFunc {
 }
 
 func (s *Server) getTokenFromOAuthCode() http.HandlerFunc {
-	type request struct {
-		AppUID    string
-		AppSecret string
-		Code      string
-	}
-
 	type response struct {
 		AccessToken  string
 		RefreshToken string
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req request
-		b, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			handleRPCError(w, err)
+		queryParams := r.URL.Query()
+		if queryParams.Get("grant_type") != "authorization_code" {
+			w.WriteHeader(http.StatusNotAcceptable)
 			return
 		}
-
-		err = json.Unmarshal(b, &req)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-			return
-		}
-
+		code := queryParams.Get("code")
+		appID := queryParams.Get("client_id")
+		appSecret := queryParams.Get("client_secret")
 		ctx := r.Context()
 		getTokenResponse, err := s.userClient.client.GetTokenFromCode(ctx,
-			&user.GetTokenFromCodeRequest{ApiToken: s.userClient.token, Code: req.Code, AppUid: req.AppUID, AppSecret: req.AppSecret},
+			&user.GetTokenFromCodeRequest{ApiToken: s.userClient.token, Code: code, AppUid: appID, AppSecret: appSecret},
 		)
 		if err != nil {
 			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
@@ -489,7 +478,7 @@ func (s *Server) getTokenFromOAuthCode() http.HandlerFunc {
 					return
 				}
 				getTokenResponse, err = s.userClient.client.GetTokenFromCode(ctx,
-					&user.GetTokenFromCodeRequest{ApiToken: s.userClient.token, Code: req.Code, AppUid: req.AppUID, AppSecret: req.AppSecret},
+					&user.GetTokenFromCodeRequest{ApiToken: s.userClient.token, Code: code, AppUid: appID, AppSecret: appSecret},
 				)
 				if err != nil {
 					handleRPCError(w, err)

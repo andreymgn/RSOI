@@ -433,6 +433,11 @@ func (s *Server) GetTokenFromCode(ctx context.Context, req *pb.GetTokenFromCodeR
 		return nil, internalError(err)
 	}
 
+	err = s.oauthCodeStorage.Del(req.AppUid + req.Code).Err()
+	if err != nil && err != redis.Nil {
+		return nil, internalError(err)
+	}
+
 	accessToken := uuid.New().String()
 	err = s.accessTokenStorage.Set(accessToken, uid, AccessTokenExpirationTime).Err()
 	if err != nil {

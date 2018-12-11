@@ -8,14 +8,13 @@ import (
 	"strconv"
 	"time"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	comment "github.com/andreymgn/RSOI/services/comment/proto"
 	post "github.com/andreymgn/RSOI/services/post/proto"
 	poststats "github.com/andreymgn/RSOI/services/poststats/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/gorilla/mux"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (s *Server) getPosts() http.HandlerFunc {
@@ -88,14 +87,19 @@ func (s *Server) getPosts() http.HandlerFunc {
 			postStats, err := s.postStatsClient.client.GetPostStats(ctx,
 				&poststats.GetPostStatsRequest{PostUid: posts[i].UID},
 			)
-			if err != nil {
+			if st, ok := status.FromError(err); ok && st.Code() == codes.Unavailable {
+				posts[i].NumLikes = -1
+				posts[i].NumDislikes = -1
+				posts[i].NumViews = -1
+
+			} else if err != nil {
 				handleRPCError(w, err)
 				return
+			} else {
+				posts[i].NumLikes = postStats.NumLikes
+				posts[i].NumDislikes = postStats.NumDislikes
+				posts[i].NumViews = postStats.NumViews
 			}
-
-			posts[i].NumLikes = postStats.NumLikes
-			posts[i].NumDislikes = postStats.NumDislikes
-			posts[i].NumViews = postStats.NumViews
 		}
 
 		resp := response{posts, sizeNum, pageNum}

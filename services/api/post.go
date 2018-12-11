@@ -191,19 +191,35 @@ func (s *Server) createPost() http.HandlerFunc {
 			&poststats.CreatePostStatsRequest{Token: s.postStatsClient.token, PostUid: p.Uid},
 		)
 		if err != nil {
-			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
-				err := s.updatePostStatsToken()
-				if err != nil {
+			if st, ok := status.FromError(err); ok {
+				switch st.Code() {
+				case codes.Unauthenticated:
+					err := s.updatePostStatsToken()
+					if err != nil {
+						handleRPCError(w, err)
+						return
+					}
+					_, err = s.postStatsClient.client.CreatePostStats(ctx,
+						&poststats.CreatePostStatsRequest{Token: s.postStatsClient.token, PostUid: p.Uid},
+					)
+					if err != nil {
+						handleRPCError(w, err)
+						return
+					}
+				case codes.Unavailable:
+					_, err := s.postClient.client.DeletePost(ctx,
+						&post.DeletePostRequest{Token: s.postClient.token, Uid: p.Uid},
+					)
+					if err != nil {
+						handleRPCError(w, err)
+						return
+					}
+					w.WriteHeader(http.StatusServiceUnavailable)
+				default:
 					handleRPCError(w, err)
 					return
 				}
-				_, err = s.postStatsClient.client.CreatePostStats(ctx,
-					&poststats.CreatePostStatsRequest{Token: s.postStatsClient.token, PostUid: p.Uid},
-				)
-				if err != nil {
-					handleRPCError(w, err)
-					return
-				}
+
 			} else {
 				handleRPCError(w, err)
 				return

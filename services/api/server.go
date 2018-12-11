@@ -30,6 +30,7 @@ const (
 	PostStatsAppSecret = "3BusyNfGQpyCr77J"
 	UserAppID          = "UserAPI"
 	UserAppSecret      = "fzFKf3g6QeIdqbP7"
+	MaxQueueLength     = 100
 )
 
 type PostClient struct {
@@ -61,11 +62,14 @@ type UserClient struct {
 }
 
 type Server struct {
-	router          *tracer.TracedRouter
-	postClient      *PostClient
-	commentClient   *CommentClient
-	postStatsClient *PostStatsClient
-	userClient      *UserClient
+	router                 *tracer.TracedRouter
+	postClient             *PostClient
+	commentClient          *CommentClient
+	postStatsClient        *PostStatsClient
+	userClient             *UserClient
+	deletePostChannel      chan string
+	deletePostStatsChannel chan string
+	deleteCommentChannel   chan string
 }
 
 // NewServer returns new instance of Server
@@ -76,6 +80,9 @@ func NewServer(pc post.PostClient, cc comment.CommentClient, psc poststats.PostS
 		&CommentClient{cc, "", CommentAppID, CommentAppSecret},
 		&PostStatsClient{psc, "", PostStatsAppID, PostStatsAppSecret},
 		&UserClient{uc, "", UserAppID, UserAppSecret},
+		make(chan string, MaxQueueLength),
+		make(chan string, MaxQueueLength),
+		make(chan string, MaxQueueLength),
 	}
 }
 
@@ -98,13 +105,16 @@ func handleRPCError(w http.ResponseWriter, err error) {
 
 	switch st.Code() {
 	case codes.NotFound:
-		w.WriteHeader(http.StatusNotFound)
+		http.Error(w, st.Message(), http.StatusNotFound)
 		return
 	case codes.InvalidArgument:
-		w.WriteHeader(http.StatusUnprocessableEntity)
+		http.Error(w, st.Message(), http.StatusUnprocessableEntity)
 		return
 	case codes.Unauthenticated:
 		w.WriteHeader(http.StatusForbidden)
+		return
+	case codes.Unavailable:
+		w.WriteHeader(http.StatusServiceUnavailable)
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -135,6 +145,10 @@ func (s *Server) Start(port int) {
 		IdleTimeout:  time.Second * 60,
 		Handler:      c.Handler(s.router),
 	}
+
+	go s.deletePostWorker()
+	go s.deletePostStatsWorker()
+	go s.deleteCommentWorker()
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {

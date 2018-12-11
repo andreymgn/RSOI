@@ -456,51 +456,9 @@ func (s *Server) deletePost() http.HandlerFunc {
 			return
 		}
 
-		_, err = s.postClient.client.DeletePost(ctx,
-			&post.DeletePostRequest{Token: s.postClient.token, Uid: uid},
-		)
-		if err != nil {
-			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
-				err := s.updatePostToken()
-				if err != nil {
-					handleRPCError(w, err)
-					return
-				}
-				_, err = s.postClient.client.DeletePost(ctx,
-					&post.DeletePostRequest{Token: s.postClient.token, Uid: uid},
-				)
-				if err != nil {
-					handleRPCError(w, err)
-					return
-				}
-			} else {
-				handleRPCError(w, err)
-				return
-			}
-		}
+		s.deletePostChannel <- uid
 
-		_, err = s.postStatsClient.client.DeletePostStats(ctx,
-			&poststats.DeletePostStatsRequest{Token: s.postStatsClient.token, PostUid: uid},
-		)
-		if err != nil {
-			if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
-				err := s.updatePostStatsToken()
-				if err != nil {
-					handleRPCError(w, err)
-					return
-				}
-				_, err = s.postStatsClient.client.DeletePostStats(ctx,
-					&poststats.DeletePostStatsRequest{Token: s.postStatsClient.token, PostUid: uid},
-				)
-				if err != nil {
-					handleRPCError(w, err)
-					return
-				}
-			} else {
-				handleRPCError(w, err)
-				return
-			}
-		}
+		s.deletePostStatsChannel <- uid
 
 		comments, err := s.commentClient.client.ListComments(ctx,
 			&comment.ListCommentsRequest{PostUid: uid},
@@ -511,28 +469,7 @@ func (s *Server) deletePost() http.HandlerFunc {
 		}
 
 		for _, c := range comments.Comments {
-			_, err := s.commentClient.client.DeleteComment(ctx,
-				&comment.DeleteCommentRequest{Uid: c.Uid, Token: s.commentClient.token},
-			)
-			if err != nil {
-				if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
-					err := s.updatePostStatsToken()
-					if err != nil {
-						handleRPCError(w, err)
-						return
-					}
-					_, err = s.commentClient.client.DeleteComment(ctx,
-						&comment.DeleteCommentRequest{Uid: c.Uid, Token: s.commentClient.token},
-					)
-					if err != nil {
-						handleRPCError(w, err)
-						return
-					}
-				} else {
-					handleRPCError(w, err)
-					return
-				}
-			}
+			s.deleteCommentChannel <- c.Uid
 		}
 
 		w.WriteHeader(http.StatusNoContent)

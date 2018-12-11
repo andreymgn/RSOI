@@ -1,7 +1,7 @@
 <template>
   <div v-bind:class="{'container border': comments,  'container ': !comments}">
     <div class="row">
-      <div class="column">
+      <div class="column" v-if="post.NumViews != -1">
         <div class="row" style="cursor: pointer;" @click="like">&#x1F525; {{ post.NumLikes }}</div>
         <div class="row" style="cursor: pointer;" @click="dislike">&#x1F4A9; {{ post.NumDislikes }}</div>
       </div>
@@ -14,7 +14,7 @@
             {{ post.Title }}
           </template>
         </div>
-        <div class="row">
+        <div class="row" v-if="post.NumViews != -1">
           <i class="fa fa-eye"><small> {{ post.NumViews }}</small></i>
         </div>
       </div>

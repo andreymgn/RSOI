@@ -20,7 +20,6 @@ const (
 )
 
 var (
-	statusNoUsername       = status.Error(codes.InvalidArgument, "username is empty")
 	statusNotFound         = status.Error(codes.NotFound, "user not found")
 	statusInvalidUUID      = status.Error(codes.InvalidArgument, "invalid UUID")
 	statusInvalidToken     = status.Error(codes.Unauthenticated, "invalid grpc token")
@@ -67,6 +66,14 @@ func (s *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb
 
 	if !valid {
 		return nil, statusInvalidToken
+	}
+
+	if len(req.Username) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "username is empty")
+	}
+
+	if len(req.Password) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "password is empty")
 	}
 
 	user, err := s.db.create(req.Username, req.Password)

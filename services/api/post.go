@@ -456,9 +456,9 @@ func (s *Server) deletePost() http.HandlerFunc {
 			return
 		}
 
-		s.deletePostChannel <- uid
+		s.deletePostChannel <- workerRequest{uid, time.Now()}
 
-		s.deletePostStatsChannel <- uid
+		s.deletePostStatsChannel <- workerRequest{uid, time.Now()}
 
 		comments, err := s.commentClient.client.ListComments(ctx,
 			&comment.ListCommentsRequest{PostUid: uid},
@@ -469,7 +469,7 @@ func (s *Server) deletePost() http.HandlerFunc {
 		}
 
 		for _, c := range comments.Comments {
-			s.deleteCommentChannel <- c.Uid
+			s.deleteCommentChannel <- workerRequest{c.Uid, time.Now()}
 		}
 
 		w.WriteHeader(http.StatusNoContent)

@@ -67,9 +67,9 @@ type Server struct {
 	commentClient          *CommentClient
 	postStatsClient        *PostStatsClient
 	userClient             *UserClient
-	deletePostChannel      chan string
-	deletePostStatsChannel chan string
-	deleteCommentChannel   chan string
+	deletePostChannel      chan workerRequest
+	deletePostStatsChannel chan workerRequest
+	deleteCommentChannel   chan workerRequest
 }
 
 // NewServer returns new instance of Server
@@ -80,9 +80,9 @@ func NewServer(pc post.PostClient, cc comment.CommentClient, psc poststats.PostS
 		&CommentClient{cc, "", CommentAppID, CommentAppSecret},
 		&PostStatsClient{psc, "", PostStatsAppID, PostStatsAppSecret},
 		&UserClient{uc, "", UserAppID, UserAppSecret},
-		make(chan string, MaxQueueLength),
-		make(chan string, MaxQueueLength),
-		make(chan string, MaxQueueLength),
+		make(chan workerRequest, MaxQueueLength),
+		make(chan workerRequest, MaxQueueLength),
+		make(chan workerRequest, MaxQueueLength),
 	}
 }
 

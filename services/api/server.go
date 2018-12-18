@@ -115,6 +115,7 @@ func handleRPCError(w http.ResponseWriter, err error) {
 		return
 	case codes.Unavailable:
 		w.WriteHeader(http.StatusServiceUnavailable)
+		return
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
 		return

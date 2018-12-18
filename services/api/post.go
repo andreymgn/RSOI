@@ -215,6 +215,7 @@ func (s *Server) createPost() http.HandlerFunc {
 						return
 					}
 					w.WriteHeader(http.StatusServiceUnavailable)
+					return
 				default:
 					handleRPCError(w, err)
 					return

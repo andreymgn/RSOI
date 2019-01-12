@@ -83,7 +83,7 @@ services:
 
   post:
     build: .
-    command: ["RSOI", "-service", "post", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=post password=postpass dbname=post sslmode=disable port=5432 host=psql_post", "-redis-addr", "redis_post:6379", "-redis-db", "0"]
+    command: ["/RSOI", "-service", "post", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=post password=postpass dbname=post sslmode=disable port=5432 host=psql_post", "-redis-addr", "redis_post:6379", "-redis-db", "0"]
     expose:
       - "8080"
     links:
@@ -97,7 +97,7 @@ services:
 
   comment:
     build: .
-    command: ["RSOI", "-service", "comment", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=comment password=commentpass dbname=comment sslmode=disable port=5432 host=psql_comment", "-redis-addr", "redis_comment:6379", "-redis-db", "0"]
+    command: ["/RSOI", "-service", "comment", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=comment password=commentpass dbname=comment sslmode=disable port=5432 host=psql_comment", "-redis-addr", "redis_comment:6379", "-redis-db", "0"]
     expose:
       - "8080"
     restart: on-failure
@@ -112,7 +112,7 @@ services:
 
   poststats:
     build: .
-    command: ["RSOI", "-service", "poststats", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=poststats password=poststatspass dbname=poststats sslmode=disable port=5432 host=psql_poststats", "-redis-addr", "redis_poststats:6379", "-redis-db", "0"]
+    command: ["/RSOI", "-service", "poststats", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=poststats password=poststatspass dbname=poststats sslmode=disable port=5432 host=psql_poststats", "-redis-addr", "redis_poststats:6379", "-redis-db", "0"]
     expose:
       - "8080"
     restart: on-failure
@@ -127,7 +127,7 @@ services:
 
   user:
     build: .
-    command: ["RSOI", "-service", "user", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=user password=userpass dbname=user sslmode=disable port=5432 host=psql_user", "-redis-addr", "redis_user:6379", "-redis-db", "0"]
+    command: ["/RSOI", "-service", "user", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=user password=userpass dbname=user sslmode=disable port=5432 host=psql_user", "-redis-addr", "redis_user:6379", "-redis-db", "0"]
     expose:
       - "8080"
     restart: on-failure
@@ -142,7 +142,7 @@ services:
 
   api:
     build: .
-    command: RSOI -service api -port 8080 -post-server "post:8080" -comment-server "comment:8080" -post-stats-server "poststats:8080" -user-server "user:8080" -jaeger-addr jaeger:6831
+    command: /RSOI -service api -port 8080 -post-server "post:8080" -comment-server "comment:8080" -post-stats-server "poststats:8080" -user-server "user:8080" -jaeger-addr jaeger:6831
     ports:
       - "8080:8080"
     expose:

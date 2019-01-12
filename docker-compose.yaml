@@ -82,6 +82,7 @@ services:
         - "16686:16686"
 
   post:
+    image: andreymgn/rsoi-post
     build: .
     command: ["/RSOI", "-service", "post", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=post password=postpass dbname=post sslmode=disable port=5432 host=psql_post", "-redis-addr", "redis_post:6379", "-redis-db", "0"]
     expose:
@@ -96,6 +97,7 @@ services:
       - redis_post
 
   comment:
+    image: andreymgn/rsoi-comment
     build: .
     command: ["/RSOI", "-service", "comment", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=comment password=commentpass dbname=comment sslmode=disable port=5432 host=psql_comment", "-redis-addr", "redis_comment:6379", "-redis-db", "0"]
     expose:
@@ -111,6 +113,7 @@ services:
       - redis_comment
 
   poststats:
+    image: andreymgn/rsoi-poststats
     build: .
     command: ["/RSOI", "-service", "poststats", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=poststats password=poststatspass dbname=poststats sslmode=disable port=5432 host=psql_poststats", "-redis-addr", "redis_poststats:6379", "-redis-db", "0"]
     expose:
@@ -126,6 +129,7 @@ services:
       - redis_poststats
 
   user:
+    image: andreymgn/rsoi-user
     build: .
     command: ["/RSOI", "-service", "user", "-port", "8080", "-jaeger-addr", "jaeger:6831", "-conn", "user=user password=userpass dbname=user sslmode=disable port=5432 host=psql_user", "-redis-addr", "redis_user:6379", "-redis-db", "0"]
     expose:
@@ -141,6 +145,7 @@ services:
       - redis_user
 
   api:
+    image: andreymgn/rsoi-api
     build: .
     command: /RSOI -service api -port 8080 -post-server "post:8080" -comment-server "comment:8080" -post-stats-server "poststats:8080" -user-server "user:8080" -jaeger-addr jaeger:6831
     ports:
@@ -162,6 +167,7 @@ services:
       - user
 
   frontend:
+    image: andreymgn/rsoi-frontend
     build: services/frontend/
     command: nginx -g 'daemon off;'
     ports:

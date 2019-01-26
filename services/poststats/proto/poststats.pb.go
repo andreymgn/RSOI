@@ -3,11 +3,9 @@
 
 package poststats
 
-import (
-	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
-	math "math"
-)
+import proto "github.com/golang/protobuf/proto"
+import fmt "fmt"
+import math "math"
 
 import (
 	context "golang.org/x/net/context"
@@ -36,17 +34,16 @@ func (m *GetPostStatsRequest) Reset()         { *m = GetPostStatsRequest{} }
 func (m *GetPostStatsRequest) String() string { return proto.CompactTextString(m) }
 func (*GetPostStatsRequest) ProtoMessage()    {}
 func (*GetPostStatsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5c445b7697d78eb, []int{0}
+	return fileDescriptor_poststats_ff7514069a662f82, []int{0}
 }
-
 func (m *GetPostStatsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetPostStatsRequest.Unmarshal(m, b)
 }
 func (m *GetPostStatsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_GetPostStatsRequest.Marshal(b, m, deterministic)
 }
-func (m *GetPostStatsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetPostStatsRequest.Merge(m, src)
+func (dst *GetPostStatsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetPostStatsRequest.Merge(dst, src)
 }
 func (m *GetPostStatsRequest) XXX_Size() int {
 	return xxx_messageInfo_GetPostStatsRequest.Size(m)
@@ -78,17 +75,16 @@ func (m *SinglePostStats) Reset()         { *m = SinglePostStats{} }
 func (m *SinglePostStats) String() string { return proto.CompactTextString(m) }
 func (*SinglePostStats) ProtoMessage()    {}
 func (*SinglePostStats) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5c445b7697d78eb, []int{1}
+	return fileDescriptor_poststats_ff7514069a662f82, []int{1}
 }
-
 func (m *SinglePostStats) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SinglePostStats.Unmarshal(m, b)
 }
 func (m *SinglePostStats) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SinglePostStats.Marshal(b, m, deterministic)
 }
-func (m *SinglePostStats) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SinglePostStats.Merge(m, src)
+func (dst *SinglePostStats) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SinglePostStats.Merge(dst, src)
 }
 func (m *SinglePostStats) XXX_Size() int {
 	return xxx_messageInfo_SinglePostStats.Size(m)
@@ -139,17 +135,16 @@ func (m *CreatePostStatsRequest) Reset()         { *m = CreatePostStatsRequest{}
 func (m *CreatePostStatsRequest) String() string { return proto.CompactTextString(m) }
 func (*CreatePostStatsRequest) ProtoMessage()    {}
 func (*CreatePostStatsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5c445b7697d78eb, []int{2}
+	return fileDescriptor_poststats_ff7514069a662f82, []int{2}
 }
-
 func (m *CreatePostStatsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreatePostStatsRequest.Unmarshal(m, b)
 }
 func (m *CreatePostStatsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CreatePostStatsRequest.Marshal(b, m, deterministic)
 }
-func (m *CreatePostStatsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreatePostStatsRequest.Merge(m, src)
+func (dst *CreatePostStatsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreatePostStatsRequest.Merge(dst, src)
 }
 func (m *CreatePostStatsRequest) XXX_Size() int {
 	return xxx_messageInfo_CreatePostStatsRequest.Size(m)
@@ -186,17 +181,16 @@ func (m *LikePostRequest) Reset()         { *m = LikePostRequest{} }
 func (m *LikePostRequest) String() string { return proto.CompactTextString(m) }
 func (*LikePostRequest) ProtoMessage()    {}
 func (*LikePostRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5c445b7697d78eb, []int{3}
+	return fileDescriptor_poststats_ff7514069a662f82, []int{3}
 }
-
 func (m *LikePostRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_LikePostRequest.Unmarshal(m, b)
 }
 func (m *LikePostRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_LikePostRequest.Marshal(b, m, deterministic)
 }
-func (m *LikePostRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_LikePostRequest.Merge(m, src)
+func (dst *LikePostRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LikePostRequest.Merge(dst, src)
 }
 func (m *LikePostRequest) XXX_Size() int {
 	return xxx_messageInfo_LikePostRequest.Size(m)
@@ -231,17 +225,16 @@ func (m *LikePostResponse) Reset()         { *m = LikePostResponse{} }
 func (m *LikePostResponse) String() string { return proto.CompactTextString(m) }
 func (*LikePostResponse) ProtoMessage()    {}
 func (*LikePostResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5c445b7697d78eb, []int{4}
+	return fileDescriptor_poststats_ff7514069a662f82, []int{4}
 }
-
 func (m *LikePostResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_LikePostResponse.Unmarshal(m, b)
 }
 func (m *LikePostResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_LikePostResponse.Marshal(b, m, deterministic)
 }
-func (m *LikePostResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_LikePostResponse.Merge(m, src)
+func (dst *LikePostResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LikePostResponse.Merge(dst, src)
 }
 func (m *LikePostResponse) XXX_Size() int {
 	return xxx_messageInfo_LikePostResponse.Size(m)
@@ -264,17 +257,16 @@ func (m *DislikePostRequest) Reset()         { *m = DislikePostRequest{} }
 func (m *DislikePostRequest) String() string { return proto.CompactTextString(m) }
 func (*DislikePostRequest) ProtoMessage()    {}
 func (*DislikePostRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5c445b7697d78eb, []int{5}
+	return fileDescriptor_poststats_ff7514069a662f82, []int{5}
 }
-
 func (m *DislikePostRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DislikePostRequest.Unmarshal(m, b)
 }
 func (m *DislikePostRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_DislikePostRequest.Marshal(b, m, deterministic)
 }
-func (m *DislikePostRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DislikePostRequest.Merge(m, src)
+func (dst *DislikePostRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DislikePostRequest.Merge(dst, src)
 }
 func (m *DislikePostRequest) XXX_Size() int {
 	return xxx_messageInfo_DislikePostRequest.Size(m)
@@ -309,17 +301,16 @@ func (m *DislikePostResponse) Reset()         { *m = DislikePostResponse{} }
 func (m *DislikePostResponse) String() string { return proto.CompactTextString(m) }
 func (*DislikePostResponse) ProtoMessage()    {}
 func (*DislikePostResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5c445b7697d78eb, []int{6}
+	return fileDescriptor_poststats_ff7514069a662f82, []int{6}
 }
-
 func (m *DislikePostResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DislikePostResponse.Unmarshal(m, b)
 }
 func (m *DislikePostResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_DislikePostResponse.Marshal(b, m, deterministic)
 }
-func (m *DislikePostResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DislikePostResponse.Merge(m, src)
+func (dst *DislikePostResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DislikePostResponse.Merge(dst, src)
 }
 func (m *DislikePostResponse) XXX_Size() int {
 	return xxx_messageInfo_DislikePostResponse.Size(m)
@@ -342,17 +333,16 @@ func (m *IncreaseViewsRequest) Reset()         { *m = IncreaseViewsRequest{} }
 func (m *IncreaseViewsRequest) String() string { return proto.CompactTextString(m) }
 func (*IncreaseViewsRequest) ProtoMessage()    {}
 func (*IncreaseViewsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5c445b7697d78eb, []int{7}
+	return fileDescriptor_poststats_ff7514069a662f82, []int{7}
 }
-
 func (m *IncreaseViewsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_IncreaseViewsRequest.Unmarshal(m, b)
 }
 func (m *IncreaseViewsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_IncreaseViewsRequest.Marshal(b, m, deterministic)
 }
-func (m *IncreaseViewsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_IncreaseViewsRequest.Merge(m, src)
+func (dst *IncreaseViewsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IncreaseViewsRequest.Merge(dst, src)
 }
 func (m *IncreaseViewsRequest) XXX_Size() int {
 	return xxx_messageInfo_IncreaseViewsRequest.Size(m)
@@ -387,17 +377,16 @@ func (m *IncreaseViewsResponse) Reset()         { *m = IncreaseViewsResponse{} }
 func (m *IncreaseViewsResponse) String() string { return proto.CompactTextString(m) }
 func (*IncreaseViewsResponse) ProtoMessage()    {}
 func (*IncreaseViewsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5c445b7697d78eb, []int{8}
+	return fileDescriptor_poststats_ff7514069a662f82, []int{8}
 }
-
 func (m *IncreaseViewsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_IncreaseViewsResponse.Unmarshal(m, b)
 }
 func (m *IncreaseViewsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_IncreaseViewsResponse.Marshal(b, m, deterministic)
 }
-func (m *IncreaseViewsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_IncreaseViewsResponse.Merge(m, src)
+func (dst *IncreaseViewsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IncreaseViewsResponse.Merge(dst, src)
 }
 func (m *IncreaseViewsResponse) XXX_Size() int {
 	return xxx_messageInfo_IncreaseViewsResponse.Size(m)
@@ -420,17 +409,16 @@ func (m *DeletePostStatsRequest) Reset()         { *m = DeletePostStatsRequest{}
 func (m *DeletePostStatsRequest) String() string { return proto.CompactTextString(m) }
 func (*DeletePostStatsRequest) ProtoMessage()    {}
 func (*DeletePostStatsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5c445b7697d78eb, []int{9}
+	return fileDescriptor_poststats_ff7514069a662f82, []int{9}
 }
-
 func (m *DeletePostStatsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeletePostStatsRequest.Unmarshal(m, b)
 }
 func (m *DeletePostStatsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_DeletePostStatsRequest.Marshal(b, m, deterministic)
 }
-func (m *DeletePostStatsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeletePostStatsRequest.Merge(m, src)
+func (dst *DeletePostStatsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeletePostStatsRequest.Merge(dst, src)
 }
 func (m *DeletePostStatsRequest) XXX_Size() int {
 	return xxx_messageInfo_DeletePostStatsRequest.Size(m)
@@ -465,17 +453,16 @@ func (m *DeletePostStatsResponse) Reset()         { *m = DeletePostStatsResponse
 func (m *DeletePostStatsResponse) String() string { return proto.CompactTextString(m) }
 func (*DeletePostStatsResponse) ProtoMessage()    {}
 func (*DeletePostStatsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5c445b7697d78eb, []int{10}
+	return fileDescriptor_poststats_ff7514069a662f82, []int{10}
 }
-
 func (m *DeletePostStatsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeletePostStatsResponse.Unmarshal(m, b)
 }
 func (m *DeletePostStatsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_DeletePostStatsResponse.Marshal(b, m, deterministic)
 }
-func (m *DeletePostStatsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeletePostStatsResponse.Merge(m, src)
+func (dst *DeletePostStatsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeletePostStatsResponse.Merge(dst, src)
 }
 func (m *DeletePostStatsResponse) XXX_Size() int {
 	return xxx_messageInfo_DeletePostStatsResponse.Size(m)
@@ -498,17 +485,16 @@ func (m *GetTokenRequest) Reset()         { *m = GetTokenRequest{} }
 func (m *GetTokenRequest) String() string { return proto.CompactTextString(m) }
 func (*GetTokenRequest) ProtoMessage()    {}
 func (*GetTokenRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5c445b7697d78eb, []int{11}
+	return fileDescriptor_poststats_ff7514069a662f82, []int{11}
 }
-
 func (m *GetTokenRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetTokenRequest.Unmarshal(m, b)
 }
 func (m *GetTokenRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_GetTokenRequest.Marshal(b, m, deterministic)
 }
-func (m *GetTokenRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetTokenRequest.Merge(m, src)
+func (dst *GetTokenRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetTokenRequest.Merge(dst, src)
 }
 func (m *GetTokenRequest) XXX_Size() int {
 	return xxx_messageInfo_GetTokenRequest.Size(m)
@@ -544,17 +530,16 @@ func (m *GetTokenResponse) Reset()         { *m = GetTokenResponse{} }
 func (m *GetTokenResponse) String() string { return proto.CompactTextString(m) }
 func (*GetTokenResponse) ProtoMessage()    {}
 func (*GetTokenResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5c445b7697d78eb, []int{12}
+	return fileDescriptor_poststats_ff7514069a662f82, []int{12}
 }
-
 func (m *GetTokenResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetTokenResponse.Unmarshal(m, b)
 }
 func (m *GetTokenResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_GetTokenResponse.Marshal(b, m, deterministic)
 }
-func (m *GetTokenResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetTokenResponse.Merge(m, src)
+func (dst *GetTokenResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetTokenResponse.Merge(dst, src)
 }
 func (m *GetTokenResponse) XXX_Size() int {
 	return xxx_messageInfo_GetTokenResponse.Size(m)
@@ -859,10 +844,10 @@ var _PostStats_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("services/poststats/proto/poststats.proto", fileDescriptor_d5c445b7697d78eb)
+	proto.RegisterFile("services/poststats/proto/poststats.proto", fileDescriptor_poststats_ff7514069a662f82)
 }
 
-var fileDescriptor_d5c445b7697d78eb = []byte{
+var fileDescriptor_poststats_ff7514069a662f82 = []byte{
 	// 428 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x94, 0x5f, 0x6f, 0xa2, 0x40,
 	0x10, 0xc0, 0x83, 0xa7, 0x77, 0x32, 0xde, 0x05, 0xb3, 0xfe, 0xe3, 0xb8, 0xab, 0xa5, 0x3c, 0xf1,

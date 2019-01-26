@@ -3,12 +3,10 @@
 
 package comment
 
-import (
-	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
-	timestamp "github.com/golang/protobuf/ptypes/timestamp"
-	math "math"
-)
+import proto "github.com/golang/protobuf/proto"
+import fmt "fmt"
+import math "math"
+import timestamp "github.com/golang/protobuf/ptypes/timestamp"
 
 import (
 	context "golang.org/x/net/context"
@@ -40,17 +38,16 @@ func (m *ListCommentsRequest) Reset()         { *m = ListCommentsRequest{} }
 func (m *ListCommentsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListCommentsRequest) ProtoMessage()    {}
 func (*ListCommentsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5186d1a296b1a7f5, []int{0}
+	return fileDescriptor_comment_8122b6d9af0a46b6, []int{0}
 }
-
 func (m *ListCommentsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListCommentsRequest.Unmarshal(m, b)
 }
 func (m *ListCommentsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ListCommentsRequest.Marshal(b, m, deterministic)
 }
-func (m *ListCommentsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListCommentsRequest.Merge(m, src)
+func (dst *ListCommentsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListCommentsRequest.Merge(dst, src)
 }
 func (m *ListCommentsRequest) XXX_Size() int {
 	return xxx_messageInfo_ListCommentsRequest.Size(m)
@@ -102,17 +99,16 @@ func (m *ListCommentsResponse) Reset()         { *m = ListCommentsResponse{} }
 func (m *ListCommentsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListCommentsResponse) ProtoMessage()    {}
 func (*ListCommentsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5186d1a296b1a7f5, []int{1}
+	return fileDescriptor_comment_8122b6d9af0a46b6, []int{1}
 }
-
 func (m *ListCommentsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListCommentsResponse.Unmarshal(m, b)
 }
 func (m *ListCommentsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ListCommentsResponse.Marshal(b, m, deterministic)
 }
-func (m *ListCommentsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListCommentsResponse.Merge(m, src)
+func (dst *ListCommentsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListCommentsResponse.Merge(dst, src)
 }
 func (m *ListCommentsResponse) XXX_Size() int {
 	return xxx_messageInfo_ListCommentsResponse.Size(m)
@@ -162,17 +158,16 @@ func (m *SingleComment) Reset()         { *m = SingleComment{} }
 func (m *SingleComment) String() string { return proto.CompactTextString(m) }
 func (*SingleComment) ProtoMessage()    {}
 func (*SingleComment) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5186d1a296b1a7f5, []int{2}
+	return fileDescriptor_comment_8122b6d9af0a46b6, []int{2}
 }
-
 func (m *SingleComment) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SingleComment.Unmarshal(m, b)
 }
 func (m *SingleComment) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SingleComment.Marshal(b, m, deterministic)
 }
-func (m *SingleComment) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SingleComment.Merge(m, src)
+func (dst *SingleComment) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SingleComment.Merge(dst, src)
 }
 func (m *SingleComment) XXX_Size() int {
 	return xxx_messageInfo_SingleComment.Size(m)
@@ -254,17 +249,16 @@ func (m *CreateCommentRequest) Reset()         { *m = CreateCommentRequest{} }
 func (m *CreateCommentRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateCommentRequest) ProtoMessage()    {}
 func (*CreateCommentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5186d1a296b1a7f5, []int{3}
+	return fileDescriptor_comment_8122b6d9af0a46b6, []int{3}
 }
-
 func (m *CreateCommentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateCommentRequest.Unmarshal(m, b)
 }
 func (m *CreateCommentRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CreateCommentRequest.Marshal(b, m, deterministic)
 }
-func (m *CreateCommentRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateCommentRequest.Merge(m, src)
+func (dst *CreateCommentRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateCommentRequest.Merge(dst, src)
 }
 func (m *CreateCommentRequest) XXX_Size() int {
 	return xxx_messageInfo_CreateCommentRequest.Size(m)
@@ -323,17 +317,16 @@ func (m *UpdateCommentRequest) Reset()         { *m = UpdateCommentRequest{} }
 func (m *UpdateCommentRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdateCommentRequest) ProtoMessage()    {}
 func (*UpdateCommentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5186d1a296b1a7f5, []int{4}
+	return fileDescriptor_comment_8122b6d9af0a46b6, []int{4}
 }
-
 func (m *UpdateCommentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateCommentRequest.Unmarshal(m, b)
 }
 func (m *UpdateCommentRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_UpdateCommentRequest.Marshal(b, m, deterministic)
 }
-func (m *UpdateCommentRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UpdateCommentRequest.Merge(m, src)
+func (dst *UpdateCommentRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateCommentRequest.Merge(dst, src)
 }
 func (m *UpdateCommentRequest) XXX_Size() int {
 	return xxx_messageInfo_UpdateCommentRequest.Size(m)
@@ -375,17 +368,16 @@ func (m *UpdateCommentResponse) Reset()         { *m = UpdateCommentResponse{} }
 func (m *UpdateCommentResponse) String() string { return proto.CompactTextString(m) }
 func (*UpdateCommentResponse) ProtoMessage()    {}
 func (*UpdateCommentResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5186d1a296b1a7f5, []int{5}
+	return fileDescriptor_comment_8122b6d9af0a46b6, []int{5}
 }
-
 func (m *UpdateCommentResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateCommentResponse.Unmarshal(m, b)
 }
 func (m *UpdateCommentResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_UpdateCommentResponse.Marshal(b, m, deterministic)
 }
-func (m *UpdateCommentResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UpdateCommentResponse.Merge(m, src)
+func (dst *UpdateCommentResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateCommentResponse.Merge(dst, src)
 }
 func (m *UpdateCommentResponse) XXX_Size() int {
 	return xxx_messageInfo_UpdateCommentResponse.Size(m)
@@ -408,17 +400,16 @@ func (m *RemoveContentRequest) Reset()         { *m = RemoveContentRequest{} }
 func (m *RemoveContentRequest) String() string { return proto.CompactTextString(m) }
 func (*RemoveContentRequest) ProtoMessage()    {}
 func (*RemoveContentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5186d1a296b1a7f5, []int{6}
+	return fileDescriptor_comment_8122b6d9af0a46b6, []int{6}
 }
-
 func (m *RemoveContentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveContentRequest.Unmarshal(m, b)
 }
 func (m *RemoveContentRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_RemoveContentRequest.Marshal(b, m, deterministic)
 }
-func (m *RemoveContentRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RemoveContentRequest.Merge(m, src)
+func (dst *RemoveContentRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RemoveContentRequest.Merge(dst, src)
 }
 func (m *RemoveContentRequest) XXX_Size() int {
 	return xxx_messageInfo_RemoveContentRequest.Size(m)
@@ -453,17 +444,16 @@ func (m *RemoveContentResponse) Reset()         { *m = RemoveContentResponse{} }
 func (m *RemoveContentResponse) String() string { return proto.CompactTextString(m) }
 func (*RemoveContentResponse) ProtoMessage()    {}
 func (*RemoveContentResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5186d1a296b1a7f5, []int{7}
+	return fileDescriptor_comment_8122b6d9af0a46b6, []int{7}
 }
-
 func (m *RemoveContentResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveContentResponse.Unmarshal(m, b)
 }
 func (m *RemoveContentResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_RemoveContentResponse.Marshal(b, m, deterministic)
 }
-func (m *RemoveContentResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RemoveContentResponse.Merge(m, src)
+func (dst *RemoveContentResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RemoveContentResponse.Merge(dst, src)
 }
 func (m *RemoveContentResponse) XXX_Size() int {
 	return xxx_messageInfo_RemoveContentResponse.Size(m)
@@ -486,17 +476,16 @@ func (m *DeleteCommentRequest) Reset()         { *m = DeleteCommentRequest{} }
 func (m *DeleteCommentRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteCommentRequest) ProtoMessage()    {}
 func (*DeleteCommentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5186d1a296b1a7f5, []int{8}
+	return fileDescriptor_comment_8122b6d9af0a46b6, []int{8}
 }
-
 func (m *DeleteCommentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteCommentRequest.Unmarshal(m, b)
 }
 func (m *DeleteCommentRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_DeleteCommentRequest.Marshal(b, m, deterministic)
 }
-func (m *DeleteCommentRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteCommentRequest.Merge(m, src)
+func (dst *DeleteCommentRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteCommentRequest.Merge(dst, src)
 }
 func (m *DeleteCommentRequest) XXX_Size() int {
 	return xxx_messageInfo_DeleteCommentRequest.Size(m)
@@ -531,17 +520,16 @@ func (m *DeleteCommentResponse) Reset()         { *m = DeleteCommentResponse{} }
 func (m *DeleteCommentResponse) String() string { return proto.CompactTextString(m) }
 func (*DeleteCommentResponse) ProtoMessage()    {}
 func (*DeleteCommentResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5186d1a296b1a7f5, []int{9}
+	return fileDescriptor_comment_8122b6d9af0a46b6, []int{9}
 }
-
 func (m *DeleteCommentResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteCommentResponse.Unmarshal(m, b)
 }
 func (m *DeleteCommentResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_DeleteCommentResponse.Marshal(b, m, deterministic)
 }
-func (m *DeleteCommentResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteCommentResponse.Merge(m, src)
+func (dst *DeleteCommentResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteCommentResponse.Merge(dst, src)
 }
 func (m *DeleteCommentResponse) XXX_Size() int {
 	return xxx_messageInfo_DeleteCommentResponse.Size(m)
@@ -564,17 +552,16 @@ func (m *GetTokenRequest) Reset()         { *m = GetTokenRequest{} }
 func (m *GetTokenRequest) String() string { return proto.CompactTextString(m) }
 func (*GetTokenRequest) ProtoMessage()    {}
 func (*GetTokenRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5186d1a296b1a7f5, []int{10}
+	return fileDescriptor_comment_8122b6d9af0a46b6, []int{10}
 }
-
 func (m *GetTokenRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetTokenRequest.Unmarshal(m, b)
 }
 func (m *GetTokenRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_GetTokenRequest.Marshal(b, m, deterministic)
 }
-func (m *GetTokenRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetTokenRequest.Merge(m, src)
+func (dst *GetTokenRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetTokenRequest.Merge(dst, src)
 }
 func (m *GetTokenRequest) XXX_Size() int {
 	return xxx_messageInfo_GetTokenRequest.Size(m)
@@ -610,17 +597,16 @@ func (m *GetTokenResponse) Reset()         { *m = GetTokenResponse{} }
 func (m *GetTokenResponse) String() string { return proto.CompactTextString(m) }
 func (*GetTokenResponse) ProtoMessage()    {}
 func (*GetTokenResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5186d1a296b1a7f5, []int{11}
+	return fileDescriptor_comment_8122b6d9af0a46b6, []int{11}
 }
-
 func (m *GetTokenResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetTokenResponse.Unmarshal(m, b)
 }
 func (m *GetTokenResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_GetTokenResponse.Marshal(b, m, deterministic)
 }
-func (m *GetTokenResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetTokenResponse.Merge(m, src)
+func (dst *GetTokenResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetTokenResponse.Merge(dst, src)
 }
 func (m *GetTokenResponse) XXX_Size() int {
 	return xxx_messageInfo_GetTokenResponse.Size(m)
@@ -649,17 +635,16 @@ func (m *GetOwnerRequest) Reset()         { *m = GetOwnerRequest{} }
 func (m *GetOwnerRequest) String() string { return proto.CompactTextString(m) }
 func (*GetOwnerRequest) ProtoMessage()    {}
 func (*GetOwnerRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5186d1a296b1a7f5, []int{12}
+	return fileDescriptor_comment_8122b6d9af0a46b6, []int{12}
 }
-
 func (m *GetOwnerRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetOwnerRequest.Unmarshal(m, b)
 }
 func (m *GetOwnerRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_GetOwnerRequest.Marshal(b, m, deterministic)
 }
-func (m *GetOwnerRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetOwnerRequest.Merge(m, src)
+func (dst *GetOwnerRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetOwnerRequest.Merge(dst, src)
 }
 func (m *GetOwnerRequest) XXX_Size() int {
 	return xxx_messageInfo_GetOwnerRequest.Size(m)
@@ -688,17 +673,16 @@ func (m *GetOwnerResponse) Reset()         { *m = GetOwnerResponse{} }
 func (m *GetOwnerResponse) String() string { return proto.CompactTextString(m) }
 func (*GetOwnerResponse) ProtoMessage()    {}
 func (*GetOwnerResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5186d1a296b1a7f5, []int{13}
+	return fileDescriptor_comment_8122b6d9af0a46b6, []int{13}
 }
-
 func (m *GetOwnerResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetOwnerResponse.Unmarshal(m, b)
 }
 func (m *GetOwnerResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_GetOwnerResponse.Marshal(b, m, deterministic)
 }
-func (m *GetOwnerResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetOwnerResponse.Merge(m, src)
+func (dst *GetOwnerResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetOwnerResponse.Merge(dst, src)
 }
 func (m *GetOwnerResponse) XXX_Size() int {
 	return xxx_messageInfo_GetOwnerResponse.Size(m)
@@ -1004,10 +988,10 @@ var _Comment_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("services/comment/proto/comment.proto", fileDescriptor_5186d1a296b1a7f5)
+	proto.RegisterFile("services/comment/proto/comment.proto", fileDescriptor_comment_8122b6d9af0a46b6)
 }
 
-var fileDescriptor_5186d1a296b1a7f5 = []byte{
+var fileDescriptor_comment_8122b6d9af0a46b6 = []byte{
 	// 613 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0x4d, 0x8f, 0xd3, 0x3c,
 	0x10, 0x56, 0x9a, 0x76, 0x9b, 0xce, 0xbe, 0xd5, 0xbb, 0x32, 0x05, 0x42, 0xb4, 0x2c, 0x55, 0xe0,

@@ -25,7 +25,7 @@ cover:
 	$(GOTOOL) cover -html=cp.out
 
 proto:
-	for f in pkg/**/proto/*.proto; do \
+	for f in services/**/proto/*.proto; do \
 		protoc --go_out=plugins=grpc:. $$f; \
 		echo compiled: $$f; \
 	done

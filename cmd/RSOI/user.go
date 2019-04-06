@@ -13,7 +13,8 @@ const (
 )
 
 func runUser(port int, connString, jaegerAddr, redisAddr, redisPassword string, redisDB int) error {
-	tracer, err := tracer.NewTracer("user", jaegerAddr)
+	tracer, closer, err := tracer.NewTracer("user", jaegerAddr)
+	defer closer.Close()
 	if err != nil {
 		log.Fatal(err)
 	}

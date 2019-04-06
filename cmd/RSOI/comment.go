@@ -13,7 +13,8 @@ const (
 )
 
 func runComment(port int, connString, jaegerAddr, redisAddr, redisPassword string, redisDB int) error {
-	tracer, err := tracer.NewTracer("comment", jaegerAddr)
+	tracer, closer, err := tracer.NewTracer("comment", jaegerAddr)
+	defer closer.Close()
 	if err != nil {
 		log.Fatal(err)
 	}

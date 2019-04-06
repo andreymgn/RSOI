@@ -14,7 +14,8 @@ import (
 )
 
 func runAPI(port int, postAddr, commentAddr, postStatsAddr, userAddr, jaegerAddr string) error {
-	tracer, err := tracer.NewTracer("api", jaegerAddr)
+	tracer, closer, err := tracer.NewTracer("api", jaegerAddr)
+	defer closer.Close()
 	if err != nil {
 		log.Fatal(err)
 	}

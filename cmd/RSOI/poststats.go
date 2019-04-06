@@ -13,7 +13,8 @@ const (
 )
 
 func runPostStats(port int, connString, jaegerAddr, redisAddr, redisPassword string, redisDB int) error {
-	tracer, err := tracer.NewTracer("poststats", jaegerAddr)
+	tracer, closer, err := tracer.NewTracer("poststats", jaegerAddr)
+	defer closer.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
